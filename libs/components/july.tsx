@@ -72,6 +72,7 @@ export default function July() {
   const [playbackDuration, setPlaybackDuration] = useState(0);
   const [playbackElapsed, setPlaybackElapsed] = useState(0);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [showHelpModal, setShowHelpModal] = useState(false);
 
   const currentSourceRef = useRef<AudioBufferSourceNode | null>(null);
   const confirmClearTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -242,8 +243,12 @@ export default function July() {
         return;
       }
 
-      // 2. Escape -> Stop speaking / silence July
+      // 2. Escape -> Close help modal if open, else Stop speaking / silence July
       if (e.key === 'Escape') {
+        if (showHelpModal) {
+          setShowHelpModal(false);
+          return;
+        }
         if (isResponding) {
           stopSpeaking();
           return;
@@ -285,7 +290,7 @@ export default function July() {
     };
     window.addEventListener('keydown', handleGlobalKeyDown);
     return () => window.removeEventListener('keydown', handleGlobalKeyDown);
-  }, [micStatus, isResponding, stopSpeaking]);
+  }, [micStatus, isResponding, stopSpeaking, showHelpModal]);
 
   // ── Teardown ───────────────────────────────────────────────────────────────
 
@@ -841,6 +846,15 @@ export default function July() {
         .control-btn:hover .tooltip-bubble {
           opacity: 1;
           transform: translateX(-50%) translateY(0);
+        }
+        .shortcuts-helper {
+          cursor: pointer;
+          transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .shortcuts-helper:hover {
+          color: rgba(160, 220, 255, 0.75) !important;
+          text-shadow: 0 0 8px rgba(0, 180, 255, 0.5);
+          transform: translateY(-1px);
         }
       `}</style>
 
@@ -2055,7 +2069,10 @@ export default function July() {
 
         {/* Keyboard Shortcuts Helper */}
         {micStatus === 'active' && (
-          <div
+          <button
+            type='button'
+            className='shortcuts-helper'
+            onClick={() => setShowHelpModal(true)}
             style={{
               marginTop: 12,
               fontSize: 10,
@@ -2065,14 +2082,229 @@ export default function July() {
               display: 'flex',
               gap: 16,
               userSelect: 'none',
-              pointerEvents: 'none',
+              pointerEvents: 'auto',
               animation: 'msg-in 0.5s ease forwards',
+              background: 'none',
+              border: 'none',
+              outline: 'none',
+              padding: 0,
             }}
+            title='Click to view interaction guide & commands'
           >
             <span>[Esc] Silence</span>
             <span>[⌘K / ⌃K] Clear</span>
             <span>[M] Mute</span>
             <span>[S] Speed</span>
+          </button>
+        )}
+
+        {/* Interaction Protocols Help Modal */}
+        {showHelpModal && (
+          // biome-ignore lint/a11y/useKeyWithClickEvents: Escape key already closes the modal globally
+          // biome-ignore lint/a11y/noStaticElementInteractions: backdrop click handler is standard for modal dismissal
+          <div
+            onClick={() => setShowHelpModal(false)}
+            style={{
+              position: 'fixed',
+              inset: 0,
+              zIndex: 300,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              background: 'rgba(3, 5, 12, 0.75)',
+              backdropFilter: 'blur(12px)',
+              animation: 'msg-in 0.25s ease forwards',
+            }}
+          >
+            {/* biome-ignore lint/a11y/useKeyWithClickEvents: stopPropagation doesn't trigger actions */}
+            {/* biome-ignore lint/a11y/noStaticElementInteractions: stopPropagation wrapper is standard */}
+            <div
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                width: '90%',
+                maxWidth: 460,
+                borderRadius: 24,
+                background: 'rgba(255, 255, 255, 0.02)',
+                border: '1px solid rgba(0, 180, 255, 0.2)',
+                boxShadow: '0 24px 64px rgba(0, 0, 0, 0.65), 0 0 30px rgba(0, 180, 255, 0.15)',
+                padding: '28px 24px',
+                position: 'relative',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 20,
+              }}
+            >
+              {/* Header */}
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
+                  paddingBottom: 14,
+                }}
+              >
+                <h3
+                  style={{
+                    fontSize: 14,
+                    fontWeight: 400,
+                    letterSpacing: '0.12em',
+                    textTransform: 'uppercase',
+                    color: 'rgba(0, 180, 255, 0.95)',
+                    textShadow: '0 0 8px rgba(0, 180, 255, 0.4)',
+                    margin: 0,
+                  }}
+                >
+                  Interaction Protocols
+                </h3>
+                <button
+                  type='button'
+                  onClick={() => setShowHelpModal(false)}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    outline: 'none',
+                    cursor: 'pointer',
+                    color: 'rgba(160, 220, 255, 0.5)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: 4,
+                    borderRadius: '50%',
+                    transition: 'all 0.2s',
+                  }}
+                  className='control-btn'
+                  aria-label='Close help modal'
+                >
+                  <IconX size={16} />
+                </button>
+              </div>
+
+              {/* Body */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 20, marginTop: 12 }}>
+                {/* Keyboard shortcuts */}
+                <div>
+                  <h4
+                    style={{
+                      fontSize: 11,
+                      fontWeight: 400,
+                      color: 'rgba(255, 255, 255, 0.8)',
+                      letterSpacing: '0.05em',
+                      marginBottom: 8,
+                      textTransform: 'uppercase',
+                    }}
+                  >
+                    Keyboard Shortcuts
+                  </h4>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    {[
+                      { keys: ['Esc'], desc: 'Silence July / Stop response playback' },
+                      { keys: ['⌘ K', '⌃ K'], desc: 'Clear conversation history' },
+                      { keys: ['M'], desc: 'Toggle audio feedback mute' },
+                      { keys: ['S'], desc: 'Cycle playback speed (1.0x → 1.2x → 1.5x)' },
+                      { keys: ['Any Key'], desc: 'Auto-focus prompt input box (when active)' },
+                    ].map((item) => (
+                      <div
+                        key={item.desc}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          fontSize: 12,
+                        }}
+                      >
+                        <span style={{ color: 'rgba(160, 220, 255, 0.7)', fontWeight: 300 }}>
+                          {item.desc}
+                        </span>
+                        <div style={{ display: 'flex', gap: 4 }}>
+                          {item.keys.map((k) => (
+                            <kbd
+                              key={k}
+                              style={{
+                                display: 'inline-block',
+                                padding: '2px 6px',
+                                fontSize: 10,
+                                fontWeight: 400,
+                                color: '#fff',
+                                background: 'rgba(255, 255, 255, 0.05)',
+                                border: '1px solid rgba(255, 255, 255, 0.08)',
+                                borderRadius: 4,
+                                boxShadow: '0 2px 0 rgba(0, 0, 0, 0.3)',
+                                fontFamily: 'inherit',
+                              }}
+                            >
+                              {k}
+                            </kbd>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Mouse Actions */}
+                <div>
+                  <h4
+                    style={{
+                      fontSize: 11,
+                      fontWeight: 400,
+                      color: 'rgba(255, 255, 255, 0.8)',
+                      letterSpacing: '0.05em',
+                      marginBottom: 8,
+                      textTransform: 'uppercase',
+                    }}
+                  >
+                    Control Panel & Gesture Bindings
+                  </h4>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    {[
+                      {
+                        action: 'Orb Interaction',
+                        desc: 'Click the central orb to activate microphone / cancel / silence response',
+                      },
+                      {
+                        action: 'Playback Ring',
+                        desc: 'Outer green ring displays remaining speech duration',
+                      },
+                      {
+                        action: 'Speed Selector',
+                        desc: 'Click top right number to throttle speech rate',
+                      },
+                      {
+                        action: 'Mute Button',
+                        desc: 'Click top right speaker icon to toggle sound response',
+                      },
+                      {
+                        action: 'Clear Button',
+                        desc: 'Click trash icon (double tap to confirm) to wipe chat logs',
+                      },
+                      {
+                        action: 'Reaction Badges',
+                        desc: 'Click thumbs up/down icons under message bubbles to feedback',
+                      },
+                    ].map((item) => (
+                      <div
+                        key={item.action}
+                        style={{ display: 'flex', flexDirection: 'column', gap: 2, fontSize: 12 }}
+                      >
+                        <span style={{ color: 'rgba(0, 180, 255, 0.85)', fontWeight: 400 }}>
+                          {item.action}
+                        </span>
+                        <span
+                          style={{
+                            color: 'rgba(160, 220, 255, 0.55)',
+                            fontWeight: 300,
+                            fontSize: 11,
+                          }}
+                        >
+                          {item.desc}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         )}
       </div>
