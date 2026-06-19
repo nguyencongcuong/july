@@ -5,12 +5,20 @@ import { speechToText, textToSpeech } from './eleven-labs.actions';
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
+export interface GroundingSource {
+  title: string;
+  uri: string;
+}
+
 interface ChatMessage {
   role: string;
   parts: { text: string }[];
 }
 
-export async function ask(prompt: string, history: ChatMessage[] = []): Promise<string | null> {
+export async function ask(
+  prompt: string,
+  history: ChatMessage[] = []
+): Promise<{ text: string | null; sources: GroundingSource[] }> {
   const chat = ai.chats.create({
     model: 'gemini-2.5-flash',
     history: history,
@@ -64,13 +72,31 @@ export async function ask(prompt: string, history: ChatMessage[] = []): Promise<
 
   console.log(chatHistory);
 
-  return response.text ?? null;
+  const candidate = response.candidates?.[0];
+  const chunks = candidate?.groundingMetadata?.groundingChunks || [];
+  const sources: GroundingSource[] = [];
+  const seenUris = new Set<string>();
+
+  for (const chunk of chunks) {
+    const web = chunk.web;
+    if (web?.uri) {
+      const uri = web.uri;
+      if (!seenUris.has(uri)) {
+        seenUris.add(uri);
+        const title = web.title || 'Web Source';
+        sources.push({ title, uri });
+      }
+    }
+  }
+
+  return { text: response.text ?? null, sources };
 }
 
 interface TalkResult {
   transcript: string;
   answer: string;
   audioDataUrl: string;
+  sources?: GroundingSource[];
 }
 
 export async function talk(formData: FormData): Promise<TalkResult | null> {
@@ -93,7 +119,7 @@ export async function talk(formData: FormData): Promise<TalkResult | null> {
     console.error('Failed to parse chat history:', err);
   }
 
-  const answer = await ask(transcript, history);
+  const { text: answer, sources } = await ask(transcript, history);
   if (!answer) return null;
 
   const muteSpeech = formData.get('muteSpeech') === 'true';
@@ -102,7 +128,7 @@ export async function talk(formData: FormData): Promise<TalkResult | null> {
   console.log('[User] asks:', transcript);
   console.log('[July] answers:', answer);
 
-  return { transcript, answer, audioDataUrl };
+  return { transcript, answer, audioDataUrl, sources };
 }
 
 interface ClientMessage {
@@ -120,7 +146,7 @@ export async function talkText(
     parts: [{ text: msg.text }],
   }));
 
-  const answer = await ask(prompt, mappedHistory);
+  const { text: answer, sources } = await ask(prompt, mappedHistory);
   if (!answer) return null;
 
   const audioDataUrl = muteSpeech ? '' : ((await textToSpeech(answer)) ?? '');
@@ -128,5 +154,5 @@ export async function talkText(
   console.log('[User] asks (text):', prompt);
   console.log('[July] answers:', answer);
 
-  return { transcript: prompt, answer, audioDataUrl };
+  return { transcript: prompt, answer, audioDataUrl, sources };
 }

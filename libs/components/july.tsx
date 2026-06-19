@@ -14,9 +14,15 @@ interface AudioFrame {
   isSpeaking: boolean;
 }
 
+interface GroundingSource {
+  title: string;
+  uri: string;
+}
+
 interface Message {
   role: 'user' | 'july';
   text: string;
+  sources?: GroundingSource[];
 }
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -176,7 +182,7 @@ export default function July() {
         setMessages((prev) => [
           ...prev,
           { role: 'user', text: result.transcript },
-          { role: 'july', text: result.answer },
+          { role: 'july', text: result.answer, sources: result.sources },
         ]);
 
         if (!isMutedRef.current && result.audioDataUrl && audioCtxRef.current) {
@@ -213,7 +219,10 @@ export default function July() {
       setIsProcessing(false);
 
       if (result) {
-        setMessages((prev) => [...prev, { role: 'july', text: result.answer }]);
+        setMessages((prev) => [
+          ...prev,
+          { role: 'july', text: result.answer, sources: result.sources },
+        ]);
 
         if (!isMutedRef.current && result.audioDataUrl) {
           try {
@@ -430,6 +439,13 @@ export default function July() {
           border-color: rgba(0, 180, 255, 0.3) !important;
           box-shadow: 0 0 15px rgba(0, 180, 255, 0.15), inset 0 0 10px rgba(0, 180, 255, 0.02) !important;
           background: rgba(255, 255, 255, 0.04) !important;
+        }
+
+        .source-link:hover {
+          background: rgba(255, 255, 255, 0.1) !important;
+          border-color: rgba(0, 180, 255, 0.3) !important;
+          color: rgba(255, 255, 255, 1) !important;
+          box-shadow: 0 0 10px rgba(0, 180, 255, 0.1) !important;
         }
       `}</style>
 
@@ -966,6 +982,31 @@ export default function July() {
                   }}
                 >
                   {msg.text}
+                  {msg.sources && msg.sources.length > 0 && (
+                    <div style={{ marginTop: 8, display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                      {msg.sources.map((src) => (
+                        <a
+                          key={src.uri}
+                          href={src.uri}
+                          target='_blank'
+                          rel='noopener noreferrer'
+                          style={{
+                            fontSize: 10,
+                            padding: '3px 8px',
+                            borderRadius: 8,
+                            background: 'rgba(255, 255, 255, 0.05)',
+                            border: '1px solid rgba(255, 255, 255, 0.08)',
+                            color: 'rgba(160, 220, 255, 0.8)',
+                            textDecoration: 'none',
+                            transition: 'all 0.2s',
+                          }}
+                          className='source-link'
+                        >
+                          🌐 {src.title}
+                        </a>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
