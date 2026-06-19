@@ -1,0 +1,10 @@
+{
+  "git.autofetch": true,
+  "editor.tabCompletion": "on",
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "biomejs.biome",
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": "always",
+    "source.fixAll": "always"
+  }
+}
