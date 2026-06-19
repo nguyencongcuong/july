@@ -1420,7 +1420,13 @@ export default function July() {
                   }
                 }}
                 disabled={isProcessing || isResponding}
-                placeholder={PLACEHOLDERS[placeholderIdx]}
+                placeholder={
+                  isProcessing
+                    ? 'Thinking...'
+                    : isResponding
+                      ? 'Speaking...'
+                      : PLACEHOLDERS[placeholderIdx]
+                }
                 style={{
                   flex: 1,
                   padding: '12px 64px 12px 18px',
