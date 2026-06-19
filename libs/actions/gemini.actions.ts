@@ -104,3 +104,29 @@ export async function talk(formData: FormData): Promise<TalkResult | null> {
 
   return { transcript, answer, audioDataUrl };
 }
+
+interface ClientMessage {
+  role: string;
+  text: string;
+}
+
+export async function talkText(
+  prompt: string,
+  history: ClientMessage[] = [],
+  muteSpeech = false
+): Promise<TalkResult | null> {
+  const mappedHistory = history.map((msg) => ({
+    role: msg.role === 'user' ? 'user' : 'model',
+    parts: [{ text: msg.text }],
+  }));
+
+  const answer = await ask(prompt, mappedHistory);
+  if (!answer) return null;
+
+  const audioDataUrl = muteSpeech ? '' : ((await textToSpeech(answer)) ?? '');
+
+  console.log('[User] asks (text):', prompt);
+  console.log('[July] answers:', answer);
+
+  return { transcript: prompt, answer, audioDataUrl };
+}

@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { talk } from '../actions/gemini.actions';
+import { talk, talkText } from '../actions/gemini.actions';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -201,6 +201,53 @@ export default function July() {
     }, STOP_DEBOUNCE_MS);
   }, []);
 
+  const handlePrompt = useCallback(
+    async (promptText: string) => {
+      if (isProcessing || isResponding) return;
+
+      setMessages((prev) => [...prev, { role: 'user', text: promptText }]);
+
+      setIsProcessing(true);
+      const result = await talkText(promptText, messagesRef.current, isMutedRef.current);
+      setIsProcessing(false);
+
+      if (result) {
+        setMessages((prev) => [...prev, { role: 'july', text: result.answer }]);
+
+        if (!isMutedRef.current && result.audioDataUrl) {
+          try {
+            if (!audioCtxRef.current) {
+              audioCtxRef.current = new AudioContext();
+            }
+            const ctx = audioCtxRef.current;
+            if (ctx.state === 'suspended') {
+              await ctx.resume();
+            }
+            const base64 = result.audioDataUrl.split(',')[1];
+            const binaryStr = atob(base64);
+            const bytes = new Uint8Array(binaryStr.length);
+            for (let i = 0; i < binaryStr.length; i++) {
+              bytes[i] = binaryStr.charCodeAt(i);
+            }
+
+            const audioBuffer = await ctx.decodeAudioData(bytes.buffer as ArrayBuffer);
+            const source = ctx.createBufferSource();
+            source.buffer = audioBuffer;
+            source.playbackRate.value = playbackSpeedRef.current;
+            source.connect(ctx.destination);
+
+            setIsResponding(true);
+            source.onended = () => setIsResponding(false);
+            source.start();
+          } catch (err) {
+            console.error('[july] audio playback error:', err);
+          }
+        }
+      }
+    },
+    [isProcessing, isResponding]
+  );
+
   // ── Audio loop ─────────────────────────────────────────────────────────────
 
   const startAudioLoop = useCallback(
@@ -366,6 +413,17 @@ export default function July() {
 
         .july-root { font-family:'Inter',sans-serif; }
         .msg-in { animation: msg-in .35s ease forwards; }
+
+        .suggestion-chip:hover {
+          background: rgba(255, 255, 255, 0.05) !important;
+          border-color: rgba(0, 180, 255, 0.2) !important;
+          color: rgba(200, 235, 255, 1) !important;
+          transform: translateY(-2px);
+          box-shadow: 0 6px 24px rgba(0, 180, 255, 0.15) !important;
+        }
+        .suggestion-chip:active {
+          transform: translateY(0);
+        }
       `}</style>
 
       <div className='july-root relative flex flex-col items-center justify-center min-h-screen w-full overflow-hidden bg-[#03050c]'>
@@ -792,6 +850,65 @@ export default function July() {
             )}
           </div>
         </div>
+
+        {/* ── suggestion chips ── */}
+        {messages.length === 0 && (
+          <div
+            style={{
+              marginTop: 40,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: 12,
+              width: '100%',
+              maxWidth: 380,
+              padding: '0 20px',
+            }}
+          >
+            {[
+              {
+                text: 'Ask about Euro 2024 results ⚽',
+                prompt:
+                  'Who won the match between Germany and Hungary in Euro 2024? What was the score?',
+              },
+              {
+                text: 'Tell me a short joke 🎭',
+                prompt: 'Tell me a short, clean, funny software developer joke.',
+              },
+              {
+                text: 'Search recent AI news 📰',
+                prompt:
+                  'What are the latest updates about Gemini models from Google? Search for the news.',
+              },
+            ].map((chip) => (
+              <button
+                key={chip.text}
+                type='button'
+                onClick={() => handlePrompt(chip.prompt)}
+                disabled={isProcessing || isResponding}
+                style={{
+                  width: '100%',
+                  padding: '12px 16px',
+                  borderRadius: 16,
+                  border: '1px solid rgba(255, 255, 255, 0.08)',
+                  background: 'rgba(255, 255, 255, 0.02)',
+                  backdropFilter: 'blur(10px)',
+                  color: 'rgba(160, 220, 255, 0.85)',
+                  fontSize: 12,
+                  fontWeight: 300,
+                  textAlign: 'left',
+                  cursor: isProcessing || isResponding ? 'not-allowed' : 'pointer',
+                  boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)',
+                  transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+                  opacity: isProcessing || isResponding ? 0.5 : 1,
+                }}
+                className='suggestion-chip'
+              >
+                {chip.text}
+              </button>
+            ))}
+          </div>
+        )}
 
         {/* ── conversation feed ── */}
         {messages.length > 0 && (
