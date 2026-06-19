@@ -1558,20 +1558,36 @@ function CopyButton({ text }: { text: string }) {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: '4px',
-        borderRadius: '6px',
+        padding: copied ? '4px 8px' : '4px',
+        borderRadius: copied ? '10px' : '6px',
         border: '1px solid rgba(255, 255, 255, 0.05)',
         background: 'rgba(255, 255, 255, 0.02)',
-        color: copied ? 'rgba(0, 220, 140, 0.8)' : 'rgba(160, 220, 255, 0.7)',
+        color: copied ? 'rgba(0, 220, 140, 0.85)' : 'rgba(160, 220, 255, 0.7)',
         cursor: 'pointer',
-        transition: 'all 0.2s ease',
+        transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
         marginLeft: 'auto',
       }}
       className='copy-button'
       aria-label={copied ? 'Copied' : 'Copy message text'}
       title={copied ? 'Copied!' : 'Copy message'}
     >
-      {copied ? <IconCheck /> : <IconCopy />}
+      {copied ? (
+        <span
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 4,
+            fontSize: 10,
+            fontWeight: 400,
+            lineHeight: 1,
+          }}
+        >
+          <IconCheck />
+          <span>Copied</span>
+        </span>
+      ) : (
+        <IconCopy />
+      )}
     </button>
   );
 }
