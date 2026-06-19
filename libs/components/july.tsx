@@ -47,6 +47,7 @@ export default function July() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isMuted, setIsMuted] = useState(false);
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
+  const [inputText, setInputText] = useState('');
 
   const messagesRef = useRef(messages);
   messagesRef.current = messages;
@@ -423,6 +424,12 @@ export default function July() {
         }
         .suggestion-chip:active {
           transform: translateY(0);
+        }
+
+        .july-text-input:focus {
+          border-color: rgba(0, 180, 255, 0.3) !important;
+          box-shadow: 0 0 15px rgba(0, 180, 255, 0.15), inset 0 0 10px rgba(0, 180, 255, 0.02) !important;
+          background: rgba(255, 255, 255, 0.04) !important;
         }
       `}</style>
 
@@ -965,6 +972,73 @@ export default function July() {
             <div ref={messagesEndRef} />
           </div>
         )}
+
+        {/* ── bottom input box ── */}
+        {micStatus === 'active' && (
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (!inputText.trim()) return;
+              handlePrompt(inputText.trim());
+              setInputText('');
+            }}
+            style={{
+              marginTop: 24,
+              width: '100%',
+              maxWidth: 520,
+              display: 'flex',
+              gap: 8,
+              padding: '0 24px',
+            }}
+          >
+            <input
+              type='text'
+              value={inputText}
+              onChange={(e) => setInputText(e.target.value)}
+              disabled={isProcessing || isResponding}
+              placeholder='Type a message...'
+              style={{
+                flex: 1,
+                padding: '12px 18px',
+                borderRadius: 22,
+                border: '1px solid rgba(255, 255, 255, 0.08)',
+                background: 'rgba(255, 255, 255, 0.02)',
+                color: 'rgba(255, 255, 255, 0.9)',
+                fontSize: 13,
+                fontWeight: 300,
+                outline: 'none',
+                backdropFilter: 'blur(10px)',
+                transition: 'all 0.3s ease',
+              }}
+              className='july-text-input'
+            />
+            <button
+              type='submit'
+              disabled={isProcessing || isResponding || !inputText.trim()}
+              style={{
+                width: 44,
+                height: 44,
+                borderRadius: '50%',
+                border: '1px solid rgba(255, 255, 255, 0.08)',
+                background: 'rgba(255, 255, 255, 0.03)',
+                backdropFilter: 'blur(8px)',
+                cursor:
+                  isProcessing || isResponding || !inputText.trim() ? 'not-allowed' : 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color:
+                  isProcessing || isResponding || !inputText.trim()
+                    ? 'rgba(255,255,255,0.2)'
+                    : 'rgba(160,220,255,0.85)',
+                transition: 'all 0.3s ease',
+              }}
+              aria-label='Send message'
+            >
+              <IconSend />
+            </button>
+          </form>
+        )}
       </div>
     </>
   );
@@ -1178,6 +1252,25 @@ function IconTrash() {
       <path d='M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2' />
       <line x1='10' y1='11' x2='10' y2='17' />
       <line x1='14' y1='11' x2='14' y2='17' />
+    </svg>
+  );
+}
+
+function IconSend() {
+  return (
+    <svg
+      width='18'
+      height='18'
+      viewBox='0 0 24 24'
+      fill='none'
+      stroke='currentColor'
+      strokeWidth='1.6'
+      strokeLinecap='round'
+      strokeLinejoin='round'
+      aria-hidden='true'
+    >
+      <line x1='22' y1='2' x2='11' y2='13' />
+      <polygon points='22 2 15 22 11 13 2 9 22 2' />
     </svg>
   );
 }
