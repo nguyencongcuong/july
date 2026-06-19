@@ -68,9 +68,12 @@ export default function July() {
   const [hasNewMessageAlert, setHasNewMessageAlert] = useState(false);
   const [greeting, setGreeting] = useState('Welcome, Master');
   const [isCopyPulseActive, setIsCopyPulseActive] = useState(false);
+  const [playbackDuration, setPlaybackDuration] = useState(0);
+  const [playbackElapsed, setPlaybackElapsed] = useState(0);
 
   const currentSourceRef = useRef<AudioBufferSourceNode | null>(null);
   const confirmClearTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const playbackStartTimeRef = useRef<number | null>(null);
 
   const messagesRef = useRef(messages);
   messagesRef.current = messages;
@@ -142,6 +145,31 @@ export default function July() {
       setGreeting('Good night, Master 🌙');
     }
   }, []);
+
+  // Track playback progress while speaking
+  useEffect(() => {
+    if (!isResponding) {
+      setPlaybackDuration(0);
+      setPlaybackElapsed(0);
+      playbackStartTimeRef.current = null;
+      return;
+    }
+
+    let animId: number;
+    const updateProgress = () => {
+      if (playbackStartTimeRef.current !== null && playbackDuration > 0) {
+        const elapsed = (Date.now() - playbackStartTimeRef.current) / 1000;
+        setPlaybackElapsed(Math.min(playbackDuration, elapsed));
+        if (elapsed < playbackDuration) {
+          animId = requestAnimationFrame(updateProgress);
+        }
+      }
+    };
+    animId = requestAnimationFrame(updateProgress);
+    return () => {
+      if (animId) cancelAnimationFrame(animId);
+    };
+  }, [isResponding, playbackDuration]);
 
   // Rotate placeholders every 4 seconds
   useEffect(() => {
@@ -375,6 +403,11 @@ export default function July() {
           source.playbackRate.value = playbackSpeedRef.current;
           source.connect(ctx.destination);
 
+          const actualDuration = audioBuffer.duration / playbackSpeedRef.current;
+          setPlaybackDuration(actualDuration);
+          setPlaybackElapsed(0);
+          playbackStartTimeRef.current = Date.now();
+
           currentSourceRef.current = source;
           setIsResponding(true);
           source.onended = () => {
@@ -431,6 +464,11 @@ export default function July() {
             source.buffer = audioBuffer;
             source.playbackRate.value = playbackSpeedRef.current;
             source.connect(ctx.destination);
+
+            const actualDuration = audioBuffer.duration / playbackSpeedRef.current;
+            setPlaybackDuration(actualDuration);
+            setPlaybackElapsed(0);
+            playbackStartTimeRef.current = Date.now();
 
             currentSourceRef.current = source;
             setIsResponding(true);
@@ -537,13 +575,19 @@ export default function July() {
           ? 'standby'
           : micStatus;
 
+  const formatTime = (time: number) => {
+    return `${time.toFixed(1)}s`;
+  };
+
   const taglines: Record<string, string> = {
     idle: 'Tap to wake me up',
     requesting: 'Requesting microphone…',
     standby: isMuted ? 'Standby (Muted) — say something' : 'Standby — say something',
     speaking: "I'm listening…",
     processing: 'Thinking',
-    responding: isMuted ? 'Responding (Muted) — tap to silence' : 'Speaking — tap to silence',
+    responding: isMuted
+      ? `Responding (Muted) — ${formatTime(playbackElapsed)} / ${formatTime(playbackDuration)}`
+      : `Speaking — ${formatTime(playbackElapsed)} / ${formatTime(playbackDuration)}`,
     denied: 'Microphone access denied',
     active: isMuted ? 'Standby (Muted) — say something' : 'Standby — say something',
   };
@@ -1056,6 +1100,48 @@ export default function July() {
               />
             );
           })}
+
+          {/* ── playback progress ring ── */}
+          {orbMode === 'responding' && playbackDuration > 0 && (
+            <svg
+              width='160'
+              height='160'
+              style={{
+                position: 'absolute',
+                zIndex: 15,
+                pointerEvents: 'none',
+              }}
+              aria-hidden='true'
+            >
+              {/* Background Track */}
+              <circle
+                cx='80'
+                cy='80'
+                r='77'
+                fill='transparent'
+                stroke='rgba(0, 220, 140, 0.12)'
+                strokeWidth='2'
+              />
+              {/* Progress Ring */}
+              <circle
+                cx='80'
+                cy='80'
+                r='77'
+                fill='transparent'
+                stroke='#00dc8c'
+                strokeWidth='2.5'
+                strokeDasharray='484'
+                strokeDashoffset={484 * (1 - Math.min(1, playbackElapsed / playbackDuration))}
+                strokeLinecap='round'
+                style={{
+                  transition: 'stroke-dashoffset 80ms linear',
+                  transform: 'rotate(-90deg)',
+                  transformOrigin: '80px 80px',
+                  filter: 'drop-shadow(0 0 5px rgba(0, 220, 140, 0.6))',
+                }}
+              />
+            </svg>
+          )}
 
           {/* ── main orb button ── */}
           <button
