@@ -1110,7 +1110,7 @@ export default function July() {
                 <IconWave active={isSpeaking} />
               )}
               {isProcessing && <IconThinking />}
-              {isResponding && <IconSpeaking />}
+              {isResponding && <IconSpeaking playbackSpeed={playbackSpeed} />}
               {micStatus === 'denied' && <IconMicOff />}
             </span>
           </button>
@@ -1786,8 +1786,9 @@ function IconThinking() {
   );
 }
 
-function IconSpeaking() {
+function IconSpeaking({ playbackSpeed }: { playbackSpeed: number }) {
   const heights = [7, 15, 20, 13, 6];
+  const duration = 0.7 / playbackSpeed;
   return (
     <svg
       width='38'
@@ -1808,7 +1809,9 @@ function IconSpeaking() {
             y1={13 - h / 2}
             x2={x}
             y2={13 + h / 2}
-            style={{ animation: `speaking-bar 0.7s ease-in-out ${i * 100}ms infinite` }}
+            style={{
+              animation: `speaking-bar ${duration.toFixed(2)}s ease-in-out ${i * 100}ms infinite`,
+            }}
           />
         );
       })}
