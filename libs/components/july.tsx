@@ -89,6 +89,7 @@ export default function July() {
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const requestIdRef = useRef(0);
 
   // Auto-scroll to latest message
   useEffect(() => {
@@ -137,6 +138,11 @@ export default function July() {
       currentSourceRef.current = null;
       setIsResponding(false);
     }
+  }, []);
+
+  const cancelProcessing = useCallback(() => {
+    requestIdRef.current++;
+    setIsProcessing(false);
   }, []);
 
   // Global keydown event listener for custom shortcuts and auto-focus
@@ -294,9 +300,12 @@ export default function July() {
       formData.append('muteSpeech', isMutedRef.current ? 'true' : 'false');
       formData.append('history', JSON.stringify(messagesRef.current));
 
+      const currentReqId = ++requestIdRef.current;
       setIsProcessing(true);
       const result = await talk(formData);
       setIsProcessing(false);
+
+      if (currentReqId !== requestIdRef.current) return;
 
       if (result) {
         console.log('[User] asks:', result.transcript);
@@ -345,9 +354,12 @@ export default function July() {
 
       setMessages((prev) => [...prev, { role: 'user', text: promptText }]);
 
+      const currentReqId = ++requestIdRef.current;
       setIsProcessing(true);
       const result = await talkText(promptText, messagesRef.current, isMutedRef.current);
       setIsProcessing(false);
+
+      if (currentReqId !== requestIdRef.current) return;
 
       if (result) {
         setMessages((prev) => [
@@ -948,19 +960,23 @@ export default function July() {
             onClick={
               isResponding
                 ? stopSpeaking
-                : micStatus === 'idle' || micStatus === 'denied'
-                  ? requestMic
-                  : undefined
+                : isProcessing
+                  ? cancelProcessing
+                  : micStatus === 'idle' || micStatus === 'denied'
+                    ? requestMic
+                    : undefined
             }
             disabled={micStatus === 'requesting'}
             aria-label={
               micStatus === 'idle'
                 ? 'Activate July'
-                : micStatus === 'active'
-                  ? 'July is listening'
-                  : micStatus === 'denied'
-                    ? 'Microphone denied — retry'
-                    : 'Requesting microphone…'
+                : isProcessing
+                  ? 'Cancel request'
+                  : micStatus === 'active'
+                    ? 'July is listening'
+                    : micStatus === 'denied'
+                      ? 'Microphone denied — retry'
+                      : 'Requesting microphone…'
             }
             style={{
               position: 'relative',
@@ -973,7 +989,7 @@ export default function July() {
               cursor:
                 micStatus === 'requesting'
                   ? 'wait'
-                  : isResponding
+                  : isResponding || isProcessing
                     ? 'pointer'
                     : micStatus === 'active'
                       ? 'default'
