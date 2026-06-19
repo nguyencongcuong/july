@@ -78,10 +78,10 @@ export default function July() {
 
   // Auto-scroll to latest message
   useEffect(() => {
-    if (messages.length > 0) {
+    if (messages.length > 0 || isProcessing) {
       messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [messages]);
+  }, [messages, isProcessing]);
 
   const stopSpeaking = useCallback(() => {
     if (currentSourceRef.current) {
@@ -1072,6 +1072,50 @@ export default function July() {
                 </div>
               </div>
             ))}
+            {isProcessing && (
+              <div
+                className='msg-in'
+                style={{
+                  display: 'flex',
+                  justifyContent: 'flex-start',
+                }}
+              >
+                <div
+                  style={{
+                    maxWidth: '78%',
+                    padding: '10px 15px',
+                    borderRadius: '18px 18px 18px 4px',
+                    fontSize: 13,
+                    fontWeight: 300,
+                    lineHeight: 1.55,
+                    backdropFilter: 'blur(12px)',
+                    background: 'rgba(0, 220, 140, 0.05)',
+                    border: '1px solid rgba(0, 220, 140, 0.1)',
+                    color: 'rgba(100, 240, 180, 0.7)',
+                    boxShadow: '0 2px 16px rgba(0, 200, 120, 0.04)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <span style={{ display: 'inline-flex', gap: 4 }} aria-hidden='true'>
+                    {[0, 180, 360].map((ms) => (
+                      <span
+                        key={ms}
+                        style={{
+                          animation: `thinking-dot 1.2s ease-in-out ${ms}ms infinite`,
+                          display: 'inline-block',
+                          fontSize: 16,
+                          lineHeight: '10px',
+                        }}
+                      >
+                        •
+                      </span>
+                    ))}
+                  </span>
+                </div>
+              </div>
+            )}
             <div ref={messagesEndRef} />
           </div>
         )}
