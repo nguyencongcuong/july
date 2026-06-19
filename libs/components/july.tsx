@@ -447,6 +447,13 @@ export default function July() {
           color: rgba(255, 255, 255, 1) !important;
           box-shadow: 0 0 10px rgba(0, 180, 255, 0.1) !important;
         }
+
+        .copy-button:hover {
+          background: rgba(255, 255, 255, 0.08) !important;
+          border-color: rgba(0, 180, 255, 0.25) !important;
+          color: rgba(255, 255, 255, 1) !important;
+          box-shadow: 0 0 8px rgba(0, 180, 255, 0.1) !important;
+        }
       `}</style>
 
       <div className='july-root relative flex flex-col items-center justify-center min-h-screen w-full overflow-hidden bg-[#03050c]'>
@@ -982,31 +989,44 @@ export default function July() {
                   }}
                 >
                   {msg.text}
-                  {msg.sources && msg.sources.length > 0 && (
-                    <div style={{ marginTop: 8, display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                      {msg.sources.map((src) => (
-                        <a
-                          key={src.uri}
-                          href={src.uri}
-                          target='_blank'
-                          rel='noopener noreferrer'
-                          style={{
-                            fontSize: 10,
-                            padding: '3px 8px',
-                            borderRadius: 8,
-                            background: 'rgba(255, 255, 255, 0.05)',
-                            border: '1px solid rgba(255, 255, 255, 0.08)',
-                            color: 'rgba(160, 220, 255, 0.8)',
-                            textDecoration: 'none',
-                            transition: 'all 0.2s',
-                          }}
-                          className='source-link'
-                        >
-                          🌐 {src.title}
-                        </a>
-                      ))}
-                    </div>
-                  )}
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      gap: 12,
+                      marginTop: 8,
+                    }}
+                  >
+                    {msg.sources && msg.sources.length > 0 ? (
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                        {msg.sources.map((src) => (
+                          <a
+                            key={src.uri}
+                            href={src.uri}
+                            target='_blank'
+                            rel='noopener noreferrer'
+                            style={{
+                              fontSize: 10,
+                              padding: '3px 8px',
+                              borderRadius: 8,
+                              background: 'rgba(255, 255, 255, 0.05)',
+                              border: '1px solid rgba(255, 255, 255, 0.08)',
+                              color: 'rgba(160, 220, 255, 0.8)',
+                              textDecoration: 'none',
+                              transition: 'all 0.2s',
+                            }}
+                            className='source-link'
+                          >
+                            🌐 {src.title}
+                          </a>
+                        ))}
+                      </div>
+                    ) : (
+                      <div />
+                    )}
+                    <CopyButton text={msg.text} />
+                  </div>
                 </div>
               </div>
             ))}
@@ -1312,6 +1332,82 @@ function IconSend() {
     >
       <line x1='22' y1='2' x2='11' y2='13' />
       <polygon points='22 2 15 22 11 13 2 9 22 2' />
+    </svg>
+  );
+}
+
+function CopyButton({ text }: { text: string }) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch (err) {
+      console.error('Failed to copy text: ', err);
+    }
+  };
+
+  return (
+    <button
+      type='button'
+      onClick={handleCopy}
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '4px',
+        borderRadius: '6px',
+        border: '1px solid rgba(255, 255, 255, 0.05)',
+        background: 'rgba(255, 255, 255, 0.02)',
+        color: copied ? 'rgba(0, 220, 140, 0.8)' : 'rgba(160, 220, 255, 0.7)',
+        cursor: 'pointer',
+        transition: 'all 0.2s ease',
+        marginLeft: 'auto',
+      }}
+      className='copy-button'
+      aria-label={copied ? 'Copied' : 'Copy message text'}
+      title={copied ? 'Copied!' : 'Copy message'}
+    >
+      {copied ? <IconCheck /> : <IconCopy />}
+    </button>
+  );
+}
+
+function IconCopy() {
+  return (
+    <svg
+      width='12'
+      height='12'
+      viewBox='0 0 24 24'
+      fill='none'
+      stroke='currentColor'
+      strokeWidth='1.6'
+      strokeLinecap='round'
+      strokeLinejoin='round'
+      aria-hidden='true'
+    >
+      <rect x='9' y='9' width='13' height='13' rx='2' ry='2' />
+      <path d='M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1' />
+    </svg>
+  );
+}
+
+function IconCheck() {
+  return (
+    <svg
+      width='12'
+      height='12'
+      viewBox='0 0 24 24'
+      fill='none'
+      stroke='currentColor'
+      strokeWidth='1.8'
+      strokeLinecap='round'
+      strokeLinejoin='round'
+      aria-hidden='true'
+    >
+      <polyline points='20 6 9 17 4 12' />
     </svg>
   );
 }
