@@ -160,9 +160,29 @@ export default function July() {
       const formData = new FormData();
       formData.append('audio', blob, 'speech.webm');
 
-      const transcript = await talk(formData);
-      if (transcript) {
-        console.log('[july] transcript:', transcript);
+      const result = await talk(formData);
+      if (result && audioCtxRef.current) {
+        console.log('[User] asks:', result.transcript);
+        console.log('[July] answers:', result.answer);
+
+        // Use the existing AudioContext (already unlocked by the mic button click)
+        // instead of new Audio() which is blocked by the browser's autoplay policy
+        // when called from an async/setTimeout context.
+        const ctx = audioCtxRef.current;
+
+        // Decode base64 data URL → ArrayBuffer → AudioBuffer
+        const base64 = result.audioDataUrl.split(',')[1];
+        const binaryStr = atob(base64);
+        const bytes = new Uint8Array(binaryStr.length);
+        for (let i = 0; i < binaryStr.length; i++) {
+          bytes[i] = binaryStr.charCodeAt(i);
+        }
+
+        const audioBuffer = await ctx.decodeAudioData(bytes.buffer as ArrayBuffer);
+        const source = ctx.createBufferSource();
+        source.buffer = audioBuffer;
+        source.connect(ctx.destination);
+        source.start();
       }
     }, STOP_DEBOUNCE_MS);
   }, []);

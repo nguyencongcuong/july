@@ -1,7 +1,7 @@
 'use server';
 
 import { GoogleGenAI } from '@google/genai';
-import { speechToText } from './eleven-labs.actions';
+import { speechToText, textToSpeech } from './eleven-labs.actions';
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
@@ -22,15 +22,24 @@ export async function ask(prompt: string): Promise<string | null> {
   return response.text ?? null;
 }
 
-export async function talk(formData: FormData) {
-  const prompt = await speechToText(formData);
-  if (!prompt) return;
+interface TalkResult {
+  transcript: string;
+  answer: string;
+  audioDataUrl: string;
+}
 
-  const answer = await ask(prompt);
-  if (!answer) return;
+export async function talk(formData: FormData): Promise<TalkResult | null> {
+  const transcript = await speechToText(formData);
+  if (!transcript) return null;
 
-  console.log('[User] asks:', prompt);
+  const answer = await ask(transcript);
+  if (!answer) return null;
+
+  const audioDataUrl = await textToSpeech(answer);
+  if (!audioDataUrl) return null;
+
+  console.log('[User] asks:', transcript);
   console.log('[July] answers:', answer);
 
-  return answer;
+  return { transcript, answer, audioDataUrl };
 }
