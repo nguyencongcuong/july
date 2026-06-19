@@ -71,6 +71,7 @@ export default function July() {
   const [isCopyPulseActive, setIsCopyPulseActive] = useState(false);
   const [playbackDuration, setPlaybackDuration] = useState(0);
   const [playbackElapsed, setPlaybackElapsed] = useState(0);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const currentSourceRef = useRef<AudioBufferSourceNode | null>(null);
   const confirmClearTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -390,85 +391,23 @@ export default function July() {
 
       const currentReqId = ++requestIdRef.current;
       setIsProcessing(true);
-      const result = await talk(formData);
-      setIsProcessing(false);
+      try {
+        const result = await talk(formData);
+        if (currentReqId !== requestIdRef.current) return;
+        setIsProcessing(false);
 
-      if (currentReqId !== requestIdRef.current) return;
+        if (result) {
+          console.log('[User] asks:', result.transcript);
+          console.log('[July] answers:', result.answer);
 
-      if (result) {
-        console.log('[User] asks:', result.transcript);
-        console.log('[July] answers:', result.answer);
+          setMessages((prev) => [
+            ...prev,
+            { role: 'user', text: result.transcript },
+            { role: 'july', text: result.answer, sources: result.sources },
+          ]);
 
-        setMessages((prev) => [
-          ...prev,
-          { role: 'user', text: result.transcript },
-          { role: 'july', text: result.answer, sources: result.sources },
-        ]);
-
-        if (!isMutedRef.current && result.audioDataUrl && audioCtxRef.current) {
-          const ctx = audioCtxRef.current;
-          const base64 = result.audioDataUrl.split(',')[1];
-          const binaryStr = atob(base64);
-          const bytes = new Uint8Array(binaryStr.length);
-          for (let i = 0; i < binaryStr.length; i++) {
-            bytes[i] = binaryStr.charCodeAt(i);
-          }
-
-          const audioBuffer = await ctx.decodeAudioData(bytes.buffer as ArrayBuffer);
-          const source = ctx.createBufferSource();
-          source.buffer = audioBuffer;
-          source.playbackRate.value = playbackSpeedRef.current;
-          source.connect(ctx.destination);
-
-          const actualDuration = audioBuffer.duration / playbackSpeedRef.current;
-          setPlaybackDuration(actualDuration);
-          setPlaybackElapsed(0);
-          playbackStartTimeRef.current = Date.now();
-
-          currentSourceRef.current = source;
-          setIsResponding(true);
-          source.onended = () => {
-            setIsResponding(false);
-            if (currentSourceRef.current === source) {
-              currentSourceRef.current = null;
-            }
-          };
-          source.start();
-        }
-      }
-    }, STOP_DEBOUNCE_MS);
-  }, []);
-
-  const handlePrompt = useCallback(
-    async (promptText: string) => {
-      if (isProcessing || isResponding) return;
-
-      stopSpeaking();
-
-      setMessages((prev) => [...prev, { role: 'user', text: promptText }]);
-
-      const currentReqId = ++requestIdRef.current;
-      setIsProcessing(true);
-      const result = await talkText(promptText, messagesRef.current, isMutedRef.current);
-      setIsProcessing(false);
-
-      if (currentReqId !== requestIdRef.current) return;
-
-      if (result) {
-        setMessages((prev) => [
-          ...prev,
-          { role: 'july', text: result.answer, sources: result.sources },
-        ]);
-
-        if (!isMutedRef.current && result.audioDataUrl) {
-          try {
-            if (!audioCtxRef.current) {
-              audioCtxRef.current = new AudioContext();
-            }
+          if (!isMutedRef.current && result.audioDataUrl && audioCtxRef.current) {
             const ctx = audioCtxRef.current;
-            if (ctx.state === 'suspended') {
-              await ctx.resume();
-            }
             const base64 = result.audioDataUrl.split(',')[1];
             const binaryStr = atob(base64);
             const bytes = new Uint8Array(binaryStr.length);
@@ -496,9 +435,87 @@ export default function July() {
               }
             };
             source.start();
-          } catch (err) {
-            console.error('[july] audio playback error:', err);
           }
+        }
+      } catch (err) {
+        console.error('[july] talk error:', err);
+        if (currentReqId === requestIdRef.current) {
+          setIsProcessing(false);
+          setErrorMessage('Connection failed. Please check your mic/network.');
+          setTimeout(() => setErrorMessage(null), 4000);
+        }
+      }
+    }, STOP_DEBOUNCE_MS);
+  }, []);
+
+  const handlePrompt = useCallback(
+    async (promptText: string) => {
+      if (isProcessing || isResponding) return;
+
+      stopSpeaking();
+
+      setMessages((prev) => [...prev, { role: 'user', text: promptText }]);
+
+      const currentReqId = ++requestIdRef.current;
+      setIsProcessing(true);
+      try {
+        const result = await talkText(promptText, messagesRef.current, isMutedRef.current);
+        if (currentReqId !== requestIdRef.current) return;
+        setIsProcessing(false);
+
+        if (result) {
+          setMessages((prev) => [
+            ...prev,
+            { role: 'july', text: result.answer, sources: result.sources },
+          ]);
+
+          if (!isMutedRef.current && result.audioDataUrl) {
+            try {
+              if (!audioCtxRef.current) {
+                audioCtxRef.current = new AudioContext();
+              }
+              const ctx = audioCtxRef.current;
+              if (ctx.state === 'suspended') {
+                await ctx.resume();
+              }
+              const base64 = result.audioDataUrl.split(',')[1];
+              const binaryStr = atob(base64);
+              const bytes = new Uint8Array(binaryStr.length);
+              for (let i = 0; i < binaryStr.length; i++) {
+                bytes[i] = binaryStr.charCodeAt(i);
+              }
+
+              const audioBuffer = await ctx.decodeAudioData(bytes.buffer as ArrayBuffer);
+              const source = ctx.createBufferSource();
+              source.buffer = audioBuffer;
+              source.playbackRate.value = playbackSpeedRef.current;
+              source.connect(ctx.destination);
+
+              const actualDuration = audioBuffer.duration / playbackSpeedRef.current;
+              setPlaybackDuration(actualDuration);
+              setPlaybackElapsed(0);
+              playbackStartTimeRef.current = Date.now();
+
+              currentSourceRef.current = source;
+              setIsResponding(true);
+              source.onended = () => {
+                setIsResponding(false);
+                if (currentSourceRef.current === source) {
+                  currentSourceRef.current = null;
+                }
+              };
+              source.start();
+            } catch (err) {
+              console.error('[july] audio playback error:', err);
+            }
+          }
+        }
+      } catch (err) {
+        console.error('[july] talkText error:', err);
+        if (currentReqId === requestIdRef.current) {
+          setIsProcessing(false);
+          setErrorMessage('Failed to send message. Please try again.');
+          setTimeout(() => setErrorMessage(null), 4000);
         }
       }
     },
@@ -828,6 +845,37 @@ export default function July() {
       `}</style>
 
       <div className='july-root relative flex flex-col items-center justify-center min-h-screen w-full overflow-hidden bg-[#03050c]'>
+        {/* ── Error Banner ── */}
+        {errorMessage && (
+          <div
+            style={{
+              position: 'absolute',
+              top: 80,
+              left: '50%',
+              transform: 'translateX(-50%)',
+              zIndex: 200,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              padding: '10px 18px',
+              borderRadius: 14,
+              background: 'rgba(255, 70, 70, 0.08)',
+              border: '1px solid rgba(255, 70, 70, 0.25)',
+              backdropFilter: 'blur(12px)',
+              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.35), 0 0 15px rgba(255, 70, 70, 0.12)',
+              fontSize: 12,
+              fontWeight: 300,
+              letterSpacing: '0.04em',
+              color: 'rgba(255, 100, 100, 0.95)',
+              userSelect: 'none',
+              animation: 'msg-in 0.3s ease forwards',
+            }}
+          >
+            <span style={{ fontSize: 13 }}>⚠️</span>
+            <span>{errorMessage}</span>
+          </div>
+        )}
+
         {/* ── System Status Badge ── */}
         <div
           style={{
