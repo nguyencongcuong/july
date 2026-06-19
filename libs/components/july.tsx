@@ -544,6 +544,31 @@ export default function July() {
         .july-scroll-container::-webkit-scrollbar-thumb:hover {
           background: rgba(0, 180, 255, 0.35);
         }
+
+        .control-btn {
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        }
+        .control-btn:hover {
+          background: rgba(255, 255, 255, 0.08) !important;
+          border-color: rgba(0, 180, 255, 0.25) !important;
+          color: #fff !important;
+          transform: scale(1.08);
+          box-shadow: 0 0 15px rgba(0, 180, 255, 0.15) !important;
+        }
+        .control-btn:active {
+          transform: scale(0.95);
+        }
+
+        @keyframes alert-shake {
+          0%, 100% { transform: scale(1) translateX(0); }
+          25% { transform: scale(1.08) translateX(-2px) rotate(-3deg); }
+          75% { transform: scale(1.08) translateX(2px) rotate(3deg); }
+        }
+        .confirm-shake {
+          animation: alert-shake 0.35s ease-in-out infinite;
+          border-color: rgba(255, 70, 70, 0.4) !important;
+          box-shadow: 0 0 20px rgba(255, 70, 70, 0.3), inset 0 0 10px rgba(255, 70, 70, 0.1) !important;
+        }
       `}</style>
 
       <div className='july-root relative flex flex-col items-center justify-center min-h-screen w-full overflow-hidden bg-[#03050c]'>
@@ -590,6 +615,7 @@ export default function July() {
         {messages.length > 0 && (
           <button
             type='button'
+            className={confirmClear ? 'control-btn confirm-shake' : 'control-btn'}
             onClick={() => {
               if (confirmClear) {
                 if (confirmClearTimeoutRef.current) {
@@ -639,6 +665,7 @@ export default function July() {
         {/* ── Speed Selector Button ── */}
         <button
           type='button'
+          className='control-btn'
           onClick={() => {
             setPlaybackSpeed((s) => {
               if (s === 1) return 1.2;
@@ -676,6 +703,7 @@ export default function July() {
         {/* ── Mute Toggle Button ── */}
         <button
           type='button'
+          className='control-btn'
           onClick={() => setIsMuted((m) => !m)}
           style={{
             position: 'absolute',
