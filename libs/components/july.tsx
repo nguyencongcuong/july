@@ -1366,6 +1366,11 @@ export default function July() {
                 maxLength={250}
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Escape') {
+                    setInputText('');
+                  }
+                }}
                 disabled={isProcessing || isResponding}
                 placeholder={PLACEHOLDERS[placeholderIdx]}
                 style={{
