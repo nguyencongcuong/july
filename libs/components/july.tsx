@@ -667,6 +667,14 @@ export default function July() {
           border-color: rgba(255, 70, 70, 0.4) !important;
           box-shadow: 0 0 20px rgba(255, 70, 70, 0.3), inset 0 0 10px rgba(255, 70, 70, 0.1) !important;
         }
+
+        @keyframes warning-pulse {
+          0%, 100% { transform: translateY(-50%) scale(1); }
+          50% { transform: translateY(-50%) scale(1.15); color: rgba(255, 70, 70, 0.95); text-shadow: 0 0 8px rgba(255, 70, 70, 0.45); }
+        }
+        .warning-pulse {
+          animation: warning-pulse 0.8s ease-in-out infinite;
+        }
       `}</style>
 
       <div className='july-root relative flex flex-col items-center justify-center min-h-screen w-full overflow-hidden bg-[#03050c]'>
@@ -1558,6 +1566,7 @@ export default function July() {
               />
               {inputText.length > 0 && (
                 <span
+                  className={inputText.length >= 230 ? 'warning-pulse' : ''}
                   style={{
                     position: 'absolute',
                     right: 18,
