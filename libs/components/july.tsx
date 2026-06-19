@@ -1253,27 +1253,51 @@ export default function July() {
               padding: '0 24px',
             }}
           >
-            <input
-              type='text'
-              value={inputText}
-              onChange={(e) => setInputText(e.target.value)}
-              disabled={isProcessing || isResponding}
-              placeholder='Type a message...'
-              style={{
-                flex: 1,
-                padding: '12px 18px',
-                borderRadius: 22,
-                border: '1px solid rgba(255, 255, 255, 0.08)',
-                background: 'rgba(255, 255, 255, 0.02)',
-                color: 'rgba(255, 255, 255, 0.9)',
-                fontSize: 13,
-                fontWeight: 300,
-                outline: 'none',
-                backdropFilter: 'blur(10px)',
-                transition: 'all 0.3s ease',
-              }}
-              className='july-text-input'
-            />
+            <div style={{ flex: 1, position: 'relative', display: 'flex' }}>
+              <input
+                type='text'
+                maxLength={250}
+                value={inputText}
+                onChange={(e) => setInputText(e.target.value)}
+                disabled={isProcessing || isResponding}
+                placeholder='Type a message...'
+                style={{
+                  flex: 1,
+                  padding: '12px 64px 12px 18px',
+                  borderRadius: 22,
+                  border: '1px solid rgba(255, 255, 255, 0.08)',
+                  background: 'rgba(255, 255, 255, 0.02)',
+                  color: 'rgba(255, 255, 255, 0.9)',
+                  fontSize: 13,
+                  fontWeight: 300,
+                  outline: 'none',
+                  backdropFilter: 'blur(10px)',
+                  transition: 'all 0.3s ease',
+                }}
+                className='july-text-input'
+              />
+              {inputText.length > 0 && (
+                <span
+                  style={{
+                    position: 'absolute',
+                    right: 18,
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    fontSize: 10,
+                    fontWeight: 300,
+                    color:
+                      inputText.length >= 220
+                        ? 'rgba(255, 100, 100, 0.75)'
+                        : 'rgba(160, 220, 255, 0.45)',
+                    pointerEvents: 'none',
+                    transition: 'color 0.2s ease',
+                    userSelect: 'none',
+                  }}
+                >
+                  {inputText.length}/250
+                </span>
+              )}
+            </div>
             <button
               type='submit'
               disabled={isProcessing || isResponding || !inputText.trim()}
