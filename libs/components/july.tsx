@@ -64,6 +64,7 @@ export default function July() {
   const [inputText, setInputText] = useState('');
   const [confirmClear, setConfirmClear] = useState(false);
   const [placeholderIdx, setPlaceholderIdx] = useState(0);
+  const [showScrollBottom, setShowScrollBottom] = useState(false);
 
   const currentSourceRef = useRef<AudioBufferSourceNode | null>(null);
   const confirmClearTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -86,6 +87,7 @@ export default function July() {
   const stopDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const recordingStartRef = useRef<number | null>(null);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const scrollContainerRef = useRef<HTMLDivElement | null>(null);
 
   // Auto-scroll to latest message
   useEffect(() => {
@@ -101,6 +103,13 @@ export default function July() {
     }, 4000);
     return () => clearInterval(interval);
   }, []);
+
+  const handleScroll = () => {
+    const el = scrollContainerRef.current;
+    if (!el) return;
+    const isScrolledUp = el.scrollHeight - el.scrollTop - el.clientHeight > 50;
+    setShowScrollBottom(isScrolledUp);
+  };
 
   const stopSpeaking = useCallback(() => {
     if (currentSourceRef.current) {
@@ -1116,139 +1125,177 @@ export default function July() {
 
         {/* ── conversation feed ── */}
         {messages.length > 0 && (
-          <div
-            style={{
-              marginTop: 40,
-              width: '100%',
-              maxWidth: 520,
-              maxHeight: 260,
-              overflowY: 'auto',
-              padding: '0 24px',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 10,
-              scrollbarWidth: 'none',
-            }}
-          >
-            {messages.map((msg, idx) => (
-              <div
-                // biome-ignore lint/suspicious/noArrayIndexKey: message feed is strictly append-only
-                key={idx}
-                className='msg-in'
-                style={{
-                  display: 'flex',
-                  justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start',
-                }}
-              >
+          <div style={{ position: 'relative', width: '100%', maxWidth: 520 }}>
+            <div
+              ref={scrollContainerRef}
+              onScroll={handleScroll}
+              style={{
+                marginTop: 40,
+                width: '100%',
+                maxHeight: 260,
+                overflowY: 'auto',
+                padding: '0 24px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 10,
+                scrollbarWidth: 'none',
+              }}
+            >
+              {messages.map((msg, idx) => (
                 <div
+                  // biome-ignore lint/suspicious/noArrayIndexKey: message feed is strictly append-only
+                  key={idx}
+                  className='msg-in'
                   style={{
-                    maxWidth: '78%',
-                    padding: '10px 15px',
-                    borderRadius: msg.role === 'user' ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
-                    fontSize: 13,
-                    fontWeight: 300,
-                    lineHeight: 1.55,
-                    backdropFilter: 'blur(12px)',
-                    background:
-                      msg.role === 'user' ? 'rgba(0,130,255,0.14)' : 'rgba(0,220,140,0.1)',
-                    border:
-                      msg.role === 'user'
-                        ? '1px solid rgba(0,150,255,0.22)'
-                        : '1px solid rgba(0,220,140,0.2)',
-                    color: msg.role === 'user' ? 'rgba(160,215,255,0.9)' : 'rgba(100,240,180,0.9)',
-                    boxShadow:
-                      msg.role === 'user'
-                        ? '0 2px 16px rgba(0,120,255,0.08)'
-                        : '0 2px 16px rgba(0,200,120,0.08)',
+                    display: 'flex',
+                    justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start',
                   }}
                 >
-                  {msg.text}
                   <div
                     style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      gap: 12,
-                      marginTop: 8,
+                      maxWidth: '78%',
+                      padding: '10px 15px',
+                      borderRadius:
+                        msg.role === 'user' ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
+                      fontSize: 13,
+                      fontWeight: 300,
+                      lineHeight: 1.55,
+                      backdropFilter: 'blur(12px)',
+                      background:
+                        msg.role === 'user' ? 'rgba(0,130,255,0.14)' : 'rgba(0,220,140,0.1)',
+                      border:
+                        msg.role === 'user'
+                          ? '1px solid rgba(0,150,255,0.22)'
+                          : '1px solid rgba(0,220,140,0.2)',
+                      color:
+                        msg.role === 'user' ? 'rgba(160,215,255,0.9)' : 'rgba(100,240,180,0.9)',
+                      boxShadow:
+                        msg.role === 'user'
+                          ? '0 2px 16px rgba(0,120,255,0.08)'
+                          : '0 2px 16px rgba(0,200,120,0.08)',
                     }}
                   >
-                    {msg.sources && msg.sources.length > 0 ? (
-                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                        {msg.sources.map((src) => (
-                          <a
-                            key={src.uri}
-                            href={src.uri}
-                            target='_blank'
-                            rel='noopener noreferrer'
-                            style={{
-                              fontSize: 10,
-                              padding: '3px 8px',
-                              borderRadius: 8,
-                              background: 'rgba(255, 255, 255, 0.05)',
-                              border: '1px solid rgba(255, 255, 255, 0.08)',
-                              color: 'rgba(160, 220, 255, 0.8)',
-                              textDecoration: 'none',
-                              transition: 'all 0.2s',
-                            }}
-                            className='source-link'
-                          >
-                            🌐 {src.title}
-                          </a>
-                        ))}
-                      </div>
-                    ) : (
-                      <div />
-                    )}
-                    <CopyButton text={msg.text} />
+                    {msg.text}
+                    <div
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        gap: 12,
+                        marginTop: 8,
+                      }}
+                    >
+                      {msg.sources && msg.sources.length > 0 ? (
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                          {msg.sources.map((src) => (
+                            <a
+                              key={src.uri}
+                              href={src.uri}
+                              target='_blank'
+                              rel='noopener noreferrer'
+                              style={{
+                                fontSize: 10,
+                                padding: '3px 8px',
+                                borderRadius: 8,
+                                background: 'rgba(255, 255, 255, 0.05)',
+                                border: '1px solid rgba(255, 255, 255, 0.08)',
+                                color: 'rgba(160, 220, 255, 0.8)',
+                                textDecoration: 'none',
+                                transition: 'all 0.2s',
+                              }}
+                              className='source-link'
+                            >
+                              🌐 {src.title}
+                            </a>
+                          ))}
+                        </div>
+                      ) : (
+                        <div />
+                      )}
+                      <CopyButton text={msg.text} />
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-            {isProcessing && (
-              <div
-                className='msg-in'
-                style={{
-                  display: 'flex',
-                  justifyContent: 'flex-start',
-                }}
-              >
+              ))}
+              {isProcessing && (
                 <div
+                  className='msg-in'
                   style={{
-                    maxWidth: '78%',
-                    padding: '10px 15px',
-                    borderRadius: '18px 18px 18px 4px',
-                    fontSize: 13,
-                    fontWeight: 300,
-                    lineHeight: 1.55,
-                    backdropFilter: 'blur(12px)',
-                    background: 'rgba(0, 220, 140, 0.05)',
-                    border: '1px solid rgba(0, 220, 140, 0.1)',
-                    color: 'rgba(100, 240, 180, 0.7)',
-                    boxShadow: '0 2px 16px rgba(0, 200, 120, 0.04)',
                     display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
+                    justifyContent: 'flex-start',
                   }}
                 >
-                  <span style={{ display: 'inline-flex', gap: 4 }} aria-hidden='true'>
-                    {[0, 180, 360].map((ms) => (
-                      <span
-                        key={ms}
-                        style={{
-                          animation: `thinking-dot 1.2s ease-in-out ${ms}ms infinite`,
-                          display: 'inline-block',
-                          fontSize: 16,
-                          lineHeight: '10px',
-                        }}
-                      >
-                        •
-                      </span>
-                    ))}
-                  </span>
+                  <div
+                    style={{
+                      maxWidth: '78%',
+                      padding: '10px 15px',
+                      borderRadius: '18px 18px 18px 4px',
+                      fontSize: 13,
+                      fontWeight: 300,
+                      lineHeight: 1.55,
+                      backdropFilter: 'blur(12px)',
+                      background: 'rgba(0, 220, 140, 0.05)',
+                      border: '1px solid rgba(0, 220, 140, 0.1)',
+                      color: 'rgba(100, 240, 180, 0.7)',
+                      boxShadow: '0 2px 16px rgba(0, 200, 120, 0.04)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <span style={{ display: 'inline-flex', gap: 4 }} aria-hidden='true'>
+                      {[0, 180, 360].map((ms) => (
+                        <span
+                          key={ms}
+                          style={{
+                            animation: `thinking-dot 1.2s ease-in-out ${ms}ms infinite`,
+                            display: 'inline-block',
+                            fontSize: 16,
+                            lineHeight: '10px',
+                          }}
+                        >
+                          •
+                        </span>
+                      ))}
+                    </span>
+                  </div>
                 </div>
-              </div>
+              )}
+              <div ref={messagesEndRef} />
+            </div>
+
+            {showScrollBottom && (
+              <button
+                type='button'
+                onClick={() => {
+                  messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+                }}
+                style={{
+                  position: 'absolute',
+                  right: 28,
+                  bottom: 12,
+                  zIndex: 20,
+                  width: 32,
+                  height: 32,
+                  borderRadius: '50%',
+                  border: '1px solid rgba(255, 255, 255, 0.08)',
+                  background: 'rgba(3, 5, 12, 0.75)',
+                  backdropFilter: 'blur(8px)',
+                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.5), 0 0 10px rgba(0, 180, 255, 0.1)',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'rgba(160, 220, 255, 0.85)',
+                  transition: 'all 0.2s ease',
+                  animation: 'msg-in 0.25s ease forwards',
+                }}
+                title='Scroll to bottom'
+                aria-label='Scroll to bottom'
+              >
+                <IconChevronDown />
+              </button>
             )}
-            <div ref={messagesEndRef} />
           </div>
         )}
 
@@ -1686,6 +1733,24 @@ function IconAlertCircle() {
       <circle cx='12' cy='12' r='10' />
       <line x1='12' y1='8' x2='12' y2='12' />
       <line x1='12' y1='16' x2='12.01' y2='16' />
+    </svg>
+  );
+}
+
+function IconChevronDown() {
+  return (
+    <svg
+      width='14'
+      height='14'
+      viewBox='0 0 24 24'
+      fill='none'
+      stroke='currentColor'
+      strokeWidth='2'
+      strokeLinecap='round'
+      strokeLinejoin='round'
+      aria-hidden='true'
+    >
+      <polyline points='6 9 12 15 18 9' />
     </svg>
   );
 }
