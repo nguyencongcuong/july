@@ -715,6 +715,16 @@ export default function July() {
         .warning-pulse {
           animation: warning-pulse 0.8s ease-in-out infinite;
         }
+        .input-clear-btn {
+          transition: all 0.2s ease !important;
+        }
+        .input-clear-btn:hover {
+          color: rgba(255, 100, 100, 0.85) !important;
+          transform: translateY(-50%) scale(1.15) !important;
+        }
+        .input-clear-btn:active {
+          transform: translateY(-50%) scale(0.9) !important;
+        }
       `}</style>
 
       <div className='july-root relative flex flex-col items-center justify-center min-h-screen w-full overflow-hidden bg-[#03050c]'>
@@ -1632,7 +1642,7 @@ export default function July() {
                 }
                 style={{
                   flex: 1,
-                  padding: '12px 64px 12px 18px',
+                  padding: '12px 78px 12px 18px',
                   borderRadius: 22,
                   border: '1px solid rgba(255, 255, 255, 0.08)',
                   background: 'rgba(255, 255, 255, 0.02)',
@@ -1646,26 +1656,55 @@ export default function July() {
                 className='july-text-input'
               />
               {inputText.length > 0 && (
-                <span
-                  className={inputText.length >= 230 ? 'warning-pulse' : ''}
-                  style={{
-                    position: 'absolute',
-                    right: 18,
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                    fontSize: 10,
-                    fontWeight: 300,
-                    color:
-                      inputText.length >= 220
-                        ? 'rgba(255, 100, 100, 0.75)'
-                        : 'rgba(160, 220, 255, 0.45)',
-                    pointerEvents: 'none',
-                    transition: 'color 0.2s ease',
-                    userSelect: 'none',
-                  }}
-                >
-                  {inputText.length}/250
-                </span>
+                <>
+                  <span
+                    className={inputText.length >= 230 ? 'warning-pulse' : ''}
+                    style={{
+                      position: 'absolute',
+                      right: 42,
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      fontSize: 10,
+                      fontWeight: 300,
+                      color:
+                        inputText.length >= 220
+                          ? 'rgba(255, 100, 100, 0.75)'
+                          : 'rgba(160, 220, 255, 0.45)',
+                      pointerEvents: 'none',
+                      transition: 'color 0.2s ease',
+                      userSelect: 'none',
+                    }}
+                  >
+                    {inputText.length}/250
+                  </span>
+                  <button
+                    type='button'
+                    onClick={() => {
+                      setInputText('');
+                      inputRef.current?.focus();
+                    }}
+                    style={{
+                      position: 'absolute',
+                      right: 14,
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      background: 'none',
+                      border: 'none',
+                      outline: 'none',
+                      cursor: 'pointer',
+                      padding: 4,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: 'rgba(160, 220, 255, 0.4)',
+                    }}
+                    className='input-clear-btn'
+                    title='Clear text'
+                    aria-label='Clear text'
+                  >
+                    <IconX size={12} />
+                  </button>
+                </>
               )}
             </div>
             <button
@@ -2084,6 +2123,25 @@ function IconChevronDown() {
       aria-hidden='true'
     >
       <polyline points='6 9 12 15 18 9' />
+    </svg>
+  );
+}
+
+function IconX({ size = 14 }: { size?: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox='0 0 24 24'
+      fill='none'
+      stroke='currentColor'
+      strokeWidth='2'
+      strokeLinecap='round'
+      strokeLinejoin='round'
+      aria-hidden='true'
+    >
+      <line x1='18' y1='6' x2='6' y2='18' />
+      <line x1='6' y1='6' x2='18' y2='18' />
     </svg>
   );
 }
