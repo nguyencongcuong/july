@@ -606,6 +606,18 @@ export default function July() {
           transform: translateY(0);
         }
 
+        .suggestion-chip .chip-arrow {
+          opacity: 0;
+          transform: translateX(-6px);
+          transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+          display: inline-block;
+        }
+        .suggestion-chip:hover .chip-arrow {
+          opacity: 0.85;
+          transform: translateX(0);
+          color: rgba(160, 220, 255, 0.95);
+        }
+
         .july-text-input:focus {
           border-color: rgba(0, 180, 255, 0.3) !important;
           box-shadow: 0 0 15px rgba(0, 180, 255, 0.15), inset 0 0 10px rgba(0, 180, 255, 0.02) !important;
@@ -1305,7 +1317,17 @@ export default function July() {
                 }}
                 className='suggestion-chip'
               >
-                {chip.text}
+                <span
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    width: '100%',
+                  }}
+                >
+                  <span>{chip.text}</span>
+                  <span className='chip-arrow'>↗</span>
+                </span>
               </button>
             ))}
           </div>
