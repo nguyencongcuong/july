@@ -97,6 +97,23 @@ export default function July() {
     }
   }, [messages, isProcessing]);
 
+  // Dynamic browser tab title updates
+  useEffect(() => {
+    const originalTitle = 'July';
+    let title = originalTitle;
+    if (isProcessing) {
+      title = '● July (Thinking...)';
+    } else if (isResponding) {
+      title = '🔊 July (Speaking...)';
+    } else if (isMuted) {
+      title = 'July (Muted)';
+    }
+    document.title = title;
+    return () => {
+      document.title = originalTitle;
+    };
+  }, [isProcessing, isResponding, isMuted]);
+
   // Rotate placeholders every 4 seconds
   useEffect(() => {
     const interval = setInterval(() => {
