@@ -88,6 +88,7 @@ export default function July() {
   const recordingStartRef = useRef<number | null>(null);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
   // Auto-scroll to latest message
   useEffect(() => {
@@ -95,6 +96,22 @@ export default function July() {
       messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }
   }, [messages, isProcessing]);
+
+  // Global keydown event listener to auto-focus input
+  useEffect(() => {
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      const activeEl = document.activeElement;
+      if (activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA')) {
+        return;
+      }
+      if (e.key.length === 1 && inputRef.current && micStatus === 'active') {
+        inputRef.current.focus();
+      }
+    };
+    window.addEventListener('keydown', handleGlobalKeyDown);
+    return () => window.removeEventListener('keydown', handleGlobalKeyDown);
+  }, [micStatus]);
 
   // Rotate placeholders every 4 seconds
   useEffect(() => {
@@ -1392,6 +1409,7 @@ export default function July() {
           >
             <div style={{ flex: 1, position: 'relative', display: 'flex' }}>
               <input
+                ref={inputRef}
                 type='text'
                 maxLength={250}
                 value={inputText}
