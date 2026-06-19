@@ -54,8 +54,10 @@ export default function July() {
   const [isMuted, setIsMuted] = useState(false);
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
   const [inputText, setInputText] = useState('');
+  const [confirmClear, setConfirmClear] = useState(false);
 
   const currentSourceRef = useRef<AudioBufferSourceNode | null>(null);
+  const confirmClearTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const messagesRef = useRef(messages);
   messagesRef.current = messages;
@@ -101,6 +103,10 @@ export default function July() {
         currentSourceRef.current.stop();
       } catch {}
       currentSourceRef.current = null;
+    }
+    if (confirmClearTimeoutRef.current) {
+      clearTimeout(confirmClearTimeoutRef.current);
+      confirmClearTimeoutRef.current = null;
     }
     if (animFrameRef.current !== null) {
       cancelAnimationFrame(animFrameRef.current);
@@ -495,7 +501,22 @@ export default function July() {
         {messages.length > 0 && (
           <button
             type='button'
-            onClick={() => setMessages([])}
+            onClick={() => {
+              if (confirmClear) {
+                if (confirmClearTimeoutRef.current) {
+                  clearTimeout(confirmClearTimeoutRef.current);
+                  confirmClearTimeoutRef.current = null;
+                }
+                setMessages([]);
+                setConfirmClear(false);
+              } else {
+                setConfirmClear(true);
+                confirmClearTimeoutRef.current = setTimeout(() => {
+                  setConfirmClear(false);
+                  confirmClearTimeoutRef.current = null;
+                }, 3000);
+              }
+            }}
             style={{
               position: 'absolute',
               top: 24,
@@ -504,21 +525,25 @@ export default function July() {
               width: 44,
               height: 44,
               borderRadius: '50%',
-              border: '1px solid rgba(255,255,255,0.08)',
+              border: confirmClear
+                ? '1px solid rgba(255,70,70,0.25)'
+                : '1px solid rgba(255,255,255,0.08)',
               background: 'rgba(255,255,255,0.03)',
               backdropFilter: 'blur(8px)',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              color: 'rgba(160,220,255,0.85)',
-              boxShadow: '0 0 15px rgba(0,180,255,0.1), inset 0 0 10px rgba(0,180,255,0.02)',
+              color: confirmClear ? 'rgba(255,70,70,0.95)' : 'rgba(160,220,255,0.85)',
+              boxShadow: confirmClear
+                ? '0 0 15px rgba(255,70,70,0.25), inset 0 0 10px rgba(255, 70, 70, 0.05)'
+                : '0 0 15px rgba(0,180,255,0.1), inset 0 0 10px rgba(0,180,255,0.02)',
               transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
             }}
-            aria-label='Clear conversation history'
-            title='Clear conversation history'
+            aria-label={confirmClear ? 'Confirm clear chat history' : 'Clear conversation history'}
+            title={confirmClear ? 'Confirm clear' : 'Clear conversation'}
           >
-            <IconTrash />
+            {confirmClear ? <IconAlertCircle /> : <IconTrash />}
           </button>
         )}
 
@@ -1494,6 +1519,26 @@ function IconCheck() {
       aria-hidden='true'
     >
       <polyline points='20 6 9 17 4 12' />
+    </svg>
+  );
+}
+
+function IconAlertCircle() {
+  return (
+    <svg
+      width='18'
+      height='18'
+      viewBox='0 0 24 24'
+      fill='none'
+      stroke='currentColor'
+      strokeWidth='1.6'
+      strokeLinecap='round'
+      strokeLinejoin='round'
+      aria-hidden='true'
+    >
+      <circle cx='12' cy='12' r='10' />
+      <line x1='12' y1='8' x2='12' y2='12' />
+      <line x1='12' y1='16' x2='12.01' y2='16' />
     </svg>
   );
 }
