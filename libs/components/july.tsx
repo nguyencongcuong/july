@@ -32,6 +32,14 @@ const FFT_SIZE = 256;
 const STOP_DEBOUNCE_MS = 2000;
 const MIN_RECORDING_MS = 300;
 
+const PLACEHOLDERS = [
+  'Type a message...',
+  'Ask for a short joke...',
+  'Search for recent AI news...',
+  'Ask about Euro 2024 results...',
+  'Ask about Germany vs Hungary...',
+];
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function typedArrayMax(arr: Uint8Array): number {
@@ -55,6 +63,7 @@ export default function July() {
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
   const [inputText, setInputText] = useState('');
   const [confirmClear, setConfirmClear] = useState(false);
+  const [placeholderIdx, setPlaceholderIdx] = useState(0);
 
   const currentSourceRef = useRef<AudioBufferSourceNode | null>(null);
   const confirmClearTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -84,6 +93,14 @@ export default function July() {
       messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }
   }, [messages, isProcessing]);
+
+  // Rotate placeholders every 4 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setPlaceholderIdx((prev) => (prev + 1) % PLACEHOLDERS.length);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, []);
 
   const stopSpeaking = useCallback(() => {
     if (currentSourceRef.current) {
@@ -1260,7 +1277,7 @@ export default function July() {
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
                 disabled={isProcessing || isResponding}
-                placeholder='Type a message...'
+                placeholder={PLACEHOLDERS[placeholderIdx]}
                 style={{
                   flex: 1,
                   padding: '12px 64px 12px 18px',
