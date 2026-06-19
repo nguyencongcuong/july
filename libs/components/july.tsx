@@ -97,22 +97,6 @@ export default function July() {
     }
   }, [messages, isProcessing]);
 
-  // Global keydown event listener to auto-focus input
-  useEffect(() => {
-    const handleGlobalKeyDown = (e: KeyboardEvent) => {
-      if (e.metaKey || e.ctrlKey || e.altKey) return;
-      const activeEl = document.activeElement;
-      if (activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA')) {
-        return;
-      }
-      if (e.key.length === 1 && inputRef.current && micStatus === 'active') {
-        inputRef.current.focus();
-      }
-    };
-    window.addEventListener('keydown', handleGlobalKeyDown);
-    return () => window.removeEventListener('keydown', handleGlobalKeyDown);
-  }, [micStatus]);
-
   // Rotate placeholders every 4 seconds
   useEffect(() => {
     const interval = setInterval(() => {
@@ -137,6 +121,59 @@ export default function July() {
       setIsResponding(false);
     }
   }, []);
+
+  // Global keydown event listener for custom shortcuts and auto-focus
+  useEffect(() => {
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      // 1. Cmd+K or Ctrl+K -> Clear history
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setMessages([]);
+        setConfirmClear(false);
+        if (confirmClearTimeoutRef.current) {
+          clearTimeout(confirmClearTimeoutRef.current);
+          confirmClearTimeoutRef.current = null;
+        }
+        return;
+      }
+
+      // 2. Escape -> Stop speaking / silence July
+      if (e.key === 'Escape') {
+        if (isResponding) {
+          stopSpeaking();
+          return;
+        }
+      }
+
+      // Check if user is typing in a text field
+      const activeEl = document.activeElement;
+      const isTyping =
+        activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA');
+
+      if (!isTyping) {
+        // 3. 'm' or 'M' -> Toggle mute voice response
+        if (e.key.toLowerCase() === 'm') {
+          e.preventDefault();
+          setIsMuted((prev) => !prev);
+          return;
+        }
+
+        // 4. Any other single character -> Auto-focus input
+        if (
+          e.key.length === 1 &&
+          !e.metaKey &&
+          !e.ctrlKey &&
+          !e.altKey &&
+          inputRef.current &&
+          micStatus === 'active'
+        ) {
+          inputRef.current.focus();
+        }
+      }
+    };
+    window.addEventListener('keydown', handleGlobalKeyDown);
+    return () => window.removeEventListener('keydown', handleGlobalKeyDown);
+  }, [micStatus, isResponding, stopSpeaking]);
 
   // ── Teardown ───────────────────────────────────────────────────────────────
 
@@ -1500,6 +1537,28 @@ export default function July() {
               <IconSend />
             </button>
           </form>
+        )}
+
+        {/* Keyboard Shortcuts Helper */}
+        {micStatus === 'active' && (
+          <div
+            style={{
+              marginTop: 12,
+              fontSize: 10,
+              fontWeight: 300,
+              letterSpacing: '0.06em',
+              color: 'rgba(160, 220, 255, 0.3)',
+              display: 'flex',
+              gap: 16,
+              userSelect: 'none',
+              pointerEvents: 'none',
+              animation: 'msg-in 0.5s ease forwards',
+            }}
+          >
+            <span>[Esc] Silence</span>
+            <span>[⌘K / ⌃K] Clear</span>
+            <span>[M] Mute</span>
+          </div>
         )}
       </div>
     </>
