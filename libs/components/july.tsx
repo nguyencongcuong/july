@@ -529,6 +529,21 @@ export default function July() {
           0%, 100% { box-shadow: 0 0 0 0 rgba(255, 150, 40, 0.7); }
           50% { box-shadow: 0 0 8px 3px rgba(255, 150, 40, 0.3); }
         }
+
+        .july-scroll-container::-webkit-scrollbar {
+          width: 4px;
+        }
+        .july-scroll-container::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .july-scroll-container::-webkit-scrollbar-thumb {
+          background: rgba(0, 180, 255, 0.15);
+          border-radius: 4px;
+          transition: background 0.2s ease;
+        }
+        .july-scroll-container::-webkit-scrollbar-thumb:hover {
+          background: rgba(0, 180, 255, 0.35);
+        }
       `}</style>
 
       <div className='july-root relative flex flex-col items-center justify-center min-h-screen w-full overflow-hidden bg-[#03050c]'>
@@ -1129,6 +1144,7 @@ export default function July() {
             <div
               ref={scrollContainerRef}
               onScroll={handleScroll}
+              className='july-scroll-container'
               style={{
                 marginTop: 40,
                 width: '100%',
@@ -1138,7 +1154,6 @@ export default function July() {
                 display: 'flex',
                 flexDirection: 'column',
                 gap: 10,
-                scrollbarWidth: 'none',
               }}
             >
               {messages.map((msg, idx) => (
