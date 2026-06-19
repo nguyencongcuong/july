@@ -67,6 +67,7 @@ export default function July() {
   const [showScrollBottom, setShowScrollBottom] = useState(false);
   const [hasNewMessageAlert, setHasNewMessageAlert] = useState(false);
   const [greeting, setGreeting] = useState('Welcome, Master');
+  const [isCopyPulseActive, setIsCopyPulseActive] = useState(false);
 
   const currentSourceRef = useRef<AudioBufferSourceNode | null>(null);
   const confirmClearTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -173,6 +174,11 @@ export default function July() {
   const cancelProcessing = useCallback(() => {
     requestIdRef.current++;
     setIsProcessing(false);
+  }, []);
+
+  const handleCopyNotification = useCallback(() => {
+    setIsCopyPulseActive(true);
+    setTimeout(() => setIsCopyPulseActive(false), 1000);
   }, []);
 
   // Global keydown event listener for custom shortcuts and auto-focus
@@ -725,14 +731,19 @@ export default function July() {
             padding: '8px 14px',
             borderRadius: 20,
             background: 'rgba(255, 255, 255, 0.02)',
-            border: '1px solid rgba(255, 255, 255, 0.04)',
+            border: isCopyPulseActive
+              ? '1px solid rgba(0, 220, 140, 0.35)'
+              : '1px solid rgba(255, 255, 255, 0.04)',
             backdropFilter: 'blur(10px)',
-            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.2)',
+            boxShadow: isCopyPulseActive
+              ? '0 0 18px rgba(0, 220, 140, 0.3), 0 4px 20px rgba(0, 0, 0, 0.2)'
+              : '0 4px 20px rgba(0, 0, 0, 0.2)',
             fontSize: 10,
             fontWeight: 400,
             letterSpacing: '0.12em',
-            color: 'rgba(160, 220, 255, 0.8)',
+            color: isCopyPulseActive ? '#00dc8c' : 'rgba(160, 220, 255, 0.8)',
             userSelect: 'none',
+            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
           }}
         >
           <span
@@ -740,9 +751,14 @@ export default function July() {
               width: 6,
               height: 6,
               borderRadius: '50%',
-              background: isProcessing || isResponding ? '#ff9628' : '#00dc8c',
-              animation:
-                isProcessing || isResponding
+              background: isCopyPulseActive
+                ? '#00dc8c'
+                : isProcessing || isResponding
+                  ? '#ff9628'
+                  : '#00dc8c',
+              animation: isCopyPulseActive
+                ? 'dot-pulse-green 0.5s infinite ease-in-out'
+                : isProcessing || isResponding
                   ? 'dot-pulse-amber 1.8s infinite ease-in-out'
                   : 'dot-pulse-green 2s infinite ease-in-out',
               transition: 'background 0.4s ease',
@@ -750,7 +766,13 @@ export default function July() {
           />
           <span>
             JULY v1.0 •{' '}
-            {isProcessing || isResponding ? 'PROCESSING' : isMuted ? 'ONLINE (MUTED)' : 'ONLINE'}
+            {isCopyPulseActive
+              ? 'COPIED!'
+              : isProcessing || isResponding
+                ? 'PROCESSING'
+                : isMuted
+                  ? 'ONLINE (MUTED)'
+                  : 'ONLINE'}
           </span>
         </div>
 
@@ -1450,7 +1472,7 @@ export default function July() {
                       ) : (
                         <div />
                       )}
-                      <CopyButton text={msg.text} />
+                      <CopyButton text={msg.text} onCopy={handleCopyNotification} />
                     </div>
                   </div>
                 </div>
@@ -1935,13 +1957,14 @@ function IconSend() {
   );
 }
 
-function CopyButton({ text }: { text: string }) {
+function CopyButton({ text, onCopy }: { text: string; onCopy?: () => void }) {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(text);
       setCopied(true);
+      onCopy?.();
       setTimeout(() => setCopied(false), 1500);
     } catch (err) {
       console.error('Failed to copy text: ', err);
