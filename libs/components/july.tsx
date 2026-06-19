@@ -790,8 +790,13 @@ export default function July() {
             width: 44,
             height: 44,
             borderRadius: '50%',
-            border: '1px solid rgba(255,255,255,0.08)',
-            background: 'rgba(255,255,255,0.03)',
+            border:
+              playbackSpeed === 1.2
+                ? '1px solid rgba(0, 220, 140, 0.25)'
+                : playbackSpeed === 1.5
+                  ? '1px solid rgba(255, 150, 40, 0.3)'
+                  : '1px solid rgba(255, 255, 255, 0.08)',
+            background: 'rgba(255, 255, 255, 0.03)',
             backdropFilter: 'blur(8px)',
             cursor: 'pointer',
             display: 'flex',
@@ -799,8 +804,18 @@ export default function July() {
             justifyContent: 'center',
             fontSize: 11,
             fontWeight: 400,
-            color: 'rgba(160,220,255,0.85)',
-            boxShadow: '0 0 15px rgba(0,180,255,0.1), inset 0 0 10px rgba(0,180,255,0.02)',
+            color:
+              playbackSpeed === 1.2
+                ? 'rgba(0, 220, 140, 0.95)'
+                : playbackSpeed === 1.5
+                  ? 'rgba(255, 150, 40, 0.95)'
+                  : 'rgba(160, 220, 255, 0.85)',
+            boxShadow:
+              playbackSpeed === 1.2
+                ? '0 0 15px rgba(0, 220, 140, 0.15), inset 0 0 10px rgba(0, 220, 140, 0.03)'
+                : playbackSpeed === 1.5
+                  ? '0 0 15px rgba(255, 150, 40, 0.2), inset 0 0 10px rgba(255, 150, 40, 0.05)'
+                  : '0 0 15px rgba(0, 180, 255, 0.1), inset 0 0 10px rgba(0, 180, 255, 0.02)',
             transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
           }}
           aria-label={`Playback speed: ${playbackSpeed}x`}
