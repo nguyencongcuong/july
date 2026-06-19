@@ -65,6 +65,7 @@ export default function July() {
   const [confirmClear, setConfirmClear] = useState(false);
   const [placeholderIdx, setPlaceholderIdx] = useState(0);
   const [showScrollBottom, setShowScrollBottom] = useState(false);
+  const [hasNewMessageAlert, setHasNewMessageAlert] = useState(false);
 
   const currentSourceRef = useRef<AudioBufferSourceNode | null>(null);
   const confirmClearTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -90,6 +91,7 @@ export default function July() {
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const requestIdRef = useRef(0);
+  const prevMessagesCountRef = useRef(messages.length);
 
   // Auto-scroll to latest message
   useEffect(() => {
@@ -115,6 +117,16 @@ export default function July() {
     };
   }, [isProcessing, isResponding, isMuted]);
 
+  // Unread new message alert notification triggers
+  useEffect(() => {
+    if (messages.length > prevMessagesCountRef.current) {
+      if (showScrollBottom) {
+        setHasNewMessageAlert(true);
+      }
+    }
+    prevMessagesCountRef.current = messages.length;
+  }, [messages.length, showScrollBottom]);
+
   // Rotate placeholders every 4 seconds
   useEffect(() => {
     const interval = setInterval(() => {
@@ -128,6 +140,9 @@ export default function July() {
     if (!el) return;
     const isScrolledUp = el.scrollHeight - el.scrollTop - el.clientHeight > 50;
     setShowScrollBottom(isScrolledUp);
+    if (!isScrolledUp) {
+      setHasNewMessageAlert(false);
+    }
   };
 
   const stopSpeaking = useCallback(() => {
@@ -1439,6 +1454,7 @@ export default function July() {
                 type='button'
                 onClick={() => {
                   messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+                  setHasNewMessageAlert(false);
                 }}
                 style={{
                   position: 'absolute',
@@ -1448,22 +1464,40 @@ export default function July() {
                   width: 32,
                   height: 32,
                   borderRadius: '50%',
-                  border: '1px solid rgba(255, 255, 255, 0.08)',
+                  border: hasNewMessageAlert
+                    ? '1px solid rgba(0, 220, 140, 0.35)'
+                    : '1px solid rgba(255, 255, 255, 0.08)',
                   background: 'rgba(3, 5, 12, 0.75)',
                   backdropFilter: 'blur(8px)',
-                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.5), 0 0 10px rgba(0, 180, 255, 0.1)',
+                  boxShadow: hasNewMessageAlert
+                    ? '0 0 16px rgba(0, 220, 140, 0.55), 0 4px 12px rgba(0, 0, 0, 0.5)'
+                    : '0 4px 12px rgba(0, 0, 0, 0.5), 0 0 10px rgba(0, 180, 255, 0.1)',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  color: 'rgba(160, 220, 255, 0.85)',
-                  transition: 'all 0.2s ease',
+                  color: hasNewMessageAlert ? '#00dc8c' : 'rgba(160, 220, 255, 0.85)',
+                  transition: 'all 0.25s ease',
                   animation: 'msg-in 0.25s ease forwards',
                 }}
                 title='Scroll to bottom'
                 aria-label='Scroll to bottom'
               >
                 <IconChevronDown />
+                {hasNewMessageAlert && (
+                  <span
+                    style={{
+                      position: 'absolute',
+                      top: 1,
+                      right: 1,
+                      width: 7,
+                      height: 7,
+                      borderRadius: '50%',
+                      background: '#00dc8c',
+                      boxShadow: '0 0 8px #00dc8c',
+                    }}
+                  />
+                )}
               </button>
             )}
           </div>
