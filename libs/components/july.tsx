@@ -196,7 +196,14 @@ export default function July() {
           return;
         }
 
-        // 4. Any other single character -> Auto-focus input
+        // 4. 's' or 'S' -> Cycle playback speed
+        if (e.key.toLowerCase() === 's') {
+          e.preventDefault();
+          setPlaybackSpeed((prev) => (prev === 1 ? 1.2 : prev === 1.2 ? 1.5 : 1.0));
+          return;
+        }
+
+        // 5. Any other single character -> Auto-focus input
         if (
           e.key.length === 1 &&
           !e.metaKey &&
@@ -1649,6 +1656,7 @@ export default function July() {
             <span>[Esc] Silence</span>
             <span>[⌘K / ⌃K] Clear</span>
             <span>[M] Mute</span>
+            <span>[S] Speed</span>
           </div>
         )}
       </div>
