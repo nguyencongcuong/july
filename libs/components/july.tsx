@@ -1252,7 +1252,7 @@ export default function July() {
               {micStatus === 'idle' && <IconMic />}
               {micStatus === 'requesting' && <IconSpinner />}
               {micStatus === 'active' && !isProcessing && !isResponding && (
-                <IconWave active={isSpeaking} />
+                <IconWave active={isSpeaking} volume={volume} />
               )}
               {isProcessing && <IconThinking />}
               {isResponding && <IconSpeaking playbackSpeed={playbackSpeed} />}
@@ -1921,8 +1921,9 @@ function IconSpinner() {
   );
 }
 
-function IconWave({ active }: { active: boolean }) {
-  const heights = active ? [10, 18, 22, 16, 8] : [4, 8, 6, 8, 4];
+function IconWave({ active, volume = 0 }: { active: boolean; volume?: number }) {
+  const baseHeights = active ? [10, 18, 22, 16, 8] : [4, 8, 6, 8, 4];
+  const scale = 1 + (volume / 100) * 1.5;
   return (
     <svg
       width='38'
@@ -1935,7 +1936,8 @@ function IconWave({ active }: { active: boolean }) {
       aria-hidden='true'
     >
       {[4, 11, 19, 27, 34].map((x, i) => {
-        const h = heights[i];
+        const baseH = baseHeights[i];
+        const h = Math.min(24, active ? baseH * scale : baseH);
         return (
           <line
             key={x}
@@ -1943,7 +1945,7 @@ function IconWave({ active }: { active: boolean }) {
             y1={13 - h / 2}
             x2={x}
             y2={13 + h / 2}
-            style={{ transition: 'all 0.12s ease' }}
+            style={{ transition: 'all 60ms ease-out' }}
           />
         );
       })}
