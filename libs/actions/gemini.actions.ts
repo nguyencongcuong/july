@@ -74,8 +74,8 @@ export async function talk(formData: FormData): Promise<TalkResult | null> {
   const answer = await ask(transcript);
   if (!answer) return null;
 
-  const audioDataUrl = await textToSpeech(answer);
-  if (!audioDataUrl) return null;
+  const muteSpeech = formData.get('muteSpeech') === 'true';
+  const audioDataUrl = muteSpeech ? '' : ((await textToSpeech(answer)) ?? '');
 
   console.log('[User] asks:', transcript);
   console.log('[July] answers:', answer);

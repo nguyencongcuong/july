@@ -45,6 +45,10 @@ export default function July() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [isResponding, setIsResponding] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
+  const [isMuted, setIsMuted] = useState(false);
+
+  const isMutedRef = useRef(isMuted);
+  isMutedRef.current = isMuted;
 
   const streamRef = useRef<MediaStream | null>(null);
   const audioCtxRef = useRef<AudioContext | null>(null);
@@ -150,12 +154,13 @@ export default function July() {
 
       const formData = new FormData();
       formData.append('audio', blob, 'speech.webm');
+      formData.append('muteSpeech', isMutedRef.current ? 'true' : 'false');
 
       setIsProcessing(true);
       const result = await talk(formData);
       setIsProcessing(false);
 
-      if (result && audioCtxRef.current) {
+      if (result) {
         console.log('[User] asks:', result.transcript);
         console.log('[July] answers:', result.answer);
 
@@ -165,22 +170,24 @@ export default function July() {
           { role: 'july', text: result.answer },
         ]);
 
-        const ctx = audioCtxRef.current;
-        const base64 = result.audioDataUrl.split(',')[1];
-        const binaryStr = atob(base64);
-        const bytes = new Uint8Array(binaryStr.length);
-        for (let i = 0; i < binaryStr.length; i++) {
-          bytes[i] = binaryStr.charCodeAt(i);
+        if (!isMutedRef.current && result.audioDataUrl && audioCtxRef.current) {
+          const ctx = audioCtxRef.current;
+          const base64 = result.audioDataUrl.split(',')[1];
+          const binaryStr = atob(base64);
+          const bytes = new Uint8Array(binaryStr.length);
+          for (let i = 0; i < binaryStr.length; i++) {
+            bytes[i] = binaryStr.charCodeAt(i);
+          }
+
+          const audioBuffer = await ctx.decodeAudioData(bytes.buffer as ArrayBuffer);
+          const source = ctx.createBufferSource();
+          source.buffer = audioBuffer;
+          source.connect(ctx.destination);
+
+          setIsResponding(true);
+          source.onended = () => setIsResponding(false);
+          source.start();
         }
-
-        const audioBuffer = await ctx.decodeAudioData(bytes.buffer as ArrayBuffer);
-        const source = ctx.createBufferSource();
-        source.buffer = audioBuffer;
-        source.connect(ctx.destination);
-
-        setIsResponding(true);
-        source.onended = () => setIsResponding(false);
-        source.start();
       }
     }, STOP_DEBOUNCE_MS);
   }, []);
@@ -353,6 +360,37 @@ export default function July() {
       `}</style>
 
       <div className='july-root relative flex flex-col items-center justify-center min-h-screen w-full overflow-hidden bg-[#03050c]'>
+        {/* ── Mute Toggle Button ── */}
+        <button
+          type='button'
+          onClick={() => setIsMuted((m) => !m)}
+          style={{
+            position: 'absolute',
+            top: 24,
+            right: 24,
+            zIndex: 100,
+            width: 44,
+            height: 44,
+            borderRadius: '50%',
+            border: '1px solid rgba(255,255,255,0.08)',
+            background: 'rgba(255,255,255,0.03)',
+            backdropFilter: 'blur(8px)',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: isMuted ? 'rgba(255,70,70,0.85)' : 'rgba(160,220,255,0.85)',
+            boxShadow: isMuted
+              ? '0 0 15px rgba(255,70,70,0.15), inset 0 0 10px rgba(255,70,70,0.05)'
+              : '0 0 15px rgba(0,180,255,0.1), inset 0 0 10px rgba(0,180,255,0.02)',
+            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+          }}
+          aria-label={isMuted ? 'Unmute voice response' : 'Mute voice response'}
+          title={isMuted ? 'Unmute voice' : 'Mute voice'}
+        >
+          {isMuted ? <IconVolumeX /> : <IconVolume2 />}
+        </button>
+
         {/* ── aurora blobs ── */}
         <div aria-hidden='true' className='pointer-events-none absolute inset-0 overflow-hidden'>
           <div
@@ -886,6 +924,45 @@ function IconSpeaking() {
           />
         );
       })}
+    </svg>
+  );
+}
+
+function IconVolume2() {
+  return (
+    <svg
+      width='20'
+      height='20'
+      viewBox='0 0 24 24'
+      fill='none'
+      stroke='currentColor'
+      strokeWidth='1.6'
+      strokeLinecap='round'
+      strokeLinejoin='round'
+      aria-hidden='true'
+    >
+      <polygon points='11 5 6 9 2 9 2 15 6 15 11 19 11 5' />
+      <path d='M15.54 8.46a5 5 0 0 1 0 7.07M19.07 4.93a10 10 0 0 1 0 14.14' />
+    </svg>
+  );
+}
+
+function IconVolumeX() {
+  return (
+    <svg
+      width='20'
+      height='20'
+      viewBox='0 0 24 24'
+      fill='none'
+      stroke='currentColor'
+      strokeWidth='1.6'
+      strokeLinecap='round'
+      strokeLinejoin='round'
+      aria-hidden='true'
+    >
+      <polygon points='11 5 6 9 2 9 2 15 6 15 11 19 11 5' />
+      <line x1='22' y1='9' x2='16' y2='15' />
+      <line x1='16' y1='9' x2='22' y2='15' />
     </svg>
   );
 }
