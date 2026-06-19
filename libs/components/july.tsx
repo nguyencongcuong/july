@@ -962,6 +962,48 @@ export default function July() {
               padding: '0 20px',
             }}
           >
+            {/* ── Welcome Guide Panel ── */}
+            <div
+              style={{
+                width: '100%',
+                padding: '20px',
+                borderRadius: 20,
+                background: 'rgba(255, 255, 255, 0.01)',
+                border: '1px solid rgba(255, 255, 255, 0.04)',
+                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.25)',
+                backdropFilter: 'blur(10px)',
+                textAlign: 'center',
+                marginBottom: 8,
+                animation: 'msg-in 0.4s ease forwards',
+              }}
+            >
+              <h2
+                style={{
+                  fontSize: 14,
+                  fontWeight: 400,
+                  color: 'rgba(255, 255, 255, 0.95)',
+                  margin: '0 0 6px 0',
+                  letterSpacing: '0.08em',
+                  textTransform: 'uppercase',
+                  textShadow: '0 0 8px rgba(0, 180, 255, 0.2)',
+                }}
+              >
+                Welcome, Master
+              </h2>
+              <p
+                style={{
+                  fontSize: 12,
+                  fontWeight: 300,
+                  color: 'rgba(160, 220, 255, 0.72)',
+                  margin: 0,
+                  lineHeight: 1.55,
+                }}
+              >
+                July is fully synchronized and at your service. Choose a target prompt below, start
+                typing, or activate the orb to interact.
+              </p>
+            </div>
+
             {[
               {
                 text: 'Ask about Euro 2024 results ⚽',
