@@ -494,9 +494,57 @@ export default function July() {
           color: rgba(255, 255, 255, 1) !important;
           box-shadow: 0 0 8px rgba(0, 180, 255, 0.1) !important;
         }
+
+        @keyframes dot-pulse-green {
+          0%, 100% { box-shadow: 0 0 0 0 rgba(0, 220, 140, 0.7); }
+          50% { box-shadow: 0 0 8px 3px rgba(0, 220, 140, 0.3); }
+        }
+        @keyframes dot-pulse-amber {
+          0%, 100% { box-shadow: 0 0 0 0 rgba(255, 150, 40, 0.7); }
+          50% { box-shadow: 0 0 8px 3px rgba(255, 150, 40, 0.3); }
+        }
       `}</style>
 
       <div className='july-root relative flex flex-col items-center justify-center min-h-screen w-full overflow-hidden bg-[#03050c]'>
+        {/* ── System Status Badge ── */}
+        <div
+          style={{
+            position: 'absolute',
+            top: 24,
+            left: 24,
+            zIndex: 100,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+            padding: '8px 14px',
+            borderRadius: 20,
+            background: 'rgba(255, 255, 255, 0.02)',
+            border: '1px solid rgba(255, 255, 255, 0.04)',
+            backdropFilter: 'blur(10px)',
+            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.2)',
+            fontSize: 10,
+            fontWeight: 400,
+            letterSpacing: '0.12em',
+            color: 'rgba(160, 220, 255, 0.8)',
+            userSelect: 'none',
+          }}
+        >
+          <span
+            style={{
+              width: 6,
+              height: 6,
+              borderRadius: '50%',
+              background: isProcessing || isResponding ? '#ff9628' : '#00dc8c',
+              animation:
+                isProcessing || isResponding
+                  ? 'dot-pulse-amber 1.8s infinite ease-in-out'
+                  : 'dot-pulse-green 2s infinite ease-in-out',
+              transition: 'background 0.4s ease',
+            }}
+          />
+          <span>JULY v1.0 • {isProcessing || isResponding ? 'PROCESSING' : 'ONLINE'}</span>
+        </div>
+
         {/* ── Clear Chat Button ── */}
         {messages.length > 0 && (
           <button
