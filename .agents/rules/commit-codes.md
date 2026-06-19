@@ -1,5 +1,13 @@
 # commit-codes skill
 
+## 🚫 non-negotiable: never commit or push automatically
+
+> **the agent must never run `git commit`, `git push`, `git add`, or any git write command on its own.**
+> only execute these commands when the user explicitly asks (e.g. "commit", "push", "commit and push").
+> finishing a coding task does **not** imply permission to commit.
+
+---
+
 ## rule: always use conventional commits — all lowercase, no exceptions
 
 ---
