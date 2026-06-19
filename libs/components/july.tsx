@@ -1172,6 +1172,19 @@ export default function July() {
         {/* ── conversation feed ── */}
         {messages.length > 0 && (
           <div style={{ position: 'relative', width: '100%', maxWidth: 520 }}>
+            {/* Top Fade Overlay */}
+            <div
+              style={{
+                position: 'absolute',
+                top: 40,
+                left: 24,
+                right: 24,
+                height: 20,
+                background: 'linear-gradient(to bottom, #03050c 20%, transparent)',
+                pointerEvents: 'none',
+                zIndex: 5,
+              }}
+            />
             <div
               ref={scrollContainerRef}
               onScroll={handleScroll}
@@ -1309,6 +1322,20 @@ export default function July() {
               )}
               <div ref={messagesEndRef} />
             </div>
+
+            {/* Bottom Fade Overlay */}
+            <div
+              style={{
+                position: 'absolute',
+                bottom: 0,
+                left: 24,
+                right: 24,
+                height: 20,
+                background: 'linear-gradient(to top, #03050c 20%, transparent)',
+                pointerEvents: 'none',
+                zIndex: 5,
+              }}
+            />
 
             {showScrollBottom && (
               <button
