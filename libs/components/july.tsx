@@ -414,12 +414,12 @@ export default function July() {
   const taglines: Record<string, string> = {
     idle: 'Tap to wake me up',
     requesting: 'Requesting microphone…',
-    standby: 'Standby — say something',
+    standby: isMuted ? 'Standby (Muted) — say something' : 'Standby — say something',
     speaking: "I'm listening…",
     processing: 'Thinking',
-    responding: 'Speaking — tap to silence',
+    responding: isMuted ? 'Responding (Muted) — tap to silence' : 'Speaking — tap to silence',
     denied: 'Microphone access denied',
-    active: 'Standby — say something',
+    active: isMuted ? 'Standby (Muted) — say something' : 'Standby — say something',
   };
 
   return (
@@ -608,7 +608,10 @@ export default function July() {
               transition: 'background 0.4s ease',
             }}
           />
-          <span>JULY v1.0 • {isProcessing || isResponding ? 'PROCESSING' : 'ONLINE'}</span>
+          <span>
+            JULY v1.0 •{' '}
+            {isProcessing || isResponding ? 'PROCESSING' : isMuted ? 'ONLINE (MUTED)' : 'ONLINE'}
+          </span>
         </div>
 
         {/* ── Clear Chat Button ── */}
