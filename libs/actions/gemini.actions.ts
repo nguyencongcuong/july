@@ -5,9 +5,15 @@ import { speechToText, textToSpeech } from './eleven-labs.actions';
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
-export async function ask(prompt: string): Promise<string | null> {
+interface ChatMessage {
+  role: string;
+  parts: { text: string }[];
+}
+
+export async function ask(prompt: string, history: ChatMessage[] = []): Promise<string | null> {
   const chat = ai.chats.create({
     model: 'gemini-2.5-flash',
+    history: history,
     config: {
       systemInstruction: `
         **IDENTITY**:
@@ -54,9 +60,9 @@ export async function ask(prompt: string): Promise<string | null> {
     message: prompt,
   });
 
-  const history = chat.getHistory();
+  const chatHistory = chat.getHistory();
 
-  console.log(history);
+  console.log(chatHistory);
 
   return response.text ?? null;
 }
@@ -71,7 +77,23 @@ export async function talk(formData: FormData): Promise<TalkResult | null> {
   const transcript = await speechToText(formData);
   if (!transcript) return null;
 
-  const answer = await ask(transcript);
+  const historyStr = formData.get('history') as string;
+  let history: ChatMessage[] = [];
+  try {
+    if (historyStr) {
+      const parsed = JSON.parse(historyStr);
+      if (Array.isArray(parsed)) {
+        history = parsed.map((msg: { role: string; text: string }) => ({
+          role: msg.role === 'user' ? 'user' : 'model',
+          parts: [{ text: msg.text }],
+        }));
+      }
+    }
+  } catch (err) {
+    console.error('Failed to parse chat history:', err);
+  }
+
+  const answer = await ask(transcript, history);
   if (!answer) return null;
 
   const muteSpeech = formData.get('muteSpeech') === 'true';

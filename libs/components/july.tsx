@@ -48,6 +48,9 @@ export default function July() {
   const [isMuted, setIsMuted] = useState(false);
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
 
+  const messagesRef = useRef(messages);
+  messagesRef.current = messages;
+
   const isMutedRef = useRef(isMuted);
   isMutedRef.current = isMuted;
 
@@ -159,6 +162,7 @@ export default function July() {
       const formData = new FormData();
       formData.append('audio', blob, 'speech.webm');
       formData.append('muteSpeech', isMutedRef.current ? 'true' : 'false');
+      formData.append('history', JSON.stringify(messagesRef.current));
 
       setIsProcessing(true);
       const result = await talk(formData);
@@ -365,6 +369,37 @@ export default function July() {
       `}</style>
 
       <div className='july-root relative flex flex-col items-center justify-center min-h-screen w-full overflow-hidden bg-[#03050c]'>
+        {/* ── Clear Chat Button ── */}
+        {messages.length > 0 && (
+          <button
+            type='button'
+            onClick={() => setMessages([])}
+            style={{
+              position: 'absolute',
+              top: 24,
+              right: 136,
+              zIndex: 100,
+              width: 44,
+              height: 44,
+              borderRadius: '50%',
+              border: '1px solid rgba(255,255,255,0.08)',
+              background: 'rgba(255,255,255,0.03)',
+              backdropFilter: 'blur(8px)',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'rgba(160,220,255,0.85)',
+              boxShadow: '0 0 15px rgba(0,180,255,0.1), inset 0 0 10px rgba(0,180,255,0.02)',
+              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+            }}
+            aria-label='Clear conversation history'
+            title='Clear conversation history'
+          >
+            <IconTrash />
+          </button>
+        )}
+
         {/* ── Speed Selector Button ── */}
         <button
           type='button'
@@ -1005,6 +1040,27 @@ function IconVolumeX() {
       <polygon points='11 5 6 9 2 9 2 15 6 15 11 19 11 5' />
       <line x1='22' y1='9' x2='16' y2='15' />
       <line x1='16' y1='9' x2='22' y2='15' />
+    </svg>
+  );
+}
+
+function IconTrash() {
+  return (
+    <svg
+      width='18'
+      height='18'
+      viewBox='0 0 24 24'
+      fill='none'
+      stroke='currentColor'
+      strokeWidth='1.6'
+      strokeLinecap='round'
+      strokeLinejoin='round'
+      aria-hidden='true'
+    >
+      <polyline points='3 6 5 6 21 6' />
+      <path d='M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2' />
+      <line x1='10' y1='11' x2='10' y2='17' />
+      <line x1='14' y1='11' x2='14' y2='17' />
     </svg>
   );
 }
