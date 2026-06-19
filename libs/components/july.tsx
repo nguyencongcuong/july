@@ -66,6 +66,7 @@ export default function July() {
   const [placeholderIdx, setPlaceholderIdx] = useState(0);
   const [showScrollBottom, setShowScrollBottom] = useState(false);
   const [hasNewMessageAlert, setHasNewMessageAlert] = useState(false);
+  const [greeting, setGreeting] = useState('Welcome, Master');
 
   const currentSourceRef = useRef<AudioBufferSourceNode | null>(null);
   const confirmClearTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -126,6 +127,20 @@ export default function July() {
     }
     prevMessagesCountRef.current = messages.length;
   }, [messages.length, showScrollBottom]);
+
+  // Dynamic Welcome Guide greeting based on local time
+  useEffect(() => {
+    const hours = new Date().getHours();
+    if (hours < 12) {
+      setGreeting('Good morning, Master 🌅');
+    } else if (hours < 18) {
+      setGreeting('Good afternoon, Master ☀️');
+    } else if (hours < 22) {
+      setGreeting('Good evening, Master 🌌');
+    } else {
+      setGreeting('Good night, Master 🌙');
+    }
+  }, []);
 
   // Rotate placeholders every 4 seconds
   useEffect(() => {
@@ -1262,7 +1277,7 @@ export default function July() {
                   textShadow: '0 0 8px rgba(0, 180, 255, 0.2)',
                 }}
               >
-                Welcome, Master
+                {greeting}
               </h2>
               <p
                 style={{
