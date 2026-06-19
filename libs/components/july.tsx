@@ -55,6 +55,8 @@ export default function July() {
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
   const [inputText, setInputText] = useState('');
 
+  const currentSourceRef = useRef<AudioBufferSourceNode | null>(null);
+
   const messagesRef = useRef(messages);
   messagesRef.current = messages;
 
@@ -81,9 +83,25 @@ export default function July() {
     }
   }, [messages]);
 
+  const stopSpeaking = useCallback(() => {
+    if (currentSourceRef.current) {
+      try {
+        currentSourceRef.current.stop();
+      } catch {}
+      currentSourceRef.current = null;
+      setIsResponding(false);
+    }
+  }, []);
+
   // ── Teardown ───────────────────────────────────────────────────────────────
 
   const teardown = useCallback(() => {
+    if (currentSourceRef.current) {
+      try {
+        currentSourceRef.current.stop();
+      } catch {}
+      currentSourceRef.current = null;
+    }
     if (animFrameRef.current !== null) {
       cancelAnimationFrame(animFrameRef.current);
       animFrameRef.current = null;
@@ -111,6 +129,8 @@ export default function July() {
   const startRecording = useCallback(() => {
     if (!streamRef.current || mediaRecorderRef.current?.state === 'recording') return;
 
+    stopSpeaking();
+
     if (stopDebounceRef.current !== null) {
       clearTimeout(stopDebounceRef.current);
       stopDebounceRef.current = null;
@@ -129,7 +149,7 @@ export default function July() {
     };
     mediaRecorderRef.current = recorder;
     recorder.start(100);
-  }, []);
+  }, [stopSpeaking]);
 
   const stopRecordingAndTranscribe = useCallback(() => {
     if (stopDebounceRef.current !== null) clearTimeout(stopDebounceRef.current);
@@ -200,8 +220,14 @@ export default function July() {
           source.playbackRate.value = playbackSpeedRef.current;
           source.connect(ctx.destination);
 
+          currentSourceRef.current = source;
           setIsResponding(true);
-          source.onended = () => setIsResponding(false);
+          source.onended = () => {
+            setIsResponding(false);
+            if (currentSourceRef.current === source) {
+              currentSourceRef.current = null;
+            }
+          };
           source.start();
         }
       }
@@ -211,6 +237,8 @@ export default function July() {
   const handlePrompt = useCallback(
     async (promptText: string) => {
       if (isProcessing || isResponding) return;
+
+      stopSpeaking();
 
       setMessages((prev) => [...prev, { role: 'user', text: promptText }]);
 
@@ -246,8 +274,14 @@ export default function July() {
             source.playbackRate.value = playbackSpeedRef.current;
             source.connect(ctx.destination);
 
+            currentSourceRef.current = source;
             setIsResponding(true);
-            source.onended = () => setIsResponding(false);
+            source.onended = () => {
+              setIsResponding(false);
+              if (currentSourceRef.current === source) {
+                currentSourceRef.current = null;
+              }
+            };
             source.start();
           } catch (err) {
             console.error('[july] audio playback error:', err);
@@ -255,7 +289,7 @@ export default function July() {
         }
       }
     },
-    [isProcessing, isResponding]
+    [isProcessing, isResponding, stopSpeaking]
   );
 
   // ── Audio loop ─────────────────────────────────────────────────────────────
@@ -351,7 +385,7 @@ export default function July() {
     standby: 'Standby — say something',
     speaking: "I'm listening…",
     processing: 'Thinking',
-    responding: 'Speaking…',
+    responding: 'Speaking — tap to silence',
     denied: 'Microphone access denied',
     active: 'Standby — say something',
   };
@@ -693,7 +727,13 @@ export default function July() {
           <button
             type='button'
             id='july-orb'
-            onClick={micStatus === 'idle' || micStatus === 'denied' ? requestMic : undefined}
+            onClick={
+              isResponding
+                ? stopSpeaking
+                : micStatus === 'idle' || micStatus === 'denied'
+                  ? requestMic
+                  : undefined
+            }
             disabled={micStatus === 'requesting'}
             aria-label={
               micStatus === 'idle'
@@ -715,9 +755,11 @@ export default function July() {
               cursor:
                 micStatus === 'requesting'
                   ? 'wait'
-                  : micStatus === 'active'
-                    ? 'default'
-                    : 'pointer',
+                  : isResponding
+                    ? 'pointer'
+                    : micStatus === 'active'
+                      ? 'default'
+                      : 'pointer',
               background:
                 orbMode === 'processing'
                   ? 'radial-gradient(circle at 35% 35%, rgba(255,140,30,0.3), rgba(120,50,0,0.85) 60%, rgba(15,5,0,0.98))'
