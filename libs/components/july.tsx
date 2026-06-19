@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { speechToText } from '@/libs/actions/eleven-labs.actions';
+import { talk } from '../actions/gemini.actions';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -160,7 +160,7 @@ export default function July() {
       const formData = new FormData();
       formData.append('audio', blob, 'speech.webm');
 
-      const transcript = await speechToText(formData);
+      const transcript = await talk(formData);
       if (transcript) {
         console.log('[july] transcript:', transcript);
       }
