@@ -209,6 +209,10 @@ export default function July() {
     setTimeout(() => setIsCopyPulseActive(false), 1000);
   }, []);
 
+  const handleDeleteMessage = useCallback((index: number) => {
+    setMessages((prev) => prev.filter((_, i) => i !== index));
+  }, []);
+
   // Global keydown event listener for custom shortcuts and auto-focus
   useEffect(() => {
     const handleGlobalKeyDown = (e: KeyboardEvent) => {
@@ -701,6 +705,13 @@ export default function July() {
           border-color: rgba(0, 180, 255, 0.25) !important;
           color: rgba(255, 255, 255, 1) !important;
           box-shadow: 0 0 8px rgba(0, 180, 255, 0.1) !important;
+        }
+
+        .delete-msg-button:hover {
+          background: rgba(255, 70, 70, 0.08) !important;
+          border-color: rgba(255, 70, 70, 0.25) !important;
+          color: rgba(255, 100, 100, 0.95) !important;
+          box-shadow: 0 0 8px rgba(255, 70, 70, 0.1) !important;
         }
 
         @keyframes dot-pulse-green {
@@ -1631,7 +1642,37 @@ export default function July() {
                             </div>
                           )}
                         </div>
-                        <CopyButton text={msg.text} onCopy={handleCopyNotification} />
+                        <div
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 6,
+                            marginLeft: 'auto',
+                          }}
+                        >
+                          <CopyButton text={msg.text} onCopy={handleCopyNotification} />
+                          <button
+                            type='button'
+                            onClick={() => handleDeleteMessage(idx)}
+                            className='delete-msg-button'
+                            aria-label='Delete message'
+                            title='Delete message'
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              padding: '4px',
+                              borderRadius: '6px',
+                              border: '1px solid rgba(255, 255, 255, 0.05)',
+                              background: 'rgba(255, 255, 255, 0.02)',
+                              color: 'rgba(255, 100, 100, 0.65)',
+                              cursor: 'pointer',
+                              transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+                            }}
+                          >
+                            <IconTrash size={12} />
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -2108,11 +2149,11 @@ function IconVolumeX() {
   );
 }
 
-function IconTrash() {
+function IconTrash({ size = 18 }: { size?: number }) {
   return (
     <svg
-      width='18'
-      height='18'
+      width={size}
+      height={size}
       viewBox='0 0 24 24'
       fill='none'
       stroke='currentColor'
