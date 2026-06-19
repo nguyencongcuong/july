@@ -23,6 +23,7 @@ interface Message {
   role: 'user' | 'july';
   text: string;
   sources?: GroundingSource[];
+  feedback?: 'like' | 'dislike' | null;
 }
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -211,6 +212,18 @@ export default function July() {
 
   const handleDeleteMessage = useCallback((index: number) => {
     setMessages((prev) => prev.filter((_, i) => i !== index));
+  }, []);
+
+  const handleMessageFeedback = useCallback((index: number, feedbackType: 'like' | 'dislike') => {
+    setMessages((prev) =>
+      prev.map((msg, i) => {
+        if (i !== index) return msg;
+        return {
+          ...msg,
+          feedback: msg.feedback === feedbackType ? null : feedbackType,
+        };
+      })
+    );
   }, []);
 
   // Global keydown event listener for custom shortcuts and auto-focus
@@ -712,6 +725,13 @@ export default function July() {
           border-color: rgba(255, 70, 70, 0.25) !important;
           color: rgba(255, 100, 100, 0.95) !important;
           box-shadow: 0 0 8px rgba(255, 70, 70, 0.1) !important;
+        }
+
+        .feedback-button:hover {
+          background: rgba(255, 255, 255, 0.06) !important;
+          border-color: rgba(0, 180, 255, 0.25) !important;
+          color: rgba(255, 255, 255, 0.95) !important;
+          box-shadow: 0 0 6px rgba(0, 180, 255, 0.08) !important;
         }
 
         @keyframes dot-pulse-green {
@@ -1650,6 +1670,65 @@ export default function July() {
                             marginLeft: 'auto',
                           }}
                         >
+                          {msg.role === 'july' && (
+                            <div
+                              style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 4,
+                                marginRight: 4,
+                              }}
+                            >
+                              <button
+                                type='button'
+                                onClick={() => handleMessageFeedback(idx, 'like')}
+                                className='feedback-button'
+                                aria-label='Like message'
+                                title='Like'
+                                style={{
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  padding: '4px',
+                                  borderRadius: '6px',
+                                  border: '1px solid rgba(255, 255, 255, 0.05)',
+                                  background: 'rgba(255, 255, 255, 0.02)',
+                                  color:
+                                    msg.feedback === 'like'
+                                      ? '#00dc8c'
+                                      : 'rgba(160, 220, 255, 0.5)',
+                                  cursor: 'pointer',
+                                  transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+                                }}
+                              >
+                                <IconThumbsUp />
+                              </button>
+                              <button
+                                type='button'
+                                onClick={() => handleMessageFeedback(idx, 'dislike')}
+                                className='feedback-button'
+                                aria-label='Dislike message'
+                                title='Dislike'
+                                style={{
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  padding: '4px',
+                                  borderRadius: '6px',
+                                  border: '1px solid rgba(255, 255, 255, 0.05)',
+                                  background: 'rgba(255, 255, 255, 0.02)',
+                                  color:
+                                    msg.feedback === 'dislike'
+                                      ? '#ff4646'
+                                      : 'rgba(160, 220, 255, 0.5)',
+                                  cursor: 'pointer',
+                                  transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+                                }}
+                              >
+                                <IconThumbsDown />
+                              </button>
+                            </div>
+                          )}
                           <CopyButton text={msg.text} onCopy={handleCopyNotification} />
                           <button
                             type='button'
@@ -2367,6 +2446,42 @@ function IconSpeakerWave() {
           repeatCount='indefinite'
         />
       </path>
+    </svg>
+  );
+}
+
+function IconThumbsUp() {
+  return (
+    <svg
+      width='12'
+      height='12'
+      viewBox='0 0 24 24'
+      fill='none'
+      stroke='currentColor'
+      strokeWidth='1.8'
+      strokeLinecap='round'
+      strokeLinejoin='round'
+      aria-hidden='true'
+    >
+      <path d='M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3' />
+    </svg>
+  );
+}
+
+function IconThumbsDown() {
+  return (
+    <svg
+      width='12'
+      height='12'
+      viewBox='0 0 24 24'
+      fill='none'
+      stroke='currentColor'
+      strokeWidth='1.8'
+      strokeLinecap='round'
+      strokeLinejoin='round'
+      aria-hidden='true'
+    >
+      <path d='M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-3' />
     </svg>
   );
 }
