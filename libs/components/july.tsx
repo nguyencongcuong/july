@@ -46,9 +46,13 @@ export default function July() {
   const [isResponding, setIsResponding] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [isMuted, setIsMuted] = useState(false);
+  const [playbackSpeed, setPlaybackSpeed] = useState(1);
 
   const isMutedRef = useRef(isMuted);
   isMutedRef.current = isMuted;
+
+  const playbackSpeedRef = useRef(playbackSpeed);
+  playbackSpeedRef.current = playbackSpeed;
 
   const streamRef = useRef<MediaStream | null>(null);
   const audioCtxRef = useRef<AudioContext | null>(null);
@@ -182,6 +186,7 @@ export default function July() {
           const audioBuffer = await ctx.decodeAudioData(bytes.buffer as ArrayBuffer);
           const source = ctx.createBufferSource();
           source.buffer = audioBuffer;
+          source.playbackRate.value = playbackSpeedRef.current;
           source.connect(ctx.destination);
 
           setIsResponding(true);
@@ -360,6 +365,43 @@ export default function July() {
       `}</style>
 
       <div className='july-root relative flex flex-col items-center justify-center min-h-screen w-full overflow-hidden bg-[#03050c]'>
+        {/* ── Speed Selector Button ── */}
+        <button
+          type='button'
+          onClick={() => {
+            setPlaybackSpeed((s) => {
+              if (s === 1) return 1.2;
+              if (s === 1.2) return 1.5;
+              return 1.0;
+            });
+          }}
+          style={{
+            position: 'absolute',
+            top: 24,
+            right: 80,
+            zIndex: 100,
+            width: 44,
+            height: 44,
+            borderRadius: '50%',
+            border: '1px solid rgba(255,255,255,0.08)',
+            background: 'rgba(255,255,255,0.03)',
+            backdropFilter: 'blur(8px)',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: 11,
+            fontWeight: 400,
+            color: 'rgba(160,220,255,0.85)',
+            boxShadow: '0 0 15px rgba(0,180,255,0.1), inset 0 0 10px rgba(0,180,255,0.02)',
+            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+          }}
+          aria-label={`Playback speed: ${playbackSpeed}x`}
+          title={`Cycle speed: currently ${playbackSpeed}x`}
+        >
+          {playbackSpeed.toFixed(1)}x
+        </button>
+
         {/* ── Mute Toggle Button ── */}
         <button
           type='button'
