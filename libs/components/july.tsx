@@ -769,6 +769,31 @@ export default function July() {
         .input-clear-btn:active {
           transform: translateY(-50%) scale(0.9) !important;
         }
+
+        .tooltip-bubble {
+          position: absolute;
+          top: 52px;
+          left: 50%;
+          transform: translateX(-50%) translateY(-4px);
+          background: rgba(3, 5, 12, 0.92);
+          border: 1px solid rgba(0, 180, 255, 0.2);
+          color: rgba(160, 220, 255, 0.85);
+          padding: 4px 8px;
+          border-radius: 6px;
+          font-size: 10px;
+          letter-spacing: 0.04em;
+          white-space: nowrap;
+          pointer-events: none;
+          opacity: 0;
+          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5), 0 0 8px rgba(0, 180, 255, 0.08);
+          backdrop-filter: blur(8px);
+          z-index: 110;
+        }
+        .control-btn:hover .tooltip-bubble {
+          opacity: 1;
+          transform: translateX(-50%) translateY(0);
+        }
       `}</style>
 
       <div className='july-root relative flex flex-col items-center justify-center min-h-screen w-full overflow-hidden bg-[#03050c]'>
@@ -875,9 +900,11 @@ export default function July() {
               transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
             }}
             aria-label={confirmClear ? 'Confirm clear chat history' : 'Clear conversation history'}
-            title={confirmClear ? 'Confirm clear' : 'Clear conversation'}
           >
             {confirmClear ? <IconAlertCircle /> : <IconTrash />}
+            <span className='tooltip-bubble'>
+              {confirmClear ? 'Confirm clear history' : 'Clear conversation'}
+            </span>
           </button>
         )}
 
@@ -961,9 +988,9 @@ export default function July() {
             transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
           }}
           aria-label={isMuted ? 'Unmute voice response' : 'Mute voice response'}
-          title={isMuted ? 'Unmute voice' : 'Mute voice'}
         >
           {isMuted ? <IconVolumeX /> : <IconVolume2 />}
+          <span className='tooltip-bubble'>{isMuted ? 'Unmute voice' : 'Mute voice'}</span>
         </button>
 
         {/* ── aurora blobs ── */}
