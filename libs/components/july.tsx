@@ -872,7 +872,9 @@ export default function July() {
                   position: 'absolute',
                   inset: 0,
                   borderRadius: '50%',
-                  border: '1px solid rgba(0,150,255,0.25)',
+                  border: isMuted
+                    ? `1px solid rgba(140,160,180,${Math.max(0, 0.15 - i * 0.03)})`
+                    : '1px solid rgba(0,150,255,0.25)',
                   animation:
                     micStatus === 'active'
                       ? `ring-breathe ${3.8 + i * 0.7}s ease-in-out ${delay} infinite`
@@ -927,13 +929,17 @@ export default function July() {
                   ? 'radial-gradient(circle at 35% 35%, rgba(255,140,30,0.3), rgba(120,50,0,0.85) 60%, rgba(15,5,0,0.98))'
                   : orbMode === 'responding'
                     ? 'radial-gradient(circle at 35% 35%, rgba(0,220,140,0.28), rgba(0,80,60,0.85) 60%, rgba(0,12,8,0.98))'
-                    : 'radial-gradient(circle at 35% 35%, rgba(0,200,255,0.28), rgba(0,50,120,0.88) 60%, rgba(0,8,28,0.98))',
+                    : isMuted
+                      ? 'radial-gradient(circle at 35% 35%, rgba(140,160,180,0.2), rgba(60,70,80,0.8) 60%, rgba(5,8,12,0.98))'
+                      : 'radial-gradient(circle at 35% 35%, rgba(0,200,255,0.28), rgba(0,50,120,0.88) 60%, rgba(0,8,28,0.98))',
               boxShadow:
                 orbMode === 'processing'
                   ? '0 0 50px rgba(255,140,30,0.45), 0 0 100px rgba(180,80,0,0.22), inset 0 0 40px rgba(255,160,40,0.1)'
                   : orbMode === 'responding'
                     ? '0 0 50px rgba(0,220,140,0.45), 0 0 100px rgba(0,160,80,0.22), inset 0 0 40px rgba(0,230,160,0.1)'
-                    : '0 0 50px rgba(0,160,255,0.42), 0 0 100px rgba(0,80,200,0.2), inset 0 0 35px rgba(0,190,255,0.1)',
+                    : isMuted
+                      ? '0 0 45px rgba(140,160,180,0.25), 0 0 90px rgba(60,70,80,0.12), inset 0 0 30px rgba(140,160,180,0.08)'
+                      : '0 0 50px rgba(0,160,255,0.42), 0 0 100px rgba(0,80,200,0.2), inset 0 0 35px rgba(0,190,255,0.1)',
               animation:
                 orbMode === 'processing'
                   ? 'orb-breathe-amber 2.4s ease-in-out infinite'
@@ -956,7 +962,9 @@ export default function July() {
                     ? 'radial-gradient(circle at 38% 28%, rgba(255,200,80,0.18), transparent 58%)'
                     : orbMode === 'responding'
                       ? 'radial-gradient(circle at 38% 28%, rgba(80,255,180,0.18), transparent 58%)'
-                      : 'radial-gradient(circle at 38% 28%, rgba(120,220,255,0.18), transparent 58%)',
+                      : isMuted
+                        ? 'radial-gradient(circle at 38% 28%, rgba(160,180,200,0.12), transparent 58%)'
+                        : 'radial-gradient(circle at 38% 28%, rgba(120,220,255,0.18), transparent 58%)',
                 animation: 'orb-breathe 3s ease-in-out infinite',
               }}
               aria-hidden='true'
@@ -972,7 +980,9 @@ export default function July() {
                     ? 'rgba(255,170,60,0.95)'
                     : orbMode === 'responding'
                       ? 'rgba(60,230,160,0.95)'
-                      : 'rgba(160,220,255,0.92)',
+                      : isMuted
+                        ? 'rgba(160,180,200,0.75)'
+                        : 'rgba(160,220,255,0.92)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
