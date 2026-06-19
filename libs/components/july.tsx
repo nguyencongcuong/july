@@ -1524,82 +1524,119 @@ export default function July() {
                 gap: 10,
               }}
             >
-              {messages.map((msg, idx) => (
-                <div
-                  // biome-ignore lint/suspicious/noArrayIndexKey: message feed is strictly append-only
-                  key={idx}
-                  className='msg-in'
-                  style={{
-                    display: 'flex',
-                    justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start',
-                  }}
-                >
+              {messages.map((msg, idx) => {
+                const isSpeakingThis =
+                  msg.role === 'july' && idx === messages.length - 1 && isResponding;
+                return (
                   <div
+                    // biome-ignore lint/suspicious/noArrayIndexKey: message feed is strictly append-only
+                    key={idx}
+                    className='msg-in'
                     style={{
-                      maxWidth: '78%',
-                      padding: '10px 15px',
-                      borderRadius:
-                        msg.role === 'user' ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
-                      fontSize: 13,
-                      fontWeight: 300,
-                      lineHeight: 1.55,
-                      backdropFilter: 'blur(12px)',
-                      background:
-                        msg.role === 'user' ? 'rgba(0,130,255,0.14)' : 'rgba(0,220,140,0.1)',
-                      border:
-                        msg.role === 'user'
-                          ? '1px solid rgba(0,150,255,0.22)'
-                          : '1px solid rgba(0,220,140,0.2)',
-                      color:
-                        msg.role === 'user' ? 'rgba(160,215,255,0.9)' : 'rgba(100,240,180,0.9)',
-                      boxShadow:
-                        msg.role === 'user'
-                          ? '0 2px 16px rgba(0,120,255,0.08)'
-                          : '0 2px 16px rgba(0,200,120,0.08)',
+                      display: 'flex',
+                      justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start',
                     }}
                   >
-                    {msg.text}
                     <div
                       style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        gap: 12,
-                        marginTop: 8,
+                        maxWidth: '78%',
+                        padding: '10px 15px',
+                        borderRadius:
+                          msg.role === 'user' ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
+                        fontSize: 13,
+                        fontWeight: 300,
+                        lineHeight: 1.55,
+                        backdropFilter: 'blur(12px)',
+                        background:
+                          msg.role === 'user' ? 'rgba(0,130,255,0.14)' : 'rgba(0,220,140,0.1)',
+                        border:
+                          msg.role === 'user'
+                            ? '1px solid rgba(0,150,255,0.22)'
+                            : '1px solid rgba(0,220,140,0.2)',
+                        color:
+                          msg.role === 'user' ? 'rgba(160,215,255,0.9)' : 'rgba(100,240,180,0.9)',
+                        boxShadow:
+                          msg.role === 'user'
+                            ? '0 2px 16px rgba(0,120,255,0.08)'
+                            : '0 2px 16px rgba(0,200,120,0.08)',
                       }}
                     >
-                      {msg.sources && msg.sources.length > 0 ? (
-                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                          {msg.sources.map((src) => (
-                            <a
-                              key={src.uri}
-                              href={src.uri}
-                              target='_blank'
-                              rel='noopener noreferrer'
+                      {msg.text}
+                      <div
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          gap: 12,
+                          marginTop: 8,
+                        }}
+                      >
+                        <div
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            flexWrap: 'wrap',
+                            gap: 8,
+                          }}
+                        >
+                          {msg.sources && msg.sources.length > 0 && (
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                              {msg.sources.map((src) => (
+                                <a
+                                  key={src.uri}
+                                  href={src.uri}
+                                  target='_blank'
+                                  rel='noopener noreferrer'
+                                  style={{
+                                    fontSize: 10,
+                                    padding: '3px 8px',
+                                    borderRadius: 8,
+                                    background: 'rgba(255, 255, 255, 0.05)',
+                                    border: '1px solid rgba(255, 255, 255, 0.08)',
+                                    color: 'rgba(160, 220, 255, 0.8)',
+                                    textDecoration: 'none',
+                                    transition: 'all 0.2s',
+                                  }}
+                                  className='source-link'
+                                >
+                                  🌐 {src.title}
+                                </a>
+                              ))}
+                            </div>
+                          )}
+                          {isSpeakingThis && (
+                            <div
                               style={{
-                                fontSize: 10,
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 6,
                                 padding: '3px 8px',
                                 borderRadius: 8,
-                                background: 'rgba(255, 255, 255, 0.05)',
-                                border: '1px solid rgba(255, 255, 255, 0.08)',
-                                color: 'rgba(160, 220, 255, 0.8)',
-                                textDecoration: 'none',
-                                transition: 'all 0.2s',
+                                background: 'rgba(0, 220, 140, 0.08)',
+                                border: '1px solid rgba(0, 220, 140, 0.15)',
+                                backdropFilter: 'blur(8px)',
                               }}
-                              className='source-link'
                             >
-                              🌐 {src.title}
-                            </a>
-                          ))}
+                              <IconSpeakerWave />
+                              <span
+                                style={{
+                                  fontSize: 9,
+                                  color: 'rgba(100, 240, 180, 0.95)',
+                                  letterSpacing: '0.05em',
+                                  fontWeight: 400,
+                                }}
+                              >
+                                PLAYING AUDIO
+                              </span>
+                            </div>
+                          )}
                         </div>
-                      ) : (
-                        <div />
-                      )}
-                      <CopyButton text={msg.text} onCopy={handleCopyNotification} />
+                        <CopyButton text={msg.text} onCopy={handleCopyNotification} />
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
               {isProcessing && (
                 <div
                   className='msg-in'
@@ -2257,6 +2294,38 @@ function IconX({ size = 14 }: { size?: number }) {
     >
       <line x1='18' y1='6' x2='6' y2='18' />
       <line x1='6' y1='6' x2='18' y2='18' />
+    </svg>
+  );
+}
+
+function IconSpeakerWave() {
+  return (
+    <svg
+      width='10'
+      height='10'
+      viewBox='0 0 24 24'
+      fill='none'
+      stroke='#00dc8c'
+      strokeWidth='2'
+      strokeLinecap='round'
+      strokeLinejoin='round'
+      style={{
+        filter: 'drop-shadow(0 0 3px rgba(0, 220, 140, 0.4))',
+      }}
+      aria-hidden='true'
+    >
+      <polygon points='11 5 6 9 2 9 2 15 6 15 11 19 11 5' />
+      <path d='M15.54 8.46a5 5 0 0 1 0 7.07'>
+        <animate attributeName='opacity' values='0.15;1;0.15' dur='1.2s' repeatCount='indefinite' />
+      </path>
+      <path d='M19.07 4.93a10 10 0 0 1 0 14.14'>
+        <animate
+          attributeName='opacity'
+          values='0.15;0.15;1;0.15'
+          dur='1.2s'
+          repeatCount='indefinite'
+        />
+      </path>
     </svg>
   );
 }
