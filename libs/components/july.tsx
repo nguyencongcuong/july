@@ -1,5 +1,37 @@
 'use client';
 
+import {
+  ErrorOutlineOutlined as IconAlertCircle,
+  Check as IconCheck,
+  KeyboardArrowDown as IconChevronDown,
+  ContentCopy as IconCopy,
+  Download as IconDownload,
+  Mic as IconMic,
+  MicOff as IconMicOff,
+  Send as IconSend,
+  AutoAwesome as IconThinking,
+  ThumbDownAlt as IconThumbsDownFilled,
+  ThumbDownAltOutlined as IconThumbsDownOutlined,
+  ThumbUpAlt as IconThumbsUpFilled,
+  ThumbUpAltOutlined as IconThumbsUpOutlined,
+  Delete as IconTrash,
+  VolumeUp as IconVolume2,
+  VolumeOff as IconVolumeX,
+  Close as IconX,
+} from '@mui/icons-material';
+import {
+  Box,
+  Button,
+  CircularProgress,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  IconButton,
+  InputBase,
+  Slider,
+  Stack,
+  Typography,
+} from '@mui/material';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { talk, talkText } from '../actions/gemini.actions';
 
@@ -1089,16 +1121,16 @@ export default function July() {
   return (
     <>
       {toastMessage && (
-        <div
+        <Box
           className='july-toast'
-          style={{
+          sx={{
             position: 'fixed',
             top: 24,
             left: '50%',
             transform: 'translateX(-50%)',
             zIndex: 500,
             padding: '10px 20px',
-            borderRadius: 16,
+            borderRadius: 4,
             background: 'rgba(3, 5, 12, 0.7)',
             backdropFilter: 'blur(16px)',
             border: '1px solid rgba(0, 220, 140, 0.25)',
@@ -1112,7 +1144,7 @@ export default function July() {
           }}
         >
           {toastMessage}
-        </div>
+        </Box>
       )}
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400&display=swap');
@@ -1394,11 +1426,24 @@ export default function July() {
         }
       `}</style>
 
-      <div className='july-root relative flex flex-col items-center justify-center min-h-screen w-full overflow-hidden bg-[#03050c]'>
+      <Box
+        className='july-root'
+        sx={{
+          position: 'relative',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          minHeight: '100vh',
+          width: '100%',
+          overflow: 'hidden',
+          backgroundColor: '#03050c',
+        }}
+      >
         {/* ── Error Banner ── */}
         {errorMessage && (
-          <div
-            style={{
+          <Box
+            sx={{
               position: 'absolute',
               top: 80,
               left: '50%',
@@ -1406,9 +1451,9 @@ export default function July() {
               zIndex: 200,
               display: 'flex',
               alignItems: 'center',
-              gap: 8,
+              gap: 1,
               padding: '10px 18px',
-              borderRadius: 14,
+              borderRadius: 3.5,
               background: 'rgba(255, 70, 70, 0.08)',
               border: '1px solid rgba(255, 70, 70, 0.25)',
               backdropFilter: 'blur(12px)',
@@ -1421,23 +1466,27 @@ export default function July() {
               animation: 'msg-in 0.3s ease forwards',
             }}
           >
-            <span style={{ fontSize: 13 }}>⚠️</span>
-            <span>{errorMessage}</span>
-          </div>
+            <Typography component='span' sx={{ fontSize: 13 }}>
+              ⚠️
+            </Typography>
+            <Typography component='span' sx={{ fontSize: 'inherit' }}>
+              {errorMessage}
+            </Typography>
+          </Box>
         )}
 
         {/* ── System Status Badge ── */}
-        <div
-          style={{
+        <Box
+          sx={{
             position: 'absolute',
             top: 24,
             left: 24,
             zIndex: 100,
             display: 'flex',
             alignItems: 'center',
-            gap: 8,
+            gap: 1,
             padding: '8px 14px',
-            borderRadius: 20,
+            borderRadius: 5,
             background: 'rgba(255, 255, 255, 0.02)',
             border: isCopyPulseActive
               ? '1px solid rgba(0, 220, 140, 0.35)'
@@ -1454,8 +1503,9 @@ export default function July() {
             transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
           }}
         >
-          <span
-            style={{
+          <Box
+            component='span'
+            sx={{
               width: 6,
               height: 6,
               borderRadius: '50%',
@@ -1472,7 +1522,14 @@ export default function July() {
               transition: 'background 0.4s ease',
             }}
           />
-          <span>
+          <Typography
+            component='span'
+            sx={{
+              fontSize: 'inherit',
+              fontWeight: 'inherit',
+              letterSpacing: 'inherit',
+            }}
+          >
             JULY v1.0 •{' '}
             {isCopyPulseActive
               ? 'COPIED!'
@@ -1481,189 +1538,212 @@ export default function July() {
                 : isMuted
                   ? `ONLINE (MUTED${messages.length > 0 ? ` • ${messages.length} MSGS` : ''})`
                   : `ONLINE${messages.length > 0 ? ` • ${messages.length} MSGS` : ''}`}
-          </span>
-        </div>
+          </Typography>
+        </Box>
 
-        {/* ── Export Chat Button ── */}
-        {messages.length > 0 && (
-          <button
-            type='button'
-            className='control-btn'
-            onClick={handleExportChat}
-            style={{
-              position: 'absolute',
-              top: 24,
-              right: 192,
-              zIndex: 100,
-              width: 44,
-              height: 44,
-              borderRadius: '50%',
-              border: '1px solid rgba(255,255,255,0.08)',
-              background: 'rgba(255,255,255,0.03)',
-              backdropFilter: 'blur(8px)',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: 'rgba(160, 220, 255, 0.85)',
-              boxShadow: '0 0 15px rgba(0,180,255,0.1), inset 0 0 10px rgba(0,180,255,0.02)',
-              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-            }}
-            aria-label='Export conversation history'
-          >
-            <IconDownload />
-            <span className='tooltip-bubble'>Export conversation</span>
-          </button>
-        )}
-
-        {/* ── Clear Chat Button ── */}
-        {messages.length > 0 && (
-          <button
-            type='button'
-            className={confirmClear ? 'control-btn confirm-shake' : 'control-btn'}
-            onClick={() => {
-              if (confirmClear) {
-                playChime('clear');
-                if (confirmClearTimeoutRef.current) {
-                  clearTimeout(confirmClearTimeoutRef.current);
-                  confirmClearTimeoutRef.current = null;
-                }
-                setMessages([]);
-                setConfirmClear(false);
-              } else {
-                playChime('click');
-                setConfirmClear(true);
-                confirmClearTimeoutRef.current = setTimeout(() => {
-                  setConfirmClear(false);
-                  confirmClearTimeoutRef.current = null;
-                }, 3000);
-              }
-            }}
-            style={{
-              position: 'absolute',
-              top: 24,
-              right: 136,
-              zIndex: 100,
-              width: 44,
-              height: 44,
-              borderRadius: '50%',
-              border: confirmClear
-                ? '1px solid rgba(255,70,70,0.25)'
-                : '1px solid rgba(255,255,255,0.08)',
-              background: 'rgba(255,255,255,0.03)',
-              backdropFilter: 'blur(8px)',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: confirmClear ? 'rgba(255,70,70,0.95)' : 'rgba(160,220,255,0.85)',
-              boxShadow: confirmClear
-                ? '0 0 15px rgba(255,70,70,0.25), inset 0 0 10px rgba(255, 70, 70, 0.05)'
-                : '0 0 15px rgba(0,180,255,0.1), inset 0 0 10px rgba(0,180,255,0.02)',
-              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-            }}
-            aria-label={confirmClear ? 'Confirm clear chat history' : 'Clear conversation history'}
-          >
-            {confirmClear ? <IconAlertCircle /> : <IconTrash />}
-            <span className='tooltip-bubble'>
-              {confirmClear ? 'Confirm clear history' : 'Clear conversation'}
-            </span>
-          </button>
-        )}
-
-        {/* ── Speed Selector Button ── */}
-        <button
-          type='button'
-          className='control-btn'
-          onClick={() => {
-            playChime('click');
-            setPlaybackSpeed((s) => {
-              if (s === 1) return 1.2;
-              if (s === 1.2) return 1.5;
-              return 1.0;
-            });
-          }}
-          style={{
-            position: 'absolute',
-            top: 24,
-            right: 80,
-            zIndex: 100,
-            width: 44,
-            height: 44,
-            borderRadius: '50%',
-            border:
-              playbackSpeed === 1.2
-                ? '1px solid rgba(0, 220, 140, 0.25)'
-                : playbackSpeed === 1.5
-                  ? '1px solid rgba(255, 150, 40, 0.3)'
-                  : '1px solid rgba(255, 255, 255, 0.08)',
-            background: 'rgba(255, 255, 255, 0.03)',
-            backdropFilter: 'blur(8px)',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: 11,
-            fontWeight: 400,
-            color:
-              playbackSpeed === 1.2
-                ? 'rgba(0, 220, 140, 0.95)'
-                : playbackSpeed === 1.5
-                  ? 'rgba(255, 150, 40, 0.95)'
-                  : 'rgba(160, 220, 255, 0.85)',
-            boxShadow:
-              playbackSpeed === 1.2
-                ? '0 0 15px rgba(0, 220, 140, 0.15), inset 0 0 10px rgba(0, 220, 140, 0.03)'
-                : playbackSpeed === 1.5
-                  ? '0 0 15px rgba(255, 150, 40, 0.2), inset 0 0 10px rgba(255, 150, 40, 0.05)'
-                  : '0 0 15px rgba(0, 180, 255, 0.1), inset 0 0 10px rgba(0, 180, 255, 0.02)',
-            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-          }}
-          aria-label={`Playback speed: ${playbackSpeed}x`}
-          title={`Cycle speed: currently ${playbackSpeed}x`}
-        >
-          {playbackSpeed.toFixed(1)}x
-        </button>
-
-        {/* ── Mute Toggle Button ── */}
-        <button
-          type='button'
-          className='control-btn'
-          onClick={() => {
-            playChime('click');
-            setIsMuted((m) => !m);
-          }}
-          style={{
+        {/* ── Control Buttons Stack ── */}
+        <Stack
+          direction='row'
+          spacing={1.5}
+          sx={{
             position: 'absolute',
             top: 24,
             right: 24,
             zIndex: 100,
-            width: 44,
-            height: 44,
-            borderRadius: '50%',
-            border: '1px solid rgba(255,255,255,0.08)',
-            background: 'rgba(255,255,255,0.03)',
-            backdropFilter: 'blur(8px)',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: isMuted ? 'rgba(255,70,70,0.85)' : 'rgba(160,220,255,0.85)',
-            boxShadow: isMuted
-              ? '0 0 15px rgba(255,70,70,0.15), inset 0 0 10px rgba(255,70,70,0.05)'
-              : '0 0 15px rgba(0,180,255,0.1), inset 0 0 10px rgba(0,180,255,0.02)',
-            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
           }}
-          aria-label={isMuted ? 'Unmute voice response' : 'Mute voice response'}
         >
-          {isMuted ? <IconVolumeX /> : <IconVolume2 />}
-          <span className='tooltip-bubble'>{isMuted ? 'Unmute voice' : 'Mute voice'}</span>
-        </button>
+          {/* Export Chat Button */}
+          {messages.length > 0 && (
+            <IconButton
+              onClick={handleExportChat}
+              sx={{
+                width: 44,
+                height: 44,
+                border: '1px solid rgba(255,255,255,0.08)',
+                background: 'rgba(255,255,255,0.03)',
+                backdropFilter: 'blur(8px)',
+                color: 'rgba(160, 220, 255, 0.85)',
+                boxShadow: '0 0 15px rgba(0,180,255,0.1), inset 0 0 10px rgba(0,180,255,0.02)',
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                '&:hover': {
+                  background: 'rgba(255, 255, 255, 0.08)',
+                  borderColor: 'rgba(0, 180, 255, 0.25)',
+                  color: '#fff',
+                  transform: 'scale(1.08)',
+                  boxShadow: '0 0 15px rgba(0, 180, 255, 0.15)',
+                },
+                '&:active': {
+                  transform: 'scale(0.95)',
+                },
+              }}
+              aria-label='Export conversation history'
+              title='Export conversation'
+            >
+              <IconDownload sx={{ fontSize: 18 }} />
+            </IconButton>
+          )}
+
+          {/* Clear Chat Button */}
+          {messages.length > 0 && (
+            <IconButton
+              onClick={() => {
+                if (confirmClear) {
+                  playChime('clear');
+                  if (confirmClearTimeoutRef.current) {
+                    clearTimeout(confirmClearTimeoutRef.current);
+                    confirmClearTimeoutRef.current = null;
+                  }
+                  setMessages([]);
+                  setConfirmClear(false);
+                } else {
+                  playChime('click');
+                  setConfirmClear(true);
+                  confirmClearTimeoutRef.current = setTimeout(() => {
+                    setConfirmClear(false);
+                    confirmClearTimeoutRef.current = null;
+                  }, 3000);
+                }
+              }}
+              sx={{
+                width: 44,
+                height: 44,
+                border: confirmClear
+                  ? '1px solid rgba(255,70,70,0.25)'
+                  : '1px solid rgba(255,255,255,0.08)',
+                background: 'rgba(255,255,255,0.03)',
+                backdropFilter: 'blur(8px)',
+                color: confirmClear ? 'rgba(255,70,70,0.95)' : 'rgba(160,220,255,0.85)',
+                boxShadow: confirmClear
+                  ? '0 0 15px rgba(255,70,70,0.25), inset 0 0 10px rgba(255, 70, 70, 0.05)'
+                  : '0 0 15px rgba(0,180,255,0.1), inset 0 0 10px rgba(0,180,255,0.02)',
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                animation: confirmClear ? 'alert-shake 0.35s ease-in-out infinite' : 'none',
+                '&:hover': {
+                  background: confirmClear
+                    ? 'rgba(255, 70, 70, 0.08)'
+                    : 'rgba(255, 255, 255, 0.08)',
+                  borderColor: confirmClear ? 'rgba(255, 70, 70, 0.35)' : 'rgba(0, 180, 255, 0.25)',
+                  color: confirmClear ? 'rgba(255, 100, 100, 0.95)' : '#fff',
+                  transform: 'scale(1.08)',
+                  boxShadow: confirmClear
+                    ? '0 0 15px rgba(255, 70, 70, 0.3)'
+                    : '0 0 15px rgba(0, 180, 255, 0.15)',
+                },
+                '&:active': {
+                  transform: 'scale(0.95)',
+                },
+              }}
+              aria-label={
+                confirmClear ? 'Confirm clear chat history' : 'Clear conversation history'
+              }
+              title={confirmClear ? 'Confirm clear history' : 'Clear conversation'}
+            >
+              {confirmClear ? (
+                <IconAlertCircle sx={{ fontSize: 18 }} />
+              ) : (
+                <IconTrash sx={{ fontSize: 18 }} />
+              )}
+            </IconButton>
+          )}
+
+          {/* Speed Selector Button */}
+          <Button
+            onClick={() => {
+              playChime('click');
+              setPlaybackSpeed((s) => {
+                if (s === 1) return 1.2;
+                if (s === 1.2) return 1.5;
+                return 1.0;
+              });
+            }}
+            sx={{
+              width: 44,
+              height: 44,
+              minWidth: 44,
+              borderRadius: '50%',
+              border:
+                playbackSpeed === 1.2
+                  ? '1px solid rgba(0, 220, 140, 0.25)'
+                  : playbackSpeed === 1.5
+                    ? '1px solid rgba(255, 150, 40, 0.3)'
+                    : '1px solid rgba(255, 255, 255, 0.08)',
+              background: 'rgba(255, 255, 255, 0.03)',
+              backdropFilter: 'blur(8px)',
+              fontSize: 11,
+              fontWeight: 400,
+              textTransform: 'none',
+              color:
+                playbackSpeed === 1.2
+                  ? 'rgba(0, 220, 140, 0.95)'
+                  : playbackSpeed === 1.5
+                    ? 'rgba(255, 150, 40, 0.95)'
+                    : 'rgba(160, 220, 255, 0.85)',
+              boxShadow:
+                playbackSpeed === 1.2
+                  ? '0 0 15px rgba(0, 220, 140, 0.15), inset 0 0 10px rgba(0, 220, 140, 0.03)'
+                  : playbackSpeed === 1.5
+                    ? '0 0 15px rgba(255, 150, 40, 0.2), inset 0 0 10px rgba(255, 150, 40, 0.05)'
+                    : '0 0 15px rgba(0, 180, 255, 0.1), inset 0 0 10px rgba(0, 180, 255, 0.02)',
+              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+              '&:hover': {
+                background: 'rgba(255, 255, 255, 0.08)',
+                borderColor: 'rgba(0, 180, 255, 0.25)',
+                color: '#fff',
+                transform: 'scale(1.08)',
+                boxShadow: '0 0 15px rgba(0, 180, 255, 0.15)',
+              },
+              '&:active': {
+                transform: 'scale(0.95)',
+              },
+            }}
+            aria-label={`Playback speed: ${playbackSpeed}x`}
+            title={`Cycle speed: currently ${playbackSpeed}x`}
+          >
+            {playbackSpeed.toFixed(1)}x
+          </Button>
+
+          {/* Mute Toggle Button */}
+          <IconButton
+            onClick={() => {
+              playChime('click');
+              setIsMuted((m) => !m);
+            }}
+            sx={{
+              width: 44,
+              height: 44,
+              border: '1px solid rgba(255,255,255,0.08)',
+              background: 'rgba(255,255,255,0.03)',
+              backdropFilter: 'blur(8px)',
+              color: isMuted ? 'rgba(255, 70, 70, 0.85)' : 'rgba(160, 220, 255, 0.85)',
+              boxShadow: isMuted
+                ? '0 0 15px rgba(255, 70, 70, 0.15), inset 0 0 10px rgba(255,70,70,0.05)'
+                : '0 0 15px rgba(0,180,255,0.1), inset 0 0 10px rgba(0,180,255,0.02)',
+              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+              '&:hover': {
+                background: 'rgba(255, 255, 255, 0.08)',
+                borderColor: 'rgba(0, 180, 255, 0.25)',
+                color: '#fff',
+                transform: 'scale(1.08)',
+                boxShadow: '0 0 15px rgba(0, 180, 255, 0.15)',
+              },
+              '&:active': {
+                transform: 'scale(0.95)',
+              },
+            }}
+            aria-label={isMuted ? 'Unmute voice response' : 'Mute voice response'}
+            title={isMuted ? 'Unmute voice' : 'Mute voice'}
+          >
+            {isMuted ? <IconVolumeX /> : <IconVolume2 />}
+          </IconButton>
+        </Stack>
 
         {/* ── aurora blobs ── */}
-        <div aria-hidden='true' className='pointer-events-none absolute inset-0 overflow-hidden'>
-          <div
-            style={{
+        <Box
+          aria-hidden='true'
+          sx={{ pointerEvents: 'none', position: 'absolute', inset: 0, overflow: 'hidden' }}
+        >
+          <Box
+            sx={{
               position: 'absolute',
               width: 700,
               height: 700,
@@ -1675,8 +1755,8 @@ export default function July() {
               animation: 'aurora-1 12s ease-in-out infinite',
             }}
           />
-          <div
-            style={{
+          <Box
+            sx={{
               position: 'absolute',
               width: 600,
               height: 600,
@@ -1688,8 +1768,8 @@ export default function July() {
               animation: 'aurora-2 15s ease-in-out infinite',
             }}
           />
-          <div
-            style={{
+          <Box
+            sx={{
               position: 'absolute',
               width: 500,
               height: 500,
@@ -1701,12 +1781,12 @@ export default function July() {
               animation: 'aurora-3 10s ease-in-out infinite',
             }}
           />
-        </div>
+        </Box>
 
         {/* ── dot-grid overlay ── */}
-        <div
+        <Box
           aria-hidden='true'
-          style={{
+          sx={{
             position: 'absolute',
             inset: 0,
             pointerEvents: 'none',
@@ -1716,8 +1796,8 @@ export default function July() {
         />
 
         {/* ── scene ── */}
-        <div
-          style={{
+        <Box
+          sx={{
             position: 'relative',
             display: 'flex',
             alignItems: 'center',
@@ -1731,9 +1811,9 @@ export default function July() {
             const delay = `${i * 300}ms`;
             if (orbMode === 'speaking')
               return (
-                <div
+                <Box
                   key={i}
-                  style={{
+                  sx={{
                     position: 'absolute',
                     inset: 0,
                     borderRadius: '50%',
@@ -1747,9 +1827,9 @@ export default function July() {
               );
             if (orbMode === 'processing')
               return (
-                <div
+                <Box
                   key={i}
-                  style={{
+                  sx={{
                     position: 'absolute',
                     inset: 0,
                     borderRadius: '50%',
@@ -1761,9 +1841,9 @@ export default function July() {
               );
             if (orbMode === 'responding')
               return (
-                <div
+                <Box
                   key={i}
-                  style={{
+                  sx={{
                     position: 'absolute',
                     inset: 0,
                     borderRadius: '50%',
@@ -1774,9 +1854,9 @@ export default function July() {
                 />
               );
             return (
-              <div
+              <Box
                 key={i}
-                style={{
+                sx={{
                   position: 'absolute',
                   inset: 0,
                   borderRadius: '50%',
@@ -1797,10 +1877,11 @@ export default function July() {
 
           {/* ── playback progress ring ── */}
           {orbMode === 'responding' && playbackDuration > 0 && (
-            <svg
+            <Box
+              component='svg'
               width='160'
               height='160'
-              style={{
+              sx={{
                 position: 'absolute',
                 zIndex: 15,
                 pointerEvents: 'none',
@@ -1808,7 +1889,8 @@ export default function July() {
               aria-hidden='true'
             >
               {/* Background Track */}
-              <circle
+              <Box
+                component='circle'
                 cx='80'
                 cy='80'
                 r='77'
@@ -1817,7 +1899,8 @@ export default function July() {
                 strokeWidth='2'
               />
               {/* Progress Ring */}
-              <circle
+              <Box
+                component='circle'
                 cx='80'
                 cy='80'
                 r='77'
@@ -1827,19 +1910,18 @@ export default function July() {
                 strokeDasharray='484'
                 strokeDashoffset={484 * (1 - Math.min(1, playbackElapsed / playbackDuration))}
                 strokeLinecap='round'
-                style={{
+                sx={{
                   transition: 'stroke-dashoffset 80ms linear',
                   transform: 'rotate(-90deg)',
                   transformOrigin: '80px 80px',
                   filter: 'drop-shadow(0 0 5px rgba(0, 220, 140, 0.6))',
                 }}
               />
-            </svg>
+            </Box>
           )}
 
           {/* ── main orb button ── */}
-          <button
-            type='button'
+          <Button
             id='july-orb'
             onClick={
               isResponding
@@ -1862,14 +1944,16 @@ export default function July() {
                       ? 'Microphone denied — retry'
                       : 'Requesting microphone…'
             }
-            style={{
+            sx={{
               position: 'relative',
               zIndex: 10,
               width: 148,
               height: 148,
+              minWidth: 148,
               borderRadius: '50%',
               border: 'none',
               outline: 'none',
+              padding: 0,
               cursor:
                 micStatus === 'requesting'
                   ? 'wait'
@@ -1903,11 +1987,22 @@ export default function July() {
                       ? 'orb-breathe 3.5s ease-in-out infinite'
                       : 'none',
               transition: 'background 0.6s ease, box-shadow 0.6s ease',
+              '&:hover': {
+                background:
+                  orbMode === 'processing'
+                    ? 'radial-gradient(circle at 35% 35%, rgba(255,140,30,0.35), rgba(120,50,0,0.9) 60%, rgba(15,5,0,0.98))'
+                    : orbMode === 'responding'
+                      ? 'radial-gradient(circle at 35% 35%, rgba(0,220,140,0.33), rgba(0,80,60,0.9) 60%, rgba(0,12,8,0.98))'
+                      : isMuted
+                        ? 'radial-gradient(circle at 35% 35%, rgba(140,160,180,0.25), rgba(60,70,80,0.85) 60%, rgba(5,8,12,0.98))'
+                        : 'radial-gradient(circle at 35% 35%, rgba(0,200,255,0.33), rgba(0,50,120,0.92) 60%, rgba(0,8,28,0.98))',
+              },
             }}
           >
             {/* inner highlight */}
-            <span
-              style={{
+            <Box
+              component='span'
+              sx={{
                 position: 'absolute',
                 inset: 10,
                 borderRadius: '50%',
@@ -1925,8 +2020,9 @@ export default function July() {
             />
 
             {/* icon */}
-            <span
-              style={{
+            <Box
+              component='span'
+              sx={{
                 position: 'relative',
                 zIndex: 10,
                 color:
@@ -1944,26 +2040,28 @@ export default function July() {
               aria-hidden='true'
             >
               {micStatus === 'idle' && <IconMic />}
-              {micStatus === 'requesting' && <IconSpinner />}
+              {micStatus === 'requesting' && (
+                <CircularProgress size={34} sx={{ color: 'inherit' }} />
+              )}
               {micStatus === 'active' && !isProcessing && !isResponding && (
                 <IconWave active={isSpeaking} volume={volume} />
               )}
               {isProcessing && <IconThinking />}
               {isResponding && <IconSpeaking playbackSpeed={playbackSpeed} />}
               {micStatus === 'denied' && <IconMicOff />}
-            </span>
-          </button>
+            </Box>
+          </Button>
 
           {/* volume bar — only while user is speaking */}
           {micStatus === 'active' && isSpeaking && (
             // biome-ignore lint/a11y/useSemanticElements: animated fill bar requires div children; <meter> cannot render them
-            <div
+            <Box
               role='meter'
               aria-valuenow={volume}
               aria-valuemin={0}
               aria-valuemax={100}
               aria-label='Microphone volume'
-              style={{
+              sx={{
                 position: 'absolute',
                 right: -8,
                 top: '50%',
@@ -1976,8 +2074,8 @@ export default function July() {
                 border: '1px solid rgba(0,150,255,0.2)',
               }}
             >
-              <div
-                style={{
+              <Box
+                sx={{
                   position: 'absolute',
                   bottom: 0,
                   left: 0,
@@ -1989,32 +2087,33 @@ export default function July() {
                   transition: 'height 60ms linear',
                 }}
               />
-            </div>
+            </Box>
           )}
-        </div>
+        </Box>
 
         {/* ── name + status ── */}
-        <div style={{ marginTop: 36, textAlign: 'center', userSelect: 'none' }}>
-          <p
-            style={{
+        <Box sx={{ marginTop: 4.5, textAlign: 'center', userSelect: 'none' }}>
+          <Typography
+            variant='h1'
+            sx={{
               fontSize: 28,
               fontWeight: 200,
               letterSpacing: '0.55em',
               color: 'rgba(170,215,255,0.92)',
               textShadow: '0 0 18px rgba(0,170,255,0.55)',
-              marginBottom: 10,
+              marginBottom: 1.25,
             }}
           >
             J U L Y
-          </p>
+          </Typography>
 
-          <div
-            style={{
+          <Box
+            sx={{
               height: 22,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: 4,
+              gap: 0.5,
               fontSize: 11,
               fontWeight: 300,
               letterSpacing: '0.18em',
@@ -2030,34 +2129,49 @@ export default function July() {
               transition: 'color 0.5s ease',
             }}
           >
-            {taglines[orbMode] ?? taglines.standby}
+            <Typography
+              component='span'
+              sx={{
+                fontSize: 'inherit',
+                fontWeight: 'inherit',
+                letterSpacing: 'inherit',
+                textTransform: 'inherit',
+                color: 'inherit',
+              }}
+            >
+              {taglines[orbMode] ?? taglines.standby}
+            </Typography>
             {orbMode === 'processing' && (
-              <span style={{ display: 'inline-flex', gap: 3, marginLeft: 2 }} aria-hidden='true'>
+              <Box
+                component='span'
+                sx={{ display: 'inline-flex', gap: 0.35, marginLeft: 0.25 }}
+                aria-hidden='true'
+              >
                 {[0, 180, 360].map((ms) => (
-                  <span
+                  <Box
+                    component='span'
                     key={ms}
-                    style={{
+                    sx={{
                       animation: `thinking-dot 1.3s ease-in-out ${ms}ms infinite`,
                       display: 'inline-block',
                     }}
                   >
                     •
-                  </span>
+                  </Box>
                 ))}
-              </span>
+              </Box>
             )}
-          </div>
-        </div>
-
+          </Box>
+        </Box>
         {/* ── suggestion chips ── */}
         {messages.length === 0 && (
-          <div
-            style={{
-              marginTop: 40,
+          <Box
+            sx={{
+              marginTop: 5,
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
-              gap: 12,
+              gap: 1.5,
               width: '100%',
               maxWidth: 380,
               padding: '0 20px',
@@ -2065,51 +2179,59 @@ export default function July() {
           >
             {/* ── Welcome Guide Panel ── */}
             {showWelcomeGuide && (
-              <div
-                style={{
+              <Box
+                sx={{
                   width: '100%',
                   padding: '20px',
-                  borderRadius: 20,
+                  borderRadius: 5,
                   background: 'rgba(255, 255, 255, 0.01)',
                   border: '1px solid rgba(255, 255, 255, 0.04)',
                   boxShadow: '0 8px 32px rgba(0, 0, 0, 0.25)',
                   backdropFilter: 'blur(10px)',
                   textAlign: 'center',
-                  marginBottom: 8,
+                  marginBottom: 1,
                   animation: 'msg-in 0.4s ease forwards',
                   position: 'relative',
                 }}
               >
-                <button
-                  type='button'
+                <IconButton
                   onClick={() => {
                     playChime('click');
                     setShowWelcomeGuide(false);
                   }}
-                  style={{
+                  sx={{
                     position: 'absolute',
                     top: 12,
                     right: 12,
                     background: 'none',
                     border: 'none',
                     outline: 'none',
-                    cursor: 'pointer',
                     color: 'rgba(160, 220, 255, 0.4)',
-                    padding: 4,
+                    padding: 0.5,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     borderRadius: '50%',
                     transition: 'all 0.2s',
+                    '&:hover': {
+                      background: 'rgba(255, 255, 255, 0.08)',
+                      borderColor: 'rgba(0, 180, 255, 0.25)',
+                      color: '#fff',
+                      transform: 'scale(1.08)',
+                      boxShadow: '0 0 15px rgba(0, 180, 255, 0.15)',
+                    },
+                    '&:active': {
+                      transform: 'scale(0.95)',
+                    },
                   }}
-                  className='control-btn'
                   aria-label='Dismiss welcome guide'
                   title='Dismiss guide'
                 >
-                  <IconX size={12} />
-                </button>
-                <h2
-                  style={{
+                  <IconX sx={{ fontSize: 12 }} />
+                </IconButton>
+                <Typography
+                  variant='h2'
+                  sx={{
                     fontSize: 14,
                     fontWeight: 400,
                     color: 'rgba(255, 255, 255, 0.95)',
@@ -2120,9 +2242,9 @@ export default function July() {
                   }}
                 >
                   {greeting}
-                </h2>
-                <p
-                  style={{
+                </Typography>
+                <Typography
+                  sx={{
                     fontSize: 12,
                     fontWeight: 300,
                     color: 'rgba(160, 220, 255, 0.72)',
@@ -2132,8 +2254,8 @@ export default function July() {
                 >
                   July is fully synchronized and at your service. Choose a target prompt below,
                   start typing, or activate the orb to interact.
-                </p>
-              </div>
+                </Typography>
+              </Box>
             )}
 
             {[
@@ -2152,54 +2274,79 @@ export default function July() {
                   'What are the latest updates about Gemini models from Google? Search for the news.',
               },
             ].map((chip) => (
-              <button
+              <Button
                 key={chip.text}
-                type='button'
                 onClick={() => {
                   playChime('click');
                   handlePrompt(chip.prompt);
                 }}
                 disabled={isProcessing || isResponding}
-                style={{
+                sx={{
                   width: '100%',
                   padding: '12px 16px',
-                  borderRadius: 16,
+                  borderRadius: 4,
                   border: '1px solid rgba(255, 255, 255, 0.08)',
                   background: 'rgba(255, 255, 255, 0.02)',
                   backdropFilter: 'blur(10px)',
                   color: 'rgba(160, 220, 255, 0.85)',
                   fontSize: 12,
                   fontWeight: 300,
-                  textAlign: 'left',
+                  textTransform: 'none',
+                  justifyContent: 'space-between',
                   cursor: isProcessing || isResponding ? 'not-allowed' : 'pointer',
                   boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)',
                   transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
                   opacity: isProcessing || isResponding ? 0.5 : 1,
+                  display: 'flex',
+                  alignItems: 'center',
+                  '&:hover': {
+                    background: 'rgba(255, 255, 255, 0.05)',
+                    borderColor: 'rgba(0, 180, 255, 0.2)',
+                    color: 'rgba(200, 235, 255, 1)',
+                    transform: 'translateY(-2px)',
+                    boxShadow: '0 6px 24px rgba(0, 180, 255, 0.15)',
+                    '& .chip-arrow': {
+                      opacity: 0.85,
+                      transform: 'translateX(0)',
+                      color: 'rgba(160, 220, 255, 0.95)',
+                    },
+                  },
+                  '&:active': {
+                    transform: 'translateY(0)',
+                  },
                 }}
-                className='suggestion-chip'
               >
-                <span
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    width: '100%',
+                <Typography
+                  component='span'
+                  sx={{ fontSize: 'inherit', fontWeight: 'inherit', color: 'inherit' }}
+                >
+                  {chip.text}
+                </Typography>
+                <Box
+                  component='span'
+                  className='chip-arrow'
+                  sx={{
+                    opacity: 0,
+                    transform: 'translateX(-6px)',
+                    transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+                    display: 'inline-block',
+                    fontSize: 'inherit',
+                    color: 'inherit',
                   }}
                 >
-                  <span>{chip.text}</span>
-                  <span className='chip-arrow'>↗</span>
-                </span>
-              </button>
+                  ↗
+                </Box>
+              </Button>
             ))}
-          </div>
+          </Box>
         )}
 
         {/* ── conversation feed ── */}
         {messages.length > 0 && (
-          <div style={{ position: 'relative', width: '100%', maxWidth: 520 }}>
+          <Box sx={{ position: 'relative', width: '100%', maxWidth: 520 }}>
             {/* Top Fade Overlay */}
-            <div
-              style={{
+            <Box
+              sx={{
                 position: 'absolute',
                 top: 40,
                 left: 24,
@@ -2210,37 +2357,35 @@ export default function July() {
                 zIndex: 5,
               }}
             />
-            <div
+            <Box
               ref={scrollContainerRef}
               onScroll={handleScroll}
               className='july-scroll-container'
-              style={{
-                marginTop: 40,
+              sx={{
+                marginTop: 5,
                 width: '100%',
                 maxHeight: 260,
                 overflowY: 'auto',
                 padding: '0 24px',
                 display: 'flex',
                 flexDirection: 'column',
-                gap: 10,
+                gap: 1.25,
               }}
             >
               {messages.map((msg, idx) => {
                 const isSpeakingThis =
                   msg.role === 'july' && idx === messages.length - 1 && isResponding;
                 return (
-                  <div
-                    // biome-ignore lint/suspicious/noArrayIndexKey: message feed is strictly append-only
+                  <Box
                     key={idx}
                     className='msg-in'
-                    style={{
+                    sx={{
                       display: 'flex',
                       justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start',
                     }}
                   >
-                    {/* biome-ignore lint/a11y/useKeyWithClickEvents: click-to-complete is a mouse-only convenience shortcut during animation */}
-                    {/* biome-ignore lint/a11y/noStaticElementInteractions: message bubbles are static, but double-click to copy and click-to-complete are custom convenience gestures */}
-                    <div
+                    {/* Double-click gesture to copy */}
+                    <Box
                       onClick={() => {
                         if (typingMsgIdx === idx) {
                           if (typingIntervalRef.current) {
@@ -2264,7 +2409,7 @@ export default function July() {
                           ? 'Click to show full response | Double-click to copy'
                           : 'Double-click to copy message'
                       }
-                      style={{
+                      sx={{
                         maxWidth: '78%',
                         padding: '10px 15px',
                         borderRadius:
@@ -2299,15 +2444,16 @@ export default function July() {
                       {typingMsgIdx === idx ? (
                         <>
                           {typingText}
-                          <span
-                            style={{
+                          <Box
+                            component='span'
+                            sx={{
                               display: 'inline-block',
                               width: '0.55em',
                               height: '1em',
                               background: 'rgba(0, 220, 140, 0.75)',
-                              marginLeft: 2,
+                              marginLeft: 0.25,
                               verticalAlign: 'text-bottom',
-                              borderRadius: 1,
+                              borderRadius: 0.25,
                               animation: 'cursor-blink 0.7s step-end infinite',
                             }}
                             aria-hidden='true'
@@ -2316,64 +2462,71 @@ export default function July() {
                       ) : (
                         msg.text
                       )}
-                      <div
-                        style={{
+                      <Box
+                        sx={{
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'space-between',
-                          gap: 12,
-                          marginTop: 8,
+                          gap: 1.5,
+                          marginTop: 1,
                         }}
                       >
-                        <div
-                          style={{
+                        <Box
+                          sx={{
                             display: 'flex',
                             alignItems: 'center',
                             flexWrap: 'wrap',
-                            gap: 8,
+                            gap: 1,
                           }}
                         >
                           {msg.sources && msg.sources.length > 0 && (
-                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75 }}>
                               {msg.sources.map((src) => (
-                                <a
+                                <Box
+                                  component='a'
                                   key={src.uri}
                                   href={src.uri}
                                   target='_blank'
                                   rel='noopener noreferrer'
-                                  style={{
+                                  sx={{
                                     fontSize: 10,
                                     padding: '3px 8px',
-                                    borderRadius: 8,
+                                    borderRadius: 2,
                                     background: 'rgba(255, 255, 255, 0.05)',
                                     border: '1px solid rgba(255, 255, 255, 0.08)',
                                     color: 'rgba(160, 220, 255, 0.8)',
                                     textDecoration: 'none',
                                     transition: 'all 0.2s',
+                                    '&:hover': {
+                                      background: 'rgba(255, 255, 255, 0.1)',
+                                      borderColor: 'rgba(0, 180, 255, 0.3)',
+                                      color: 'rgba(255, 255, 255, 1)',
+                                      boxShadow: '0 0 10px rgba(0, 180, 255, 0.1)',
+                                    },
                                   }}
-                                  className='source-link'
                                 >
                                   🌐 {src.title}
-                                </a>
+                                </Box>
                               ))}
-                            </div>
+                            </Box>
                           )}
                           {isSpeakingThis && (
-                            <div
-                              style={{
+                            <Box
+                              sx={{
                                 display: 'flex',
                                 alignItems: 'center',
-                                gap: 6,
+                                gap: 0.75,
                                 padding: '3px 8px',
-                                borderRadius: 8,
+                                borderRadius: 2,
                                 background: 'rgba(0, 220, 140, 0.08)',
                                 border: '1px solid rgba(0, 220, 140, 0.15)',
                                 backdropFilter: 'blur(8px)',
                               }}
                             >
                               <IconSpeakerWave />
-                              <span
-                                style={{
+                              <Box
+                                component='span'
+                                sx={{
                                   fontSize: 9,
                                   color: 'rgba(100, 240, 180, 0.95)',
                                   letterSpacing: '0.05em',
@@ -2381,66 +2534,66 @@ export default function July() {
                                 }}
                               >
                                 PLAYING AUDIO
-                              </span>
-                            </div>
+                              </Box>
+                            </Box>
                           )}
-                        </div>
-                        <div
-                          style={{
+                        </Box>
+                        <Box
+                          sx={{
                             display: 'flex',
                             alignItems: 'center',
-                            gap: 6,
+                            gap: 0.75,
                             marginLeft: 'auto',
                           }}
                         >
                           {msg.latency && (
-                            <span
-                              style={{
+                            <Box
+                              component='span'
+                              sx={{
                                 fontSize: 9,
                                 color: 'rgba(0, 220, 140, 0.45)',
-                                marginRight: 4,
+                                marginRight: 0.5,
                                 letterSpacing: '0.04em',
                                 userSelect: 'none',
                               }}
                               title='Response Generation Latency'
                             >
                               ⚡ {msg.latency}
-                            </span>
+                            </Box>
                           )}
                           {msg.timestamp && (
-                            <span
-                              style={{
+                            <Box
+                              component='span'
+                              sx={{
                                 fontSize: 9,
                                 color: 'rgba(160, 220, 255, 0.35)',
-                                marginRight: 8,
+                                marginRight: 1,
                                 letterSpacing: '0.02em',
                                 userSelect: 'none',
                               }}
                             >
                               {msg.timestamp}
-                            </span>
+                            </Box>
                           )}
                           {msg.role === 'july' && (
-                            <div
-                              style={{
+                            <Box
+                              sx={{
                                 display: 'flex',
                                 alignItems: 'center',
-                                gap: 4,
-                                marginRight: 4,
+                                gap: 0.5,
+                                marginRight: 0.5,
                               }}
                             >
-                              <button
-                                type='button'
+                              <IconButton
                                 onClick={() => handleMessageFeedback(idx, 'like')}
-                                className='feedback-button'
                                 aria-label='Like message'
                                 title='Like'
-                                style={{
+                                sx={{
                                   display: 'flex',
                                   alignItems: 'center',
                                   justifyContent: 'center',
-                                  padding: '4px',
-                                  borderRadius: '6px',
+                                  padding: 0.5,
+                                  borderRadius: 1.5,
                                   border: '1px solid rgba(255, 255, 255, 0.05)',
                                   background: 'rgba(255, 255, 255, 0.02)',
                                   color:
@@ -2449,22 +2602,30 @@ export default function July() {
                                       : 'rgba(160, 220, 255, 0.5)',
                                   cursor: 'pointer',
                                   transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+                                  '&:hover': {
+                                    background: 'rgba(255, 255, 255, 0.06)',
+                                    borderColor: 'rgba(0, 180, 255, 0.25)',
+                                    color: 'rgba(255, 255, 255, 0.95)',
+                                    boxShadow: '0 0 6px rgba(0, 180, 255, 0.08)',
+                                  },
                                 }}
                               >
-                                <IconThumbsUp />
-                              </button>
-                              <button
-                                type='button'
+                                {msg.feedback === 'like' ? (
+                                  <IconThumbsUpFilled sx={{ fontSize: 12 }} />
+                                ) : (
+                                  <IconThumbsUpOutlined sx={{ fontSize: 12 }} />
+                                )}
+                              </IconButton>
+                              <IconButton
                                 onClick={() => handleMessageFeedback(idx, 'dislike')}
-                                className='feedback-button'
                                 aria-label='Dislike message'
                                 title='Dislike'
-                                style={{
+                                sx={{
                                   display: 'flex',
                                   alignItems: 'center',
                                   justifyContent: 'center',
-                                  padding: '4px',
-                                  borderRadius: '6px',
+                                  padding: 0.5,
+                                  borderRadius: 1.5,
                                   border: '1px solid rgba(255, 255, 255, 0.05)',
                                   background: 'rgba(255, 255, 255, 0.02)',
                                   color:
@@ -2473,50 +2634,64 @@ export default function July() {
                                       : 'rgba(160, 220, 255, 0.5)',
                                   cursor: 'pointer',
                                   transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+                                  '&:hover': {
+                                    background: 'rgba(255, 255, 255, 0.06)',
+                                    borderColor: 'rgba(0, 180, 255, 0.25)',
+                                    color: 'rgba(255, 255, 255, 0.95)',
+                                    boxShadow: '0 0 6px rgba(0, 180, 255, 0.08)',
+                                  },
                                 }}
                               >
-                                <IconThumbsDown />
-                              </button>
-                            </div>
+                                {msg.feedback === 'dislike' ? (
+                                  <IconThumbsDownFilled sx={{ fontSize: 12 }} />
+                                ) : (
+                                  <IconThumbsDownOutlined sx={{ fontSize: 12 }} />
+                                )}
+                              </IconButton>
+                            </Box>
                           )}
                           <CopyButton text={msg.text} onCopy={() => handleCopyNotification(idx)} />
-                          <button
-                            type='button'
+                          <IconButton
                             onClick={() => handleDeleteMessage(idx)}
-                            className='delete-msg-button'
                             aria-label='Delete message'
                             title='Delete message'
-                            style={{
+                            sx={{
                               display: 'flex',
                               alignItems: 'center',
                               justifyContent: 'center',
-                              padding: '4px',
-                              borderRadius: '6px',
+                              padding: 0.5,
+                              borderRadius: 1.5,
                               border: '1px solid rgba(255, 255, 255, 0.05)',
                               background: 'rgba(255, 255, 255, 0.02)',
                               color: 'rgba(255, 100, 100, 0.65)',
                               cursor: 'pointer',
                               transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+                              '&:hover': {
+                                background: 'rgba(255, 70, 70, 0.08)',
+                                borderColor: 'rgba(255, 70, 70, 0.25)',
+                                color: 'rgba(255, 100, 100, 0.95)',
+                                boxShadow: '0 0 8px rgba(255, 70, 70, 0.1)',
+                              },
                             }}
                           >
-                            <IconTrash size={12} />
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                            <IconTrash sx={{ fontSize: 12 }} />
+                          </IconButton>
+                        </Box>
+                      </Box>
+                    </Box>
+                  </Box>
                 );
               })}
               {isProcessing && (
-                <div
+                <Box
                   className='msg-in'
-                  style={{
+                  sx={{
                     display: 'flex',
                     justifyContent: 'flex-start',
                   }}
                 >
-                  <div
-                    style={{
+                  <Box
+                    sx={{
                       maxWidth: '78%',
                       padding: '10px 15px',
                       borderRadius: '18px 18px 18px 4px',
@@ -2533,11 +2708,16 @@ export default function July() {
                       justifyContent: 'center',
                     }}
                   >
-                    <span style={{ display: 'inline-flex', gap: 4 }} aria-hidden='true'>
+                    <Box
+                      component='span'
+                      sx={{ display: 'inline-flex', gap: 0.5 }}
+                      aria-hidden='true'
+                    >
                       {[0, 180, 360].map((ms) => (
-                        <span
+                        <Box
+                          component='span'
                           key={ms}
-                          style={{
+                          sx={{
                             animation: `thinking-dot 1.2s ease-in-out ${ms}ms infinite`,
                             display: 'inline-block',
                             fontSize: 16,
@@ -2545,18 +2725,18 @@ export default function July() {
                           }}
                         >
                           •
-                        </span>
+                        </Box>
                       ))}
-                    </span>
-                  </div>
-                </div>
+                    </Box>
+                  </Box>
+                </Box>
               )}
               <div ref={messagesEndRef} />
-            </div>
+            </Box>
 
             {/* Bottom Fade Overlay */}
-            <div
-              style={{
+            <Box
+              sx={{
                 position: 'absolute',
                 bottom: 0,
                 left: 24,
@@ -2569,13 +2749,12 @@ export default function July() {
             />
 
             {showScrollBottom && (
-              <button
-                type='button'
+              <IconButton
                 onClick={() => {
                   messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
                   setHasNewMessageAlert(false);
                 }}
-                style={{
+                sx={{
                   position: 'absolute',
                   right: 28,
                   bottom: 12,
@@ -2598,14 +2777,21 @@ export default function July() {
                   color: hasNewMessageAlert ? '#00dc8c' : 'rgba(160, 220, 255, 0.85)',
                   transition: 'all 0.25s ease',
                   animation: 'msg-in 0.25s ease forwards',
+                  '&:hover': {
+                    background: 'rgba(3, 5, 12, 0.9)',
+                    borderColor: 'rgba(0, 180, 255, 0.25)',
+                    color: '#fff',
+                    transform: 'scale(1.08)',
+                  },
                 }}
                 title='Scroll to bottom'
                 aria-label='Scroll to bottom'
               >
                 <IconChevronDown />
                 {hasNewMessageAlert && (
-                  <span
-                    style={{
+                  <Box
+                    component='span'
+                    sx={{
                       position: 'absolute',
                       top: 1,
                       right: 1,
@@ -2617,34 +2803,35 @@ export default function July() {
                     }}
                   />
                 )}
-              </button>
+              </IconButton>
             )}
-          </div>
+          </Box>
         )}
 
         {/* ── bottom input box ── */}
         {micStatus === 'active' && (
-          <form
+          <Box
+            component='form'
             onSubmit={(e) => {
               e.preventDefault();
               if (!inputText.trim()) return;
               handlePrompt(inputText.trim());
               setInputText('');
             }}
-            style={{
-              marginTop: 24,
+            sx={{
+              marginTop: 3,
               width: '100%',
               maxWidth: 520,
               display: 'flex',
-              gap: 8,
+              gap: 1,
               padding: '0 24px',
             }}
           >
-            <div style={{ flex: 1, position: 'relative', display: 'flex' }}>
-              <input
-                ref={inputRef}
+            <Box sx={{ flex: 1, position: 'relative', display: 'flex' }}>
+              <InputBase
+                inputRef={inputRef}
                 type='text'
-                maxLength={250}
+                inputProps={{ maxLength: 250 }}
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
                 onKeyDown={(e) => {
@@ -2667,36 +2854,47 @@ export default function July() {
                       ? 'Speaking...'
                       : PLACEHOLDERS[placeholderIdx]
                 }
-                style={{
+                sx={{
                   flex: 1,
                   padding: '12px 78px 12px 18px',
-                  borderRadius: 22,
+                  borderRadius: '22px',
                   border: '1px solid rgba(255, 255, 255, 0.08)',
                   background: 'rgba(255, 255, 255, 0.02)',
                   color: 'rgba(255, 255, 255, 0.9)',
                   fontSize: 13,
                   fontWeight: 300,
-                  outline: 'none',
                   backdropFilter: 'blur(10px)',
                   transition: 'all 0.3s ease',
+                  '& input::placeholder': {
+                    color: 'rgba(255, 255, 255, 0.4)',
+                    opacity: 1,
+                  },
+                  '& input:focus': {
+                    outline: 'none',
+                  },
+                  '&:focus-within': {
+                    borderColor: 'rgba(0, 180, 255, 0.3)',
+                    boxShadow:
+                      '0 0 15px rgba(0, 180, 255, 0.15), inset 0 0 10px rgba(0, 180, 255, 0.02)',
+                    background: 'rgba(255, 255, 255, 0.04)',
+                  },
                 }}
-                className='july-text-input'
               />
               {inputText.length > 0 && (
                 <>
-                  <button
-                    type='button'
+                  <Button
                     onClick={() => {
                       playChime('click');
                       setCounterMode((prev) => (prev === 'char' ? 'word' : 'char'));
                     }}
                     className={inputText.length >= 230 ? 'warning-pulse' : ''}
-                    style={{
+                    sx={{
                       position: 'absolute',
                       right: 42,
                       top: '50%',
                       transform: 'translateY(-50%)',
                       fontSize: 10,
+                      minWidth: 0,
                       fontWeight: 300,
                       color:
                         inputText.length >= 220
@@ -2709,6 +2907,14 @@ export default function July() {
                       padding: 0,
                       transition: 'color 0.2s ease',
                       userSelect: 'none',
+                      textTransform: 'none',
+                      '&:hover': {
+                        background: 'none',
+                        color:
+                          inputText.length >= 220
+                            ? 'rgba(255, 120, 120, 0.95)'
+                            : 'rgba(180, 235, 255, 0.75)',
+                      },
                     }}
                     title={
                       counterMode === 'char' ? 'Switch to word count' : 'Switch to character count'
@@ -2718,14 +2924,13 @@ export default function July() {
                     }
                   >
                     {getCounterText()}
-                  </button>
-                  <button
-                    type='button'
+                  </Button>
+                  <IconButton
                     onClick={() => {
                       setInputText('');
                       inputRef.current?.focus();
                     }}
-                    style={{
+                    sx={{
                       position: 'absolute',
                       right: 14,
                       top: '50%',
@@ -2733,25 +2938,30 @@ export default function July() {
                       background: 'none',
                       border: 'none',
                       outline: 'none',
-                      cursor: 'pointer',
-                      padding: 4,
+                      padding: 0.5,
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       color: 'rgba(160, 220, 255, 0.4)',
+                      '&:hover': {
+                        color: 'rgba(255, 100, 100, 0.85)',
+                        transform: 'translateY(-50%) scale(1.15)',
+                      },
+                      '&:active': {
+                        transform: 'translateY(-50%) scale(0.9)',
+                      },
                     }}
-                    className='input-clear-btn'
                     title='Clear text'
                     aria-label='Clear text'
                   >
-                    <IconX size={12} />
-                  </button>
+                    <IconX sx={{ fontSize: 12 }} />
+                  </IconButton>
                 </>
               )}
               {/* Character Limit Visual Progress Bar */}
               {inputText.length > 0 && (
-                <div
-                  style={{
+                <Box
+                  sx={{
                     position: 'absolute',
                     bottom: 0,
                     left: 18,
@@ -2763,8 +2973,8 @@ export default function July() {
                     pointerEvents: 'none',
                   }}
                 >
-                  <div
-                    style={{
+                  <Box
+                    sx={{
                       height: '100%',
                       width: `${(inputText.length / 250) * 100}%`,
                       background:
@@ -2778,13 +2988,13 @@ export default function July() {
                       transition: 'width 0.15s ease-out, background 0.2s ease',
                     }}
                   />
-                </div>
+                </Box>
               )}
-            </div>
-            <button
+            </Box>
+            <IconButton
               type='submit'
               disabled={isProcessing || isResponding || !inputText.trim()}
-              style={{
+              sx={{
                 width: 44,
                 height: 44,
                 borderRadius: '50%',
@@ -2801,31 +3011,39 @@ export default function July() {
                     ? 'rgba(255,255,255,0.2)'
                     : 'rgba(160,220,255,0.85)',
                 transition: 'all 0.3s ease',
+                '&:hover': {
+                  background: 'rgba(255, 255, 255, 0.08)',
+                  borderColor: 'rgba(0, 180, 255, 0.25)',
+                  color: '#fff',
+                  transform: 'scale(1.08)',
+                  boxShadow: '0 0 15px rgba(0, 180, 255, 0.15)',
+                },
+                '&:active': {
+                  transform: 'scale(0.95)',
+                },
               }}
               aria-label='Send message'
             >
-              <IconSend />
-            </button>
-          </form>
+              <IconSend sx={{ fontSize: 18 }} />
+            </IconButton>
+          </Box>
         )}
 
         {/* Keyboard Shortcuts Helper */}
         {micStatus === 'active' && (
-          <button
-            type='button'
-            className='shortcuts-helper'
+          <Button
             onClick={() => {
               playChime('click');
               setShowHelpModal(true);
             }}
-            style={{
-              marginTop: 12,
+            sx={{
+              marginTop: 1.5,
               fontSize: 10,
               fontWeight: 300,
               letterSpacing: '0.06em',
               color: 'rgba(160, 220, 255, 0.3)',
               display: 'flex',
-              gap: 16,
+              gap: 2,
               userSelect: 'none',
               pointerEvents: 'auto',
               animation: 'msg-in 0.5s ease forwards',
@@ -2833,808 +3051,817 @@ export default function July() {
               border: 'none',
               outline: 'none',
               padding: 0,
+              textTransform: 'none',
+              minWidth: 0,
+              '&:hover': {
+                background: 'none',
+                color: 'rgba(160, 220, 255, 0.75)',
+                textShadow: '0 0 8px rgba(0, 180, 255, 0.5)',
+                transform: 'translateY(-1px)',
+              },
             }}
             title='Click to view interaction guide & commands'
           >
-            <span>[Esc] Silence</span>
-            <span>[⌘K / ⌃K] Clear</span>
-            <span>[M] Mute</span>
-            <span>[S] Speed</span>
-            <span>[H] Help</span>
-          </button>
+            <Box component='span' sx={{ marginRight: 2 }}>
+              [Esc] Silence
+            </Box>
+            <Box component='span' sx={{ marginRight: 2 }}>
+              [⌘K / ⌃K] Clear
+            </Box>
+            <Box component='span' sx={{ marginRight: 2 }}>
+              [M] Mute
+            </Box>
+            <Box component='span' sx={{ marginRight: 2 }}>
+              [S] Speed
+            </Box>
+            <Box component='span'>[H] Help</Box>
+          </Button>
         )}
 
         {/* Interaction Protocols Help Modal */}
-        {showHelpModal && (
-          // biome-ignore lint/a11y/useKeyWithClickEvents: Escape key already closes the modal globally
-          // biome-ignore lint/a11y/noStaticElementInteractions: backdrop click handler is standard for modal dismissal
-          <div
-            onClick={() => {
-              playChime('click');
-              setShowHelpModal(false);
-            }}
-            style={{
-              position: 'fixed',
-              inset: 0,
-              zIndex: 300,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              background: 'rgba(3, 5, 12, 0.75)',
-              backdropFilter: 'blur(12px)',
-              animation: 'msg-in 0.25s ease forwards',
-            }}
-          >
-            {/* biome-ignore lint/a11y/useKeyWithClickEvents: stopPropagation doesn't trigger actions */}
-            {/* biome-ignore lint/a11y/noStaticElementInteractions: stopPropagation wrapper is standard */}
-            <div
-              onClick={(e) => e.stopPropagation()}
-              style={{
+        <Dialog
+          open={showHelpModal}
+          onClose={() => {
+            playChime('click');
+            setShowHelpModal(false);
+          }}
+          slotProps={{
+            paper: {
+              sx: {
                 width: '90%',
                 maxWidth: 460,
-                borderRadius: 24,
-                background: 'rgba(255, 255, 255, 0.02)',
+                borderRadius: 6,
+                background: 'rgba(3, 5, 12, 0.92)',
                 border: '1px solid rgba(0, 180, 255, 0.2)',
                 boxShadow: '0 24px 64px rgba(0, 0, 0, 0.65), 0 0 30px rgba(0, 180, 255, 0.15)',
-                padding: '28px 24px',
-                position: 'relative',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 20,
+                padding: '24px',
+                color: '#fff',
+                backdropFilter: 'blur(12px)',
+              },
+            },
+          }}
+          sx={{
+            '& .MuiBackdrop-root': {
+              background: 'rgba(3, 5, 12, 0.75)',
+              backdropFilter: 'blur(8px)',
+            },
+          }}
+        >
+          {/* Header */}
+          <DialogTitle
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
+              padding: '0 0 14px 0',
+              fontSize: 14,
+              fontWeight: 400,
+              letterSpacing: '0.12em',
+              textTransform: 'uppercase',
+              color: 'rgba(0, 180, 255, 0.95)',
+              textShadow: '0 0 8px rgba(0, 180, 255, 0.4)',
+            }}
+          >
+            Interaction Protocols
+            <IconButton
+              onClick={() => {
+                playChime('click');
+                setShowHelpModal(false);
               }}
+              sx={{
+                color: 'rgba(160, 220, 255, 0.5)',
+                padding: 0.5,
+                '&:hover': {
+                  color: '#fff',
+                  background: 'rgba(255, 255, 255, 0.08)',
+                },
+              }}
+              aria-label='Close help modal'
             >
-              {/* Header */}
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
-                  paddingBottom: 14,
+              <IconX sx={{ fontSize: 16 }} />
+            </IconButton>
+          </DialogTitle>
+
+          {/* Body */}
+          <DialogContent
+            sx={{
+              padding: '20px 0 0 0',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 2.5,
+              overflowY: 'auto',
+              '&::-webkit-scrollbar': {
+                width: '4px',
+              },
+              '&::-webkit-scrollbar-thumb': {
+                background: 'rgba(0, 180, 255, 0.15)',
+                borderRadius: '4px',
+              },
+            }}
+          >
+            {/* Keyboard shortcuts */}
+            <Box>
+              <Typography
+                variant='h4'
+                sx={{
+                  fontSize: 11,
+                  fontWeight: 400,
+                  color: 'rgba(255, 255, 255, 0.8)',
+                  letterSpacing: '0.05em',
+                  marginBottom: 1,
+                  textTransform: 'uppercase',
                 }}
               >
-                <h3
-                  style={{
-                    fontSize: 14,
-                    fontWeight: 400,
-                    letterSpacing: '0.12em',
-                    textTransform: 'uppercase',
-                    color: 'rgba(0, 180, 255, 0.95)',
-                    textShadow: '0 0 8px rgba(0, 180, 255, 0.4)',
-                    margin: 0,
-                  }}
-                >
-                  Interaction Protocols
-                </h3>
-                <button
-                  type='button'
-                  onClick={() => {
-                    playChime('click');
-                    setShowHelpModal(false);
-                  }}
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    outline: 'none',
-                    cursor: 'pointer',
-                    color: 'rgba(160, 220, 255, 0.5)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    padding: 4,
-                    borderRadius: '50%',
-                    transition: 'all 0.2s',
-                  }}
-                  className='control-btn'
-                  aria-label='Close help modal'
-                >
-                  <IconX size={16} />
-                </button>
-              </div>
-
-              {/* Body */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 20, marginTop: 12 }}>
-                {/* Keyboard shortcuts */}
-                <div>
-                  <h4
-                    style={{
-                      fontSize: 11,
-                      fontWeight: 400,
-                      color: 'rgba(255, 255, 255, 0.8)',
-                      letterSpacing: '0.05em',
-                      marginBottom: 8,
-                      textTransform: 'uppercase',
-                    }}
-                  >
-                    Keyboard Shortcuts
-                  </h4>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                    {[
-                      { keys: ['Esc'], desc: 'Silence July / Stop response playback' },
-                      { keys: ['⌘ K', '⌃ K'], desc: 'Clear conversation history' },
-                      { keys: ['M'], desc: 'Toggle audio feedback mute' },
-                      { keys: ['S'], desc: 'Cycle playback speed (1.0x → 1.2x → 1.5x)' },
-                      { keys: ['H'], desc: 'Toggle help modal' },
-                      { keys: ['Space'], desc: 'Activate July / request microphone' },
-                      { keys: ['↑'], desc: 'Recall / edit last sent prompt (in empty input)' },
-                      { keys: ['Any Key'], desc: 'Auto-focus prompt input box (when active)' },
-                    ].map((item) => (
-                      <div
-                        key={item.desc}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'space-between',
-                          fontSize: 12,
-                        }}
-                      >
-                        <span style={{ color: 'rgba(160, 220, 255, 0.7)', fontWeight: 300 }}>
-                          {item.desc}
-                        </span>
-                        <div style={{ display: 'flex', gap: 4 }}>
-                          {item.keys.map((k) => (
-                            <kbd
-                              key={k}
-                              style={{
-                                display: 'inline-block',
-                                padding: '2px 6px',
-                                fontSize: 10,
-                                fontWeight: 400,
-                                color: '#fff',
-                                background: 'rgba(255, 255, 255, 0.05)',
-                                border: '1px solid rgba(255, 255, 255, 0.08)',
-                                borderRadius: 4,
-                                boxShadow: '0 2px 0 rgba(0, 0, 0, 0.3)',
-                                fontFamily: 'inherit',
-                              }}
-                            >
-                              {k}
-                            </kbd>
-                          ))}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Mouse Actions */}
-                <div>
-                  <h4
-                    style={{
-                      fontSize: 11,
-                      fontWeight: 400,
-                      color: 'rgba(255, 255, 255, 0.8)',
-                      letterSpacing: '0.05em',
-                      marginBottom: 8,
-                      textTransform: 'uppercase',
-                    }}
-                  >
-                    Control Panel & Gesture Bindings
-                  </h4>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                    {[
-                      {
-                        action: 'Orb Interaction',
-                        desc: 'Click the central orb to activate microphone / cancel / silence response',
-                      },
-                      {
-                        action: 'Playback Ring',
-                        desc: 'Outer green ring displays remaining speech duration',
-                      },
-                      {
-                        action: 'Speed Selector',
-                        desc: 'Click top right number to throttle speech rate',
-                      },
-                      {
-                        action: 'Mute Button',
-                        desc: 'Click top right speaker icon to toggle sound response',
-                      },
-                      {
-                        action: 'Clear Button',
-                        desc: 'Click trash icon (double tap to confirm) to wipe chat logs',
-                      },
-                      {
-                        action: 'Reaction Badges',
-                        desc: 'Click thumbs up/down icons under message bubbles to feedback',
-                      },
-                    ].map((item) => (
-                      <div
-                        key={item.action}
-                        style={{ display: 'flex', flexDirection: 'column', gap: 2, fontSize: 12 }}
-                      >
-                        <span style={{ color: 'rgba(0, 180, 255, 0.85)', fontWeight: 400 }}>
-                          {item.action}
-                        </span>
-                        <span
-                          style={{
-                            color: 'rgba(160, 220, 255, 0.55)',
-                            fontWeight: 300,
-                            fontSize: 11,
-                          }}
-                        >
-                          {item.desc}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Profile Personalization */}
-                <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.05)', paddingTop: 16 }}>
-                  <h4
-                    style={{
-                      fontSize: 11,
-                      fontWeight: 400,
-                      color: 'rgba(255, 255, 255, 0.8)',
-                      letterSpacing: '0.05em',
-                      marginBottom: 8,
-                      textTransform: 'uppercase',
-                    }}
-                  >
-                    Profile Personalization
-                  </h4>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                    <div
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        fontSize: 12,
-                      }}
-                    >
-                      <span style={{ color: 'rgba(160, 220, 255, 0.7)', fontWeight: 300 }}>
-                        Preferred Display Name
-                      </span>
-                    </div>
-                    <input
-                      type='text'
-                      value={userName}
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        if (val.length <= 25) {
-                          setUserName(val);
-                        }
-                      }}
-                      style={{
-                        background: 'rgba(255, 255, 255, 0.03)',
-                        border: '1px solid rgba(255, 255, 255, 0.08)',
-                        borderRadius: 12,
-                        padding: '10px 14px',
-                        color: '#fff',
-                        fontSize: 12,
-                        outline: 'none',
-                        transition: 'all 0.2s',
-                        width: '100%',
-                      }}
-                      placeholder='e.g. Master, Creator'
-                      className='settings-text-input'
-                      aria-label='Preferred Display Name'
-                    />
-                  </div>
-                </div>
-
-                {/* Acoustic Calibration */}
-                <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.05)', paddingTop: 16 }}>
-                  <h4
-                    style={{
-                      fontSize: 11,
-                      fontWeight: 400,
-                      color: 'rgba(255, 255, 255, 0.8)',
-                      letterSpacing: '0.05em',
-                      marginBottom: 8,
-                      textTransform: 'uppercase',
-                    }}
-                  >
-                    Acoustic Calibration
-                  </h4>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                    <div
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        fontSize: 12,
-                      }}
-                    >
-                      <span style={{ color: 'rgba(160, 220, 255, 0.7)', fontWeight: 300 }}>
-                        Microphone Sensitivity (lower threshold = more sensitive)
-                      </span>
-                      <span
-                        style={{
-                          color: '#00dc8c',
-                          fontWeight: 400,
-                          textShadow: '0 0 6px rgba(0, 220, 140, 0.4)',
-                        }}
-                      >
-                        {speakingThreshold} RMS
-                      </span>
-                    </div>
-                    <input
-                      type='range'
-                      min='3'
-                      max='30'
-                      value={speakingThreshold}
-                      onChange={(e) => setSpeakingThreshold(Number(e.target.value))}
-                      className='sensitivity-slider'
-                      aria-label='Microphone Sensitivity Threshold'
-                    />
-                    <div
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        fontSize: 12,
-                        marginTop: 8,
-                      }}
-                    >
-                      <span style={{ color: 'rgba(160, 220, 255, 0.7)', fontWeight: 300 }}>
-                        Chimes Volume (sound effects level)
-                      </span>
-                      <span
-                        style={{
-                          color: '#00dc8c',
-                          fontWeight: 400,
-                          textShadow: '0 0 6px rgba(0, 220, 140, 0.4)',
-                        }}
-                      >
-                        {soundVolume}%
-                      </span>
-                    </div>
-                    <input
-                      type='range'
-                      min='0'
-                      max='100'
-                      value={soundVolume}
-                      onChange={(e) => setSoundVolume(Number(e.target.value))}
-                      className='sensitivity-slider'
-                      aria-label='Chimes Volume'
-                    />
-                  </div>
-                </div>
-
-                {/* Session Diagnostics */}
-                <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.05)', paddingTop: 16 }}>
-                  <h4
-                    style={{
-                      fontSize: 11,
-                      fontWeight: 400,
-                      color: 'rgba(255, 255, 255, 0.8)',
-                      letterSpacing: '0.05em',
-                      marginBottom: 8,
-                      textTransform: 'uppercase',
-                    }}
-                  >
-                    Session Diagnostics
-                  </h4>
-                  <div
-                    style={{
-                      display: 'grid',
-                      gridTemplateColumns: '1fr 1fr',
-                      gap: 10,
+                Keyboard Shortcuts
+              </Typography>
+              <Stack spacing={0.75}>
+                {[
+                  { keys: ['Esc'], desc: 'Silence July / Stop response playback' },
+                  { keys: ['⌘ K', '⌃ K'], desc: 'Clear conversation history' },
+                  { keys: ['M'], desc: 'Toggle audio feedback mute' },
+                  { keys: ['S'], desc: 'Cycle playback speed (1.0x → 1.2x → 1.5x)' },
+                  { keys: ['H'], desc: 'Toggle help modal' },
+                  { keys: ['Space'], desc: 'Activate July / request microphone' },
+                  { keys: ['↑'], desc: 'Recall / edit last sent prompt (in empty input)' },
+                  { keys: ['Any Key'], desc: 'Auto-focus prompt input box (when active)' },
+                ].map((item) => (
+                  <Box
+                    key={item.desc}
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
                       fontSize: 12,
                     }}
                   >
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                      <span
-                        style={{
-                          color: 'rgba(160, 220, 255, 0.55)',
-                          fontSize: 10,
-                          textTransform: 'uppercase',
-                        }}
-                      >
-                        Queries Sent
-                      </span>
-                      <span style={{ color: '#fff', fontWeight: 300 }}>
-                        {messages.filter((m) => m.role === 'user').length}
-                      </span>
-                    </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                      <span
-                        style={{
-                          color: 'rgba(160, 220, 255, 0.55)',
-                          fontSize: 10,
-                          textTransform: 'uppercase',
-                        }}
-                      >
-                        Avg Latency
-                      </span>
-                      <span style={{ color: '#fff', fontWeight: 300 }}>
-                        {(() => {
-                          const latMsgs = messages.filter((m) => m.latency);
-                          if (latMsgs.length === 0) return 'N/A';
-                          const sum = latMsgs.reduce(
-                            (acc, m) => acc + parseFloat(m.latency || '0'),
-                            0
-                          );
-                          return `⚡ ${(sum / latMsgs.length).toFixed(1)}s`;
-                        })()}
-                      </span>
-                    </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                      <span
-                        style={{
-                          color: 'rgba(160, 220, 255, 0.55)',
-                          fontSize: 10,
-                          textTransform: 'uppercase',
-                        }}
-                      >
-                        Playback Speed
-                      </span>
-                      <span style={{ color: '#fff', fontWeight: 300 }}>
-                        {playbackSpeed.toFixed(1)}x
-                      </span>
-                    </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                      <span
-                        style={{
-                          color: 'rgba(160, 220, 255, 0.55)',
-                          fontSize: 10,
-                          textTransform: 'uppercase',
-                        }}
-                      >
-                        Audio Feedback
-                      </span>
-                      <span
-                        style={{
-                          color: isMuted ? 'rgba(255, 100, 100, 0.75)' : '#00dc8c',
-                          fontWeight: 300,
-                        }}
-                      >
-                        {isMuted ? 'Muted' : 'Enabled'}
-                      </span>
-                    </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                      <span
-                        style={{
-                          color: 'rgba(160, 220, 255, 0.55)',
-                          fontSize: 10,
-                          textTransform: 'uppercase',
-                        }}
-                      >
-                        Welcome Guide
-                      </span>
-                      <button
-                        type='button'
-                        onClick={() => {
-                          playChime('click');
-                          setShowWelcomeGuide((prev) => !prev);
-                        }}
-                        style={{
-                          background: 'none',
-                          border: 'none',
-                          outline: 'none',
-                          padding: 0,
-                          cursor: 'pointer',
-                          color: showWelcomeGuide ? '#00dc8c' : 'rgba(160, 220, 255, 0.55)',
-                          fontSize: 12,
-                          textAlign: 'left',
-                          transition: 'all 0.2s',
-                          fontWeight: 300,
-                        }}
-                        className='control-btn'
-                      >
-                        {showWelcomeGuide ? 'Visible' : 'Hidden (click to show)'}
-                      </button>
-                    </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                      <span
-                        style={{
-                          color: 'rgba(160, 220, 255, 0.55)',
-                          fontSize: 10,
-                          textTransform: 'uppercase',
-                        }}
-                      >
-                        Mic Threshold
-                      </span>
-                      <span style={{ color: '#fff', fontWeight: 300 }}>
-                        {speakingThreshold} RMS
-                      </span>
-                    </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                      <span
-                        style={{
-                          color: 'rgba(160, 220, 255, 0.55)',
-                          fontSize: 10,
-                          textTransform: 'uppercase',
-                        }}
-                      >
-                        Auto-Scroll
-                      </span>
-                      <button
-                        type='button'
-                        onClick={() => {
-                          playChime('click');
-                          setAutoScrollEnabled((prev) => !prev);
-                        }}
-                        style={{
-                          background: 'none',
-                          border: 'none',
-                          outline: 'none',
-                          padding: 0,
-                          cursor: 'pointer',
-                          color: autoScrollEnabled ? '#00dc8c' : 'rgba(160, 220, 255, 0.55)',
-                          fontSize: 12,
-                          textAlign: 'left',
-                          transition: 'all 0.2s',
-                          fontWeight: 300,
-                        }}
-                        className='control-btn'
-                      >
-                        {autoScrollEnabled ? 'Enabled' : 'Disabled'}
-                      </button>
-                    </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                      <span
-                        style={{
-                          color: 'rgba(160, 220, 255, 0.55)',
-                          fontSize: 10,
-                          textTransform: 'uppercase',
-                        }}
-                      >
-                        Session Duration
-                      </span>
-                      <span style={{ color: '#fff', fontWeight: 300 }}>
-                        {formatDuration(sessionDuration)}
-                      </span>
-                    </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                      <span
-                        style={{
-                          color: 'rgba(160, 220, 255, 0.55)',
-                          fontSize: 10,
-                          textTransform: 'uppercase',
-                        }}
-                      >
-                        Chimes
-                      </span>
-                      <button
-                        type='button'
-                        onClick={() => {
-                          playChime('click');
-                          setSoundEffectsEnabled((prev) => !prev);
-                        }}
-                        style={{
-                          background: 'none',
-                          border: 'none',
-                          outline: 'none',
-                          padding: 0,
-                          cursor: 'pointer',
-                          color: soundEffectsEnabled ? '#00dc8c' : 'rgba(160, 220, 255, 0.55)',
-                          fontSize: 12,
-                          textAlign: 'left',
-                          transition: 'all 0.2s',
-                          fontWeight: 300,
-                        }}
-                        className='control-btn'
-                      >
-                        {soundEffectsEnabled ? 'Enabled' : 'Disabled'}
-                      </button>
-                    </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                      <span
-                        style={{
-                          color: 'rgba(160, 220, 255, 0.55)',
-                          fontSize: 10,
-                          textTransform: 'uppercase',
-                        }}
-                      >
-                        Response Length
-                      </span>
-                      <button
-                        type='button'
-                        onClick={() => {
-                          playChime('click');
-                          setResponseLength((prev) =>
-                            prev === 'concise' ? 'detailed' : 'concise'
-                          );
-                        }}
-                        style={{
-                          background: 'none',
-                          border: 'none',
-                          outline: 'none',
-                          padding: 0,
-                          cursor: 'pointer',
-                          color:
-                            responseLength === 'concise' ? '#00dc8c' : 'rgba(160, 220, 255, 0.55)',
-                          fontSize: 12,
-                          textAlign: 'left',
-                          transition: 'all 0.2s',
-                          fontWeight: 300,
-                        }}
-                        className='control-btn'
-                      >
-                        {responseLength === 'concise'
-                          ? 'Concise (<30 words)'
-                          : 'Detailed (<100 words)'}
-                      </button>
-                    </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                      <span
-                        style={{
-                          color: 'rgba(160, 220, 255, 0.55)',
-                          fontSize: 10,
-                          textTransform: 'uppercase',
-                        }}
-                      >
-                        Active Model
-                      </span>
-                      <button
-                        type='button'
-                        onClick={() => {
-                          playChime('click');
-                          setActiveModel((prev) =>
-                            prev === 'gemini-2.5-flash'
-                              ? 'gemini-2.5-pro'
-                              : prev === 'gemini-2.5-pro'
-                                ? 'gemini-2.0-flash'
-                                : 'gemini-2.5-flash'
-                          );
-                        }}
-                        style={{
-                          background: 'none',
-                          border: 'none',
-                          outline: 'none',
-                          padding: 0,
-                          cursor: 'pointer',
-                          color: '#00dc8c',
-                          fontSize: 12,
-                          textAlign: 'left',
-                          transition: 'all 0.2s',
-                          fontWeight: 300,
-                        }}
-                        className='control-btn'
-                      >
-                        {activeModel === 'gemini-2.5-flash'
-                          ? 'Gemini 2.5 Flash'
-                          : activeModel === 'gemini-2.5-pro'
-                            ? 'Gemini 2.5 Pro'
-                            : 'Gemini 2.0 Flash'}
-                      </button>
-                    </div>
-                  </div>
-                </div>
+                    <Typography
+                      sx={{ color: 'rgba(160, 220, 255, 0.7)', fontWeight: 300, fontSize: 12 }}
+                    >
+                      {item.desc}
+                    </Typography>
+                    <Box sx={{ display: 'flex', gap: 0.5 }}>
+                      {item.keys.map((k) => (
+                        <Box
+                          component='kbd'
+                          key={k}
+                          sx={{
+                            display: 'inline-block',
+                            padding: '2px 6px',
+                            fontSize: 10,
+                            fontWeight: 400,
+                            color: '#fff',
+                            background: 'rgba(255, 255, 255, 0.05)',
+                            border: '1px solid rgba(255, 255, 255, 0.08)',
+                            borderRadius: 1,
+                            boxShadow: '0 2px 0 rgba(0, 0, 0, 0.3)',
+                            fontFamily: 'inherit',
+                          }}
+                        >
+                          {k}
+                        </Box>
+                      ))}
+                    </Box>
+                  </Box>
+                ))}
+              </Stack>
+            </Box>
 
-                {/* Reset to Defaults */}
-                <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 4 }}>
-                  <button
-                    type='button'
-                    onClick={() => {
-                      playChime('click');
+            {/* Mouse Actions */}
+            <Box>
+              <Typography
+                variant='h4'
+                sx={{
+                  fontSize: 11,
+                  fontWeight: 400,
+                  color: 'rgba(255, 255, 255, 0.8)',
+                  letterSpacing: '0.05em',
+                  marginBottom: 1,
+                  textTransform: 'uppercase',
+                }}
+              >
+                Control Panel & Gesture Bindings
+              </Typography>
+              <Stack spacing={1}>
+                {[
+                  {
+                    action: 'Orb Interaction',
+                    desc: 'Click the central orb to activate microphone / cancel / silence response',
+                  },
+                  {
+                    action: 'Playback Ring',
+                    desc: 'Outer green ring displays remaining speech duration',
+                  },
+                  {
+                    action: 'Speed Selector',
+                    desc: 'Click top right number to throttle speech rate',
+                  },
+                  {
+                    action: 'Mute Button',
+                    desc: 'Click top right speaker icon to toggle sound response',
+                  },
+                  {
+                    action: 'Clear Button',
+                    desc: 'Click trash icon (double tap to confirm) to wipe chat logs',
+                  },
+                  {
+                    action: 'Reaction Badges',
+                    desc: 'Click thumbs up/down icons under message bubbles to feedback',
+                  },
+                ].map((item) => (
+                  <Box
+                    key={item.action}
+                    sx={{ display: 'flex', flexDirection: 'column', gap: 0.25 }}
+                  >
+                    <Typography
+                      sx={{ color: 'rgba(0, 180, 255, 0.85)', fontWeight: 400, fontSize: 12 }}
+                    >
+                      {item.action}
+                    </Typography>
+                    <Typography
+                      sx={{ color: 'rgba(160, 220, 255, 0.55)', fontWeight: 300, fontSize: 11 }}
+                    >
+                      {item.desc}
+                    </Typography>
+                  </Box>
+                ))}
+              </Stack>
+            </Box>
 
-                      // Revert states
-                      setSpeakingThreshold(10);
-                      setShowWelcomeGuide(true);
-                      setUserName('Master');
-                      setAutoScrollEnabled(true);
-                      setSoundEffectsEnabled(true);
-                      setSoundVolume(100);
-                      setCounterMode('char');
-                      setPlaybackSpeed(1.0);
-                      setIsMuted(false);
-                      setResponseLength('detailed');
-                      setActiveModel('gemini-2.5-flash');
-                      setInputText('');
+            {/* Profile Personalization */}
+            <Box sx={{ borderTop: '1px solid rgba(255, 255, 255, 0.05)', paddingTop: 2 }}>
+              <Typography
+                variant='h4'
+                sx={{
+                  fontSize: 11,
+                  fontWeight: 400,
+                  color: 'rgba(255, 255, 255, 0.8)',
+                  letterSpacing: '0.05em',
+                  marginBottom: 1,
+                  textTransform: 'uppercase',
+                }}
+              >
+                Profile Personalization
+              </Typography>
+              <Stack spacing={1}>
+                <Typography
+                  sx={{ color: 'rgba(160, 220, 255, 0.7)', fontWeight: 300, fontSize: 12 }}
+                >
+                  Preferred Display Name
+                </Typography>
+                <InputBase
+                  type='text'
+                  value={userName}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (val.length <= 25) {
+                      setUserName(val);
+                    }
+                  }}
+                  sx={{
+                    background: 'rgba(255, 255, 255, 0.03)',
+                    border: '1px solid rgba(255, 255, 255, 0.08)',
+                    borderRadius: 3,
+                    padding: '10px 14px',
+                    color: '#fff',
+                    fontSize: 12,
+                    width: '100%',
+                    '&:focus-within': {
+                      borderColor: 'rgba(0, 180, 255, 0.45)',
+                      boxShadow:
+                        '0 0 15px rgba(0, 180, 255, 0.15), inset 0 0 8px rgba(0, 180, 255, 0.05)',
+                      background: 'rgba(255, 255, 255, 0.06)',
+                    },
+                  }}
+                  placeholder='e.g. Master, Creator'
+                  aria-label='Preferred Display Name'
+                />
+              </Stack>
+            </Box>
 
-                      // Remove items from local storage to clean up
-                      localStorage.removeItem('july_speaking_threshold');
-                      localStorage.removeItem('july_show_welcome_guide');
-                      localStorage.removeItem('july_user_name');
-                      localStorage.removeItem('july_auto_scroll');
-                      localStorage.removeItem('july_sound_effects');
-                      localStorage.removeItem('july_sound_volume');
-                      localStorage.removeItem('july_draft_input');
-                      localStorage.removeItem('july_counter_mode');
-                      localStorage.removeItem('july_response_length');
-                      localStorage.removeItem('july_active_model');
-
-                      showToast('Settings reset to default');
+            {/* Acoustic Calibration */}
+            <Box sx={{ borderTop: '1px solid rgba(255, 255, 255, 0.05)', paddingTop: 2 }}>
+              <Typography
+                variant='h4'
+                sx={{
+                  fontSize: 11,
+                  fontWeight: 400,
+                  color: 'rgba(255, 255, 255, 0.8)',
+                  letterSpacing: '0.05em',
+                  marginBottom: 1.5,
+                  textTransform: 'uppercase',
+                }}
+              >
+                Acoustic Calibration
+              </Typography>
+              <Stack spacing={2}>
+                <Box>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      fontSize: 12,
+                      marginBottom: 0.5,
                     }}
-                    style={{
-                      background: 'rgba(255, 255, 255, 0.02)',
-                      border: '1px solid rgba(255, 255, 255, 0.08)',
-                      borderRadius: 12,
-                      padding: '8px 16px',
-                      color: 'rgba(160, 220, 255, 0.72)',
-                      fontSize: 11,
-                      cursor: 'pointer',
-                      transition: 'all 0.25s ease',
-                      fontWeight: 400,
-                      letterSpacing: '0.04em',
+                  >
+                    <Typography
+                      sx={{ color: 'rgba(160, 220, 255, 0.7)', fontWeight: 300, fontSize: 12 }}
+                    >
+                      Microphone Sensitivity (lower threshold = more sensitive)
+                    </Typography>
+                    <Typography
+                      sx={{
+                        color: '#00dc8c',
+                        fontWeight: 400,
+                        textShadow: '0 0 6px rgba(0, 220, 140, 0.4)',
+                        fontSize: 12,
+                      }}
+                    >
+                      {speakingThreshold} RMS
+                    </Typography>
+                  </Box>
+                  <Slider
+                    min={3}
+                    max={30}
+                    value={speakingThreshold}
+                    onChange={(_, val) => setSpeakingThreshold(val as number)}
+                    sx={{
+                      color: '#00dc8c',
+                      height: 4,
+                      padding: '13px 0',
+                      '& .MuiSlider-thumb': {
+                        width: 14,
+                        height: 14,
+                        backgroundColor: '#00dc8c',
+                        boxShadow: '0 0 10px rgba(0, 220, 140, 0.6)',
+                        '&:hover, &.Mui-focusVisible': {
+                          boxShadow: '0px 0px 0px 8px rgba(0, 220, 140, 0.16)',
+                        },
+                        '&:active': {
+                          transform: 'scale(1.2)',
+                          backgroundColor: '#00ffaa',
+                          boxShadow: '0 0 14px rgba(0, 255, 170, 0.8)',
+                        },
+                      },
+                      '& .MuiSlider-track': {
+                        border: 'none',
+                      },
+                      '& .MuiSlider-rail': {
+                        opacity: 0.1,
+                        backgroundColor: '#fff',
+                      },
+                    }}
+                    aria-label='Microphone Sensitivity Threshold'
+                  />
+                </Box>
+
+                <Box>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      fontSize: 12,
+                      marginBottom: 0.5,
+                    }}
+                  >
+                    <Typography
+                      sx={{ color: 'rgba(160, 220, 255, 0.7)', fontWeight: 300, fontSize: 12 }}
+                    >
+                      Chimes Volume (sound effects level)
+                    </Typography>
+                    <Typography
+                      sx={{
+                        color: '#00dc8c',
+                        fontWeight: 400,
+                        textShadow: '0 0 6px rgba(0, 220, 140, 0.4)',
+                        fontSize: 12,
+                      }}
+                    >
+                      {soundVolume}%
+                    </Typography>
+                  </Box>
+                  <Slider
+                    min={0}
+                    max={100}
+                    value={soundVolume}
+                    onChange={(_, val) => setSoundVolume(val as number)}
+                    sx={{
+                      color: '#00dc8c',
+                      height: 4,
+                      padding: '13px 0',
+                      '& .MuiSlider-thumb': {
+                        width: 14,
+                        height: 14,
+                        backgroundColor: '#00dc8c',
+                        boxShadow: '0 0 10px rgba(0, 220, 140, 0.6)',
+                        '&:hover, &.Mui-focusVisible': {
+                          boxShadow: '0px 0px 0px 8px rgba(0, 220, 140, 0.16)',
+                        },
+                        '&:active': {
+                          transform: 'scale(1.2)',
+                          backgroundColor: '#00ffaa',
+                          boxShadow: '0 0 14px rgba(0, 255, 170, 0.8)',
+                        },
+                      },
+                      '& .MuiSlider-track': {
+                        border: 'none',
+                      },
+                      '& .MuiSlider-rail': {
+                        opacity: 0.1,
+                        backgroundColor: '#fff',
+                      },
+                    }}
+                    aria-label='Chimes Volume'
+                  />
+                </Box>
+              </Stack>
+            </Box>
+
+            {/* Session Diagnostics */}
+            <Box sx={{ borderTop: '1px solid rgba(255, 255, 255, 0.05)', paddingTop: 2 }}>
+              <Typography
+                variant='h4'
+                sx={{
+                  fontSize: 11,
+                  fontWeight: 400,
+                  color: 'rgba(255, 255, 255, 0.8)',
+                  letterSpacing: '0.05em',
+                  marginBottom: 1.5,
+                  textTransform: 'uppercase',
+                }}
+              >
+                Session Diagnostics
+              </Typography>
+              <Box
+                sx={{
+                  display: 'grid',
+                  gridTemplateColumns: '1fr 1fr',
+                  gap: 1.25,
+                  fontSize: 12,
+                }}
+              >
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.25 }}>
+                  <Typography
+                    sx={{
+                      color: 'rgba(160, 220, 255, 0.55)',
+                      fontSize: 10,
                       textTransform: 'uppercase',
                     }}
-                    className='control-btn'
-                    aria-label='Reset all settings to defaults'
                   >
-                    Reset Settings to Default
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
+                    Queries Sent
+                  </Typography>
+                  <Typography sx={{ color: '#fff', fontWeight: 300, fontSize: 12 }}>
+                    {messages.filter((m) => m.role === 'user').length}
+                  </Typography>
+                </Box>
+
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.25 }}>
+                  <Typography
+                    sx={{
+                      color: 'rgba(160, 220, 255, 0.55)',
+                      fontSize: 10,
+                      textTransform: 'uppercase',
+                    }}
+                  >
+                    Avg Latency
+                  </Typography>
+                  <Typography sx={{ color: '#fff', fontWeight: 300, fontSize: 12 }}>
+                    {(() => {
+                      const latMsgs = messages.filter((m) => m.latency);
+                      if (latMsgs.length === 0) return 'N/A';
+                      const sum = latMsgs.reduce((acc, m) => acc + parseFloat(m.latency || '0'), 0);
+                      return `⚡ ${(sum / latMsgs.length).toFixed(1)}s`;
+                    })()}
+                  </Typography>
+                </Box>
+
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.25 }}>
+                  <Typography
+                    sx={{
+                      color: 'rgba(160, 220, 255, 0.55)',
+                      fontSize: 10,
+                      textTransform: 'uppercase',
+                    }}
+                  >
+                    Playback Speed
+                  </Typography>
+                  <Typography sx={{ color: '#fff', fontWeight: 300, fontSize: 12 }}>
+                    {playbackSpeed.toFixed(1)}x
+                  </Typography>
+                </Box>
+
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.25 }}>
+                  <Typography
+                    sx={{
+                      color: 'rgba(160, 220, 255, 0.55)',
+                      fontSize: 10,
+                      textTransform: 'uppercase',
+                    }}
+                  >
+                    Audio Feedback
+                  </Typography>
+                  <Typography
+                    sx={{
+                      color: isMuted ? 'rgba(255, 100, 100, 0.75)' : '#00dc8c',
+                      fontWeight: 300,
+                      fontSize: 12,
+                    }}
+                  >
+                    {isMuted ? 'Muted' : 'Enabled'}
+                  </Typography>
+                </Box>
+
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.25 }}>
+                  <Typography
+                    sx={{
+                      color: 'rgba(160, 220, 255, 0.55)',
+                      fontSize: 10,
+                      textTransform: 'uppercase',
+                    }}
+                  >
+                    Welcome Guide
+                  </Typography>
+                  <Button
+                    onClick={() => {
+                      playChime('click');
+                      setShowWelcomeGuide((prev) => !prev);
+                    }}
+                    sx={{
+                      background: 'none',
+                      border: 'none',
+                      outline: 'none',
+                      padding: 0,
+                      textTransform: 'none',
+                      justifyContent: 'flex-start',
+                      color: showWelcomeGuide ? '#00dc8c' : 'rgba(160, 220, 255, 0.55)',
+                      fontSize: 12,
+                      fontWeight: 300,
+                      '&:hover': {
+                        background: 'none',
+                        color: '#fff',
+                        textShadow: '0 0 8px rgba(0, 180, 255, 0.5)',
+                      },
+                    }}
+                  >
+                    {showWelcomeGuide ? 'Visible' : 'Hidden (click to show)'}
+                  </Button>
+                </Box>
+
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.25 }}>
+                  <Typography
+                    sx={{
+                      color: 'rgba(160, 220, 255, 0.55)',
+                      fontSize: 10,
+                      textTransform: 'uppercase',
+                    }}
+                  >
+                    Mic Threshold
+                  </Typography>
+                  <Typography sx={{ color: '#fff', fontWeight: 300, fontSize: 12 }}>
+                    {speakingThreshold} RMS
+                  </Typography>
+                </Box>
+
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.25 }}>
+                  <Typography
+                    sx={{
+                      color: 'rgba(160, 220, 255, 0.55)',
+                      fontSize: 10,
+                      textTransform: 'uppercase',
+                    }}
+                  >
+                    Auto-Scroll
+                  </Typography>
+                  <Button
+                    onClick={() => {
+                      playChime('click');
+                      setAutoScrollEnabled((prev) => !prev);
+                    }}
+                    sx={{
+                      background: 'none',
+                      border: 'none',
+                      outline: 'none',
+                      padding: 0,
+                      textTransform: 'none',
+                      justifyContent: 'flex-start',
+                      color: autoScrollEnabled ? '#00dc8c' : 'rgba(160, 220, 255, 0.55)',
+                      fontSize: 12,
+                      fontWeight: 300,
+                      '&:hover': {
+                        background: 'none',
+                        color: '#fff',
+                        textShadow: '0 0 8px rgba(0, 180, 255, 0.5)',
+                      },
+                    }}
+                  >
+                    {autoScrollEnabled ? 'Enabled' : 'Disabled'}
+                  </Button>
+                </Box>
+
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.25 }}>
+                  <Typography
+                    sx={{
+                      color: 'rgba(160, 220, 255, 0.55)',
+                      fontSize: 10,
+                      textTransform: 'uppercase',
+                    }}
+                  >
+                    Session Duration
+                  </Typography>
+                  <Typography sx={{ color: '#fff', fontWeight: 300, fontSize: 12 }}>
+                    {formatDuration(sessionDuration)}
+                  </Typography>
+                </Box>
+
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.25 }}>
+                  <Typography
+                    sx={{
+                      color: 'rgba(160, 220, 255, 0.55)',
+                      fontSize: 10,
+                      textTransform: 'uppercase',
+                    }}
+                  >
+                    Chimes
+                  </Typography>
+                  <Button
+                    onClick={() => {
+                      playChime('click');
+                      setSoundEffectsEnabled((prev) => !prev);
+                    }}
+                    sx={{
+                      background: 'none',
+                      border: 'none',
+                      outline: 'none',
+                      padding: 0,
+                      textTransform: 'none',
+                      justifyContent: 'flex-start',
+                      color: soundEffectsEnabled ? '#00dc8c' : 'rgba(160, 220, 255, 0.55)',
+                      fontSize: 12,
+                      fontWeight: 300,
+                      '&:hover': {
+                        background: 'none',
+                        color: '#fff',
+                        textShadow: '0 0 8px rgba(0, 180, 255, 0.5)',
+                      },
+                    }}
+                  >
+                    {soundEffectsEnabled ? 'Enabled' : 'Disabled'}
+                  </Button>
+                </Box>
+
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.25 }}>
+                  <Typography
+                    sx={{
+                      color: 'rgba(160, 220, 255, 0.55)',
+                      fontSize: 10,
+                      textTransform: 'uppercase',
+                    }}
+                  >
+                    Response Length
+                  </Typography>
+                  <Button
+                    onClick={() => {
+                      playChime('click');
+                      setResponseLength((prev) => (prev === 'concise' ? 'detailed' : 'concise'));
+                    }}
+                    sx={{
+                      background: 'none',
+                      border: 'none',
+                      outline: 'none',
+                      padding: 0,
+                      textTransform: 'none',
+                      justifyContent: 'flex-start',
+                      color: responseLength === 'concise' ? '#00dc8c' : 'rgba(160, 220, 255, 0.55)',
+                      fontSize: 12,
+                      fontWeight: 300,
+                      '&:hover': {
+                        background: 'none',
+                        color: '#fff',
+                        textShadow: '0 0 8px rgba(0, 180, 255, 0.5)',
+                      },
+                    }}
+                  >
+                    {responseLength === 'concise' ? 'Concise (<30 words)' : 'Detailed (<100 words)'}
+                  </Button>
+                </Box>
+
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.25 }}>
+                  <Typography
+                    sx={{
+                      color: 'rgba(160, 220, 255, 0.55)',
+                      fontSize: 10,
+                      textTransform: 'uppercase',
+                    }}
+                  >
+                    Active Model
+                  </Typography>
+                  <Button
+                    onClick={() => {
+                      playChime('click');
+                      setActiveModel((prev) =>
+                        prev === 'gemini-2.5-flash'
+                          ? 'gemini-2.5-pro'
+                          : prev === 'gemini-2.5-pro'
+                            ? 'gemini-2.0-flash'
+                            : 'gemini-2.5-flash'
+                      );
+                    }}
+                    sx={{
+                      background: 'none',
+                      border: 'none',
+                      outline: 'none',
+                      padding: 0,
+                      textTransform: 'none',
+                      justifyContent: 'flex-start',
+                      color: '#00dc8c',
+                      fontSize: 12,
+                      fontWeight: 300,
+                      '&:hover': {
+                        background: 'none',
+                        color: '#fff',
+                        textShadow: '0 0 8px rgba(0, 180, 255, 0.5)',
+                      },
+                    }}
+                  >
+                    {activeModel === 'gemini-2.5-flash'
+                      ? 'Gemini 2.5 Flash'
+                      : activeModel === 'gemini-2.5-pro'
+                        ? 'Gemini 2.5 Pro'
+                        : 'Gemini 2.0 Flash'}
+                  </Button>
+                </Box>
+              </Box>
+            </Box>
+
+            {/* Reset to Defaults */}
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', marginTop: 1 }}>
+              <Button
+                onClick={() => {
+                  playChime('click');
+
+                  // Revert states
+                  setSpeakingThreshold(10);
+                  setShowWelcomeGuide(true);
+                  setUserName('Master');
+                  setAutoScrollEnabled(true);
+                  setSoundEffectsEnabled(true);
+                  setSoundVolume(100);
+                  setCounterMode('char');
+                  setPlaybackSpeed(1.0);
+                  setResponseLength('detailed');
+                  setActiveModel('gemini-2.5-flash');
+                  setInputText('');
+
+                  // Remove items from local storage to clean up
+                  localStorage.removeItem('july_speaking_threshold');
+                  localStorage.removeItem('july_show_welcome_guide');
+                  localStorage.removeItem('july_user_name');
+                  localStorage.removeItem('july_auto_scroll');
+                  localStorage.removeItem('july_sound_effects');
+                  localStorage.removeItem('july_sound_volume');
+                  localStorage.removeItem('july_draft_input');
+                  localStorage.removeItem('july_counter_mode');
+                  localStorage.removeItem('july_response_length');
+                  localStorage.removeItem('july_active_model');
+
+                  showToast('Settings reset to default');
+                }}
+                sx={{
+                  background: 'rgba(255, 255, 255, 0.02)',
+                  border: '1px solid rgba(255, 255, 255, 0.08)',
+                  borderRadius: 3,
+                  padding: '8px 16px',
+                  color: 'rgba(160, 220, 255, 0.72)',
+                  fontSize: 11,
+                  fontWeight: 400,
+                  letterSpacing: '0.04em',
+                  textTransform: 'uppercase',
+                  '&:hover': {
+                    background: 'rgba(255, 255, 255, 0.08)',
+                    borderColor: 'rgba(0, 180, 255, 0.25)',
+                    color: '#fff',
+                    boxShadow: '0 0 15px rgba(0, 180, 255, 0.15)',
+                  },
+                }}
+              >
+                Reset Settings to Default
+              </Button>
+            </Box>
+          </DialogContent>
+        </Dialog>
+      </Box>
     </>
   );
 }
 
-// ─── Icons ────────────────────────────────────────────────────────────────────
-
-function IconMic() {
-  return (
-    <svg
-      width='34'
-      height='34'
-      viewBox='0 0 24 24'
-      fill='none'
-      stroke='currentColor'
-      strokeWidth='1.4'
-      strokeLinecap='round'
-      strokeLinejoin='round'
-      aria-hidden='true'
-    >
-      <rect x='9' y='2' width='6' height='11' rx='3' />
-      <path d='M5 10a7 7 0 0 0 14 0' />
-      <line x1='12' y1='19' x2='12' y2='22' />
-      <line x1='8' y1='22' x2='16' y2='22' />
-    </svg>
-  );
-}
-
-function IconMicOff() {
-  return (
-    <svg
-      width='34'
-      height='34'
-      viewBox='0 0 24 24'
-      fill='none'
-      stroke='rgba(255,70,70,0.85)'
-      strokeWidth='1.4'
-      strokeLinecap='round'
-      strokeLinejoin='round'
-      aria-hidden='true'
-    >
-      <line x1='2' y1='2' x2='22' y2='22' />
-      <path d='M18.89 13.23A7 7 0 0 0 19 12' />
-      <path d='M5 10a7 7 0 0 0 11.17 5.7' />
-      <path d='M15 9.34V5a3 3 0 0 0-5.68-1.33' />
-      <path d='M9 9v3a3 3 0 0 0 5.12 2.12' />
-      <line x1='12' y1='19' x2='12' y2='22' />
-      <line x1='8' y1='22' x2='16' y2='22' />
-    </svg>
-  );
-}
-
-function IconSpinner() {
-  return (
-    <svg
-      width='34'
-      height='34'
-      viewBox='0 0 24 24'
-      fill='none'
-      stroke='currentColor'
-      strokeWidth='1.4'
-      strokeLinecap='round'
-      aria-hidden='true'
-    >
-      <path d='M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83'>
-        <animateTransform
-          attributeName='transform'
-          type='rotate'
-          from='0 12 12'
-          to='360 12 12'
-          dur='1s'
-          repeatCount='indefinite'
-        />
-      </path>
-    </svg>
-  );
-}
+// ─── Icons & Subcomponents ───────────────────────────────────────────────────
 
 function IconWave({ active, volume = 0 }: { active: boolean; volume?: number }) {
   const baseHeights = active ? [10, 18, 22, 16, 8] : [4, 8, 6, 8, 4];
   const scale = 1 + (volume / 100) * 1.5;
   return (
-    <svg
+    <Box
+      component='svg'
       width='38'
       height='26'
       viewBox='0 0 38 26'
@@ -3648,36 +3875,18 @@ function IconWave({ active, volume = 0 }: { active: boolean; volume?: number }) 
         const baseH = baseHeights[i];
         const h = Math.min(24, active ? baseH * scale : baseH);
         return (
-          <line
+          <Box
+            component='line'
             key={x}
             x1={x}
             y1={13 - h / 2}
             x2={x}
             y2={13 + h / 2}
-            style={{ transition: 'all 60ms ease-out' }}
+            sx={{ transition: 'all 60ms ease-out' }}
           />
         );
       })}
-    </svg>
-  );
-}
-
-function IconThinking() {
-  return (
-    <svg
-      width='34'
-      height='34'
-      viewBox='0 0 24 24'
-      fill='none'
-      stroke='currentColor'
-      strokeWidth='1.4'
-      strokeLinecap='round'
-      strokeLinejoin='round'
-      aria-hidden='true'
-    >
-      {/* sparkle / star */}
-      <path d='M12 2l1.8 5.5H20l-4.7 3.4 1.8 5.5L12 13l-5.1 3.4 1.8-5.5L4 7.5h6.2z' />
-    </svg>
+    </Box>
   );
 }
 
@@ -3685,7 +3894,8 @@ function IconSpeaking({ playbackSpeed }: { playbackSpeed: number }) {
   const heights = [7, 15, 20, 13, 6];
   const duration = 0.7 / playbackSpeed;
   return (
-    <svg
+    <Box
+      component='svg'
       width='38'
       height='26'
       viewBox='0 0 38 26'
@@ -3698,118 +3908,53 @@ function IconSpeaking({ playbackSpeed }: { playbackSpeed: number }) {
       {[4, 11, 19, 27, 34].map((x, i) => {
         const h = heights[i];
         return (
-          <line
+          <Box
+            component='line'
             key={x}
             x1={x}
             y1={13 - h / 2}
             x2={x}
             y2={13 + h / 2}
-            style={{
+            sx={{
               animation: `speaking-bar ${duration.toFixed(2)}s ease-in-out ${i * 100}ms infinite`,
             }}
           />
         );
       })}
-    </svg>
+    </Box>
   );
 }
 
-function IconVolume2() {
+function IconSpeakerWave() {
   return (
-    <svg
-      width='20'
-      height='20'
+    <Box
+      component='svg'
+      width='10'
+      height='10'
       viewBox='0 0 24 24'
       fill='none'
-      stroke='currentColor'
-      strokeWidth='1.6'
+      stroke='#00dc8c'
+      strokeWidth='2'
       strokeLinecap='round'
       strokeLinejoin='round'
+      sx={{
+        filter: 'drop-shadow(0 0 3px rgba(0, 220, 140, 0.4))',
+      }}
       aria-hidden='true'
     >
       <polygon points='11 5 6 9 2 9 2 15 6 15 11 19 11 5' />
-      <path d='M15.54 8.46a5 5 0 0 1 0 7.07M19.07 4.93a10 10 0 0 1 0 14.14' />
-    </svg>
-  );
-}
-
-function IconVolumeX() {
-  return (
-    <svg
-      width='20'
-      height='20'
-      viewBox='0 0 24 24'
-      fill='none'
-      stroke='currentColor'
-      strokeWidth='1.6'
-      strokeLinecap='round'
-      strokeLinejoin='round'
-      aria-hidden='true'
-    >
-      <polygon points='11 5 6 9 2 9 2 15 6 15 11 19 11 5' />
-      <line x1='22' y1='9' x2='16' y2='15' />
-      <line x1='16' y1='9' x2='22' y2='15' />
-    </svg>
-  );
-}
-
-function IconTrash({ size = 18 }: { size?: number }) {
-  return (
-    <svg
-      width={size}
-      height={size}
-      viewBox='0 0 24 24'
-      fill='none'
-      stroke='currentColor'
-      strokeWidth='1.6'
-      strokeLinecap='round'
-      strokeLinejoin='round'
-      aria-hidden='true'
-    >
-      <polyline points='3 6 5 6 21 6' />
-      <path d='M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2' />
-      <line x1='10' y1='11' x2='10' y2='17' />
-      <line x1='14' y1='11' x2='14' y2='17' />
-    </svg>
-  );
-}
-
-function IconDownload({ size = 18 }: { size?: number }) {
-  return (
-    <svg
-      width={size}
-      height={size}
-      viewBox='0 0 24 24'
-      fill='none'
-      stroke='currentColor'
-      strokeWidth='1.6'
-      strokeLinecap='round'
-      strokeLinejoin='round'
-      aria-hidden='true'
-    >
-      <path d='M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4' />
-      <polyline points='7 10 12 15 17 10' />
-      <line x1='12' y1='15' x2='12' y2='3' />
-    </svg>
-  );
-}
-
-function IconSend() {
-  return (
-    <svg
-      width='18'
-      height='18'
-      viewBox='0 0 24 24'
-      fill='none'
-      stroke='currentColor'
-      strokeWidth='1.6'
-      strokeLinecap='round'
-      strokeLinejoin='round'
-      aria-hidden='true'
-    >
-      <line x1='22' y1='2' x2='11' y2='13' />
-      <polygon points='22 2 15 22 11 13 2 9 22 2' />
-    </svg>
+      <path d='M15.54 8.46a5 5 0 0 1 0 7.07'>
+        <animate attributeName='opacity' values='0.15;1;0.15' dur='1.2s' repeatCount='indefinite' />
+      </path>
+      <path d='M19.07 4.93a10 10 0 0 1 0 14.14'>
+        <animate
+          attributeName='opacity'
+          values='0.15;0.15;1;0.15'
+          dur='1.2s'
+          repeatCount='indefinite'
+        />
+      </path>
+    </Box>
   );
 }
 
@@ -3828,14 +3973,13 @@ function CopyButton({ text, onCopy }: { text: string; onCopy?: () => void }) {
   };
 
   return (
-    <button
-      type='button'
+    <IconButton
       onClick={handleCopy}
-      style={{
+      sx={{
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: copied ? '4px 8px' : '4px',
+        padding: copied ? '4px 8px' : 0.5,
         borderRadius: copied ? '10px' : '6px',
         border: '1px solid rgba(255, 255, 255, 0.05)',
         background: 'rgba(255, 255, 255, 0.02)',
@@ -3843,190 +3987,34 @@ function CopyButton({ text, onCopy }: { text: string; onCopy?: () => void }) {
         cursor: 'pointer',
         transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
         marginLeft: 'auto',
+        '&:hover': {
+          background: 'rgba(255, 255, 255, 0.08)',
+          borderColor: 'rgba(0, 180, 255, 0.25)',
+          color: '#fff',
+          boxShadow: '0 0 8px rgba(0, 180, 255, 0.1)',
+        },
       }}
-      className='copy-button'
       aria-label={copied ? 'Copied' : 'Copy message text'}
       title={copied ? 'Copied!' : 'Copy message'}
     >
       {copied ? (
-        <span
-          style={{
+        <Box
+          component='span'
+          sx={{
             display: 'inline-flex',
             alignItems: 'center',
-            gap: 4,
+            gap: 0.5,
             fontSize: 10,
             fontWeight: 400,
             lineHeight: 1,
           }}
         >
-          <IconCheck />
+          <IconCheck sx={{ fontSize: 12 }} />
           <span>Copied</span>
-        </span>
+        </Box>
       ) : (
-        <IconCopy />
+        <IconCopy sx={{ fontSize: 12 }} />
       )}
-    </button>
-  );
-}
-
-function IconCopy() {
-  return (
-    <svg
-      width='12'
-      height='12'
-      viewBox='0 0 24 24'
-      fill='none'
-      stroke='currentColor'
-      strokeWidth='1.6'
-      strokeLinecap='round'
-      strokeLinejoin='round'
-      aria-hidden='true'
-    >
-      <rect x='9' y='9' width='13' height='13' rx='2' ry='2' />
-      <path d='M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1' />
-    </svg>
-  );
-}
-
-function IconCheck() {
-  return (
-    <svg
-      width='12'
-      height='12'
-      viewBox='0 0 24 24'
-      fill='none'
-      stroke='currentColor'
-      strokeWidth='1.8'
-      strokeLinecap='round'
-      strokeLinejoin='round'
-      aria-hidden='true'
-    >
-      <polyline points='20 6 9 17 4 12' />
-    </svg>
-  );
-}
-
-function IconAlertCircle() {
-  return (
-    <svg
-      width='18'
-      height='18'
-      viewBox='0 0 24 24'
-      fill='none'
-      stroke='currentColor'
-      strokeWidth='1.6'
-      strokeLinecap='round'
-      strokeLinejoin='round'
-      aria-hidden='true'
-    >
-      <circle cx='12' cy='12' r='10' />
-      <line x1='12' y1='8' x2='12' y2='12' />
-      <line x1='12' y1='16' x2='12.01' y2='16' />
-    </svg>
-  );
-}
-
-function IconChevronDown() {
-  return (
-    <svg
-      width='14'
-      height='14'
-      viewBox='0 0 24 24'
-      fill='none'
-      stroke='currentColor'
-      strokeWidth='2'
-      strokeLinecap='round'
-      strokeLinejoin='round'
-      aria-hidden='true'
-    >
-      <polyline points='6 9 12 15 18 9' />
-    </svg>
-  );
-}
-
-function IconX({ size = 14 }: { size?: number }) {
-  return (
-    <svg
-      width={size}
-      height={size}
-      viewBox='0 0 24 24'
-      fill='none'
-      stroke='currentColor'
-      strokeWidth='2'
-      strokeLinecap='round'
-      strokeLinejoin='round'
-      aria-hidden='true'
-    >
-      <line x1='18' y1='6' x2='6' y2='18' />
-      <line x1='6' y1='6' x2='18' y2='18' />
-    </svg>
-  );
-}
-
-function IconSpeakerWave() {
-  return (
-    <svg
-      width='10'
-      height='10'
-      viewBox='0 0 24 24'
-      fill='none'
-      stroke='#00dc8c'
-      strokeWidth='2'
-      strokeLinecap='round'
-      strokeLinejoin='round'
-      style={{
-        filter: 'drop-shadow(0 0 3px rgba(0, 220, 140, 0.4))',
-      }}
-      aria-hidden='true'
-    >
-      <polygon points='11 5 6 9 2 9 2 15 6 15 11 19 11 5' />
-      <path d='M15.54 8.46a5 5 0 0 1 0 7.07'>
-        <animate attributeName='opacity' values='0.15;1;0.15' dur='1.2s' repeatCount='indefinite' />
-      </path>
-      <path d='M19.07 4.93a10 10 0 0 1 0 14.14'>
-        <animate
-          attributeName='opacity'
-          values='0.15;0.15;1;0.15'
-          dur='1.2s'
-          repeatCount='indefinite'
-        />
-      </path>
-    </svg>
-  );
-}
-
-function IconThumbsUp() {
-  return (
-    <svg
-      width='12'
-      height='12'
-      viewBox='0 0 24 24'
-      fill='none'
-      stroke='currentColor'
-      strokeWidth='1.8'
-      strokeLinecap='round'
-      strokeLinejoin='round'
-      aria-hidden='true'
-    >
-      <path d='M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3' />
-    </svg>
-  );
-}
-
-function IconThumbsDown() {
-  return (
-    <svg
-      width='12'
-      height='12'
-      viewBox='0 0 24 24'
-      fill='none'
-      stroke='currentColor'
-      strokeWidth='1.8'
-      strokeLinecap='round'
-      strokeLinejoin='round'
-      aria-hidden='true'
-    >
-      <path d='M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-3' />
-    </svg>
+    </IconButton>
   );
 }
