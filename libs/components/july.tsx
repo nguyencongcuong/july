@@ -1086,7 +1086,11 @@ export default function July() {
         if (e.key.toLowerCase() === 'm') {
           e.preventDefault();
           playChime('click');
-          setIsMuted((prev) => !prev);
+          setIsMuted((prev) => {
+            const next = !prev;
+            showToast(next ? 'Voice responses muted' : 'Voice responses enabled');
+            return next;
+          });
           return;
         }
 
@@ -1094,7 +1098,11 @@ export default function July() {
         if (e.key.toLowerCase() === 's') {
           e.preventDefault();
           playChime('click');
-          setPlaybackSpeed((prev) => (prev === 1 ? 1.2 : prev === 1.2 ? 1.5 : 1.0));
+          setPlaybackSpeed((prev) => {
+            const next = prev === 1 ? 1.2 : prev === 1.2 ? 1.5 : 1.0;
+            showToast(`Playback speed: ${next.toFixed(1)}x`);
+            return next;
+          });
           return;
         }
 
@@ -1129,7 +1137,7 @@ export default function July() {
     };
     window.addEventListener('keydown', handleGlobalKeyDown);
     return () => window.removeEventListener('keydown', handleGlobalKeyDown);
-  }, [micStatus, isResponding, stopSpeaking, showHelpModal, playChime, requestMic]);
+  }, [micStatus, isResponding, stopSpeaking, showHelpModal, playChime, requestMic, showToast]);
 
   // ── Derived state ──────────────────────────────────────────────────────────
 

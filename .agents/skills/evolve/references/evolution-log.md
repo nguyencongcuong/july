@@ -221,6 +221,20 @@ animation. tsc + biome checks passed. Committed and pushed (ae2dfa6).
 3. Update the keydown handler inside `<InputBase>` so that the `'Escape'` key condition clears `inputText` and calls `inputRef.current?.blur()`.
 4. Validate code compilation and formatting.
 
+## [2026-06-20] — Toast Notifications for Mute and Speed Shortcuts
+
+**Phase**: done
+**Score**: 41 / 45
+**Reasoning**: Currently, cycling the response speed (S key) or toggling mute (M key) occurs silently without any on-screen visual confirmation (unless the diagnostics drawer is explicitly open). Adding toast notifications for these actions gives immediate and satisfying visual feedback on keypress.
+**Scope**: `libs/components/july.tsx` (modify — call showToast in 'm' and 's' global keydown shortcut triggers, update keydown useEffect dependency array)
+**Outcome**: Updated global keydown listeners in july.tsx to show responsive toast notifications on screen when cycling playback speeds (e.g. "Playback speed: 1.2x") or toggling voice response mute (e.g. "Voice responses muted" / "Voice responses enabled"). Checked types and code formatting.
+**Plan**:
+1. Update `handleGlobalKeyDown` in `july.tsx` to call `showToast` with descriptive messages when cycling playback speed (via the 'S' key) or toggling voice responses mute (via the 'M' key).
+2. Append `showToast` to the dependency array of the keydown event listener's `useEffect`.
+3. Verify type correctness with `npx tsc --noEmit` and formatting with `npx biome check .`.
+
+
+
 
 
 
