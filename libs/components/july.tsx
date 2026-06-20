@@ -1,23 +1,23 @@
 'use client';
 
 import {
-  ErrorOutlineOutlined as IconAlertCircle,
-  Check as IconCheck,
-  KeyboardArrowDown as IconChevronDown,
-  ContentCopy as IconCopy,
-  Download as IconDownload,
-  Mic as IconMic,
-  MicOff as IconMicOff,
-  Send as IconSend,
-  AutoAwesome as IconThinking,
-  ThumbDownAlt as IconThumbsDownFilled,
-  ThumbDownAltOutlined as IconThumbsDownOutlined,
-  ThumbUpAlt as IconThumbsUpFilled,
-  ThumbUpAltOutlined as IconThumbsUpOutlined,
-  Delete as IconTrash,
-  VolumeUp as IconVolume2,
-  VolumeOff as IconVolumeX,
-  Close as IconX,
+  AutoAwesome,
+  Check,
+  Close,
+  ContentCopy,
+  Delete,
+  Download,
+  ErrorOutlineOutlined,
+  KeyboardArrowDown,
+  Mic,
+  MicOff,
+  Send,
+  ThumbDownAlt,
+  ThumbDownAltOutlined,
+  ThumbUpAlt,
+  ThumbUpAltOutlined,
+  VolumeOff,
+  VolumeUp,
 } from '@mui/icons-material';
 import {
   Box,
@@ -1579,7 +1579,7 @@ export default function July() {
               aria-label='Export conversation history'
               title='Export conversation'
             >
-              <IconDownload sx={{ fontSize: 18 }} />
+              <Download sx={{ fontSize: 18 }} />
             </IconButton>
           )}
 
@@ -1639,9 +1639,9 @@ export default function July() {
               title={confirmClear ? 'Confirm clear history' : 'Clear conversation'}
             >
               {confirmClear ? (
-                <IconAlertCircle sx={{ fontSize: 18 }} />
+                <ErrorOutlineOutlined sx={{ fontSize: 18 }} />
               ) : (
-                <IconTrash sx={{ fontSize: 18 }} />
+                <Delete sx={{ fontSize: 18 }} />
               )}
             </IconButton>
           )}
@@ -1733,7 +1733,7 @@ export default function July() {
             aria-label={isMuted ? 'Unmute voice response' : 'Mute voice response'}
             title={isMuted ? 'Unmute voice' : 'Mute voice'}
           >
-            {isMuted ? <IconVolumeX /> : <IconVolume2 />}
+            {isMuted ? <VolumeOff /> : <VolumeUp />}
           </IconButton>
         </Stack>
 
@@ -2039,16 +2039,16 @@ export default function July() {
               }}
               aria-hidden='true'
             >
-              {micStatus === 'idle' && <IconMic />}
+              {micStatus === 'idle' && <Mic />}
               {micStatus === 'requesting' && (
                 <CircularProgress size={34} sx={{ color: 'inherit' }} />
               )}
               {micStatus === 'active' && !isProcessing && !isResponding && (
                 <IconWave active={isSpeaking} volume={volume} />
               )}
-              {isProcessing && <IconThinking />}
+              {isProcessing && <AutoAwesome />}
               {isResponding && <IconSpeaking playbackSpeed={playbackSpeed} />}
-              {micStatus === 'denied' && <IconMicOff />}
+              {micStatus === 'denied' && <MicOff />}
             </Box>
           </Button>
 
@@ -2226,7 +2226,7 @@ export default function July() {
                   aria-label='Dismiss welcome guide'
                   title='Dismiss guide'
                 >
-                  <IconX sx={{ fontSize: 12 }} />
+                  <Close sx={{ fontSize: 12 }} />
                 </IconButton>
                 <Typography
                   variant='h2'
@@ -2611,9 +2611,9 @@ export default function July() {
                                 }}
                               >
                                 {msg.feedback === 'like' ? (
-                                  <IconThumbsUpFilled sx={{ fontSize: 12 }} />
+                                  <ThumbUpAlt sx={{ fontSize: 12 }} />
                                 ) : (
-                                  <IconThumbsUpOutlined sx={{ fontSize: 12 }} />
+                                  <ThumbUpAltOutlined sx={{ fontSize: 12 }} />
                                 )}
                               </IconButton>
                               <IconButton
@@ -2643,9 +2643,9 @@ export default function July() {
                                 }}
                               >
                                 {msg.feedback === 'dislike' ? (
-                                  <IconThumbsDownFilled sx={{ fontSize: 12 }} />
+                                  <ThumbDownAlt sx={{ fontSize: 12 }} />
                                 ) : (
-                                  <IconThumbsDownOutlined sx={{ fontSize: 12 }} />
+                                  <ThumbDownAltOutlined sx={{ fontSize: 12 }} />
                                 )}
                               </IconButton>
                             </Box>
@@ -2674,7 +2674,7 @@ export default function July() {
                               },
                             }}
                           >
-                            <IconTrash sx={{ fontSize: 12 }} />
+                            <Delete sx={{ fontSize: 12 }} />
                           </IconButton>
                         </Box>
                       </Box>
@@ -2787,7 +2787,7 @@ export default function July() {
                 title='Scroll to bottom'
                 aria-label='Scroll to bottom'
               >
-                <IconChevronDown />
+                <KeyboardArrowDown />
                 {hasNewMessageAlert && (
                   <Box
                     component='span'
@@ -2954,7 +2954,7 @@ export default function July() {
                     title='Clear text'
                     aria-label='Clear text'
                   >
-                    <IconX sx={{ fontSize: 12 }} />
+                    <Close sx={{ fontSize: 12 }} />
                   </IconButton>
                 </>
               )}
@@ -3024,7 +3024,7 @@ export default function July() {
               }}
               aria-label='Send message'
             >
-              <IconSend sx={{ fontSize: 18 }} />
+              <Send sx={{ fontSize: 18 }} />
             </IconButton>
           </Box>
         )}
@@ -3139,7 +3139,7 @@ export default function July() {
               }}
               aria-label='Close help modal'
             >
-              <IconX sx={{ fontSize: 16 }} />
+              <Close sx={{ fontSize: 16 }} />
             </IconButton>
           </DialogTitle>
 
@@ -4009,11 +4009,11 @@ function CopyButton({ text, onCopy }: { text: string; onCopy?: () => void }) {
             lineHeight: 1,
           }}
         >
-          <IconCheck sx={{ fontSize: 12 }} />
+          <Check sx={{ fontSize: 12 }} />
           <span>Copied</span>
         </Box>
       ) : (
-        <IconCopy sx={{ fontSize: 12 }} />
+        <ContentCopy sx={{ fontSize: 12 }} />
       )}
     </IconButton>
   );
