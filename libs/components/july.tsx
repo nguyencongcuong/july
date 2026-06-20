@@ -123,6 +123,8 @@ export default function July() {
   const [hasNewMessageAlert, setHasNewMessageAlert] = useState(false);
   const [greeting, setGreeting] = useState('Welcome, Master');
   const [isCopyPulseActive, setIsCopyPulseActive] = useState(false);
+  const [copiedMessageIndex, setCopiedMessageIndex] = useState<number | null>(null);
+  const copiedMessageTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const toastTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [playbackDuration, setPlaybackDuration] = useState(0);
@@ -537,12 +539,25 @@ export default function July() {
     }, 2000);
   }, []);
 
-  const handleCopyNotification = useCallback(() => {
-    playChime('click');
-    setIsCopyPulseActive(true);
-    setTimeout(() => setIsCopyPulseActive(false), 1000);
-    showToast('Copied to clipboard');
-  }, [playChime, showToast]);
+  const handleCopyNotification = useCallback(
+    (idx: number) => {
+      playChime('click');
+      setIsCopyPulseActive(true);
+      setTimeout(() => setIsCopyPulseActive(false), 1000);
+
+      setCopiedMessageIndex(idx);
+      if (copiedMessageTimeoutRef.current) {
+        clearTimeout(copiedMessageTimeoutRef.current);
+      }
+      copiedMessageTimeoutRef.current = setTimeout(() => {
+        setCopiedMessageIndex(null);
+        copiedMessageTimeoutRef.current = null;
+      }, 800);
+
+      showToast('Copied to clipboard');
+    },
+    [playChime, showToast]
+  );
 
   const handleDeleteMessage = useCallback(
     (index: number) => {
@@ -604,6 +619,10 @@ export default function July() {
     if (confirmClearTimeoutRef.current) {
       clearTimeout(confirmClearTimeoutRef.current);
       confirmClearTimeoutRef.current = null;
+    }
+    if (copiedMessageTimeoutRef.current) {
+      clearTimeout(copiedMessageTimeoutRef.current);
+      copiedMessageTimeoutRef.current = null;
     }
     if (animFrameRef.current !== null) {
       cancelAnimationFrame(animFrameRef.current);
@@ -2229,7 +2248,7 @@ export default function July() {
                       onDoubleClick={async () => {
                         try {
                           await navigator.clipboard.writeText(msg.text);
-                          handleCopyNotification();
+                          handleCopyNotification(idx);
                         } catch (err) {
                           console.error('Failed to copy: ', err);
                         }
@@ -2248,18 +2267,27 @@ export default function July() {
                         fontWeight: 300,
                         lineHeight: 1.55,
                         backdropFilter: 'blur(12px)',
+                        transition: 'all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1)',
                         background:
                           msg.role === 'user' ? 'rgba(0,130,255,0.14)' : 'rgba(0,220,140,0.1)',
                         border:
-                          msg.role === 'user'
-                            ? '1px solid rgba(0,150,255,0.22)'
-                            : '1px solid rgba(0,220,140,0.2)',
+                          copiedMessageIndex === idx
+                            ? msg.role === 'user'
+                              ? '1px solid rgba(0,180,255,0.7)'
+                              : '1px solid rgba(0,255,160,0.7)'
+                            : msg.role === 'user'
+                              ? '1px solid rgba(0,150,255,0.22)'
+                              : '1px solid rgba(0,220,140,0.2)',
                         color:
                           msg.role === 'user' ? 'rgba(160,215,255,0.9)' : 'rgba(100,240,180,0.9)',
                         boxShadow:
-                          msg.role === 'user'
-                            ? '0 2px 16px rgba(0,120,255,0.08)'
-                            : '0 2px 16px rgba(0,200,120,0.08)',
+                          copiedMessageIndex === idx
+                            ? msg.role === 'user'
+                              ? '0 0 14px rgba(0,130,255,0.45)'
+                              : '0 0 14px rgba(0,220,140,0.45)'
+                            : msg.role === 'user'
+                              ? '0 2px 16px rgba(0,120,255,0.08)'
+                              : '0 2px 16px rgba(0,200,120,0.08)',
                       }}
                     >
                       {typingMsgIdx === idx ? (
@@ -2445,7 +2473,7 @@ export default function July() {
                               </button>
                             </div>
                           )}
-                          <CopyButton text={msg.text} onCopy={handleCopyNotification} />
+                          <CopyButton text={msg.text} onCopy={() => handleCopyNotification(idx)} />
                           <button
                             type='button'
                             onClick={() => handleDeleteMessage(idx)}

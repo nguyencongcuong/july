@@ -154,3 +154,18 @@ animation. tsc + biome checks passed. Committed and pushed (ae2dfa6).
 2. Add a `useEffect` that writes `inputText` to `localStorage` under key `july_draft_input`.
 3. In settings reset handler, reset `inputText` to `''` and clear `july_draft_input` from `localStorage`.
 4. Verify compiling and lint checks.
+
+## [2026-06-20] — Message Copy Visual Accent Highlight
+
+**Phase**: done
+**Score**: 41 / 45
+**Reasoning**: Currently, copying a message (via click or double-click) shows a toast and flashes the bottom status bar, but doesn't visually highlight which bubble was copied. Adding a temporary glowing neon border/shadow highlight directly to the copied message bubble makes the interface feel extremely reactive, premium, and alive. Very low risk, under 20 LOC, single-file change.
+**Scope**: `libs/components/july.tsx` (modify — state/ref/callback to track copied message index, conditional styles on message bubble render)
+**Outcome**: Declared copiedMessageIndex state and ref in july.tsx. Updated handleCopyNotification to set copiedMessageIndex to idx for 800ms. Configured message bubble styles to transition box-shadow and border on copiedMessageIndex === idx, rendering a neon highlight overlay on the copied bubble. Passed biome formatting and tsc verify checks.
+**Plan**:
+1. Add `copiedMessageIndex` state (`number | null`, defaults to `null`).
+2. Update `handleCopyNotification` to accept a message index parameter (`idx: number`), set `copiedMessageIndex` to `idx`, and schedule a timeout to reset it to `null` after 800ms.
+3. Update double-click handler and `CopyButton` `onCopy` trigger to pass the current message index `idx`.
+4. In message bubble render block, if `copiedMessageIndex === idx`, apply temporary box-shadow and border colors based on the role (`user` vs `july`).
+5. Verify compiler and formatting checks.
+
