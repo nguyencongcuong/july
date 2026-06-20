@@ -194,3 +194,18 @@ animation. tsc + biome checks passed. Committed and pushed (ae2dfa6).
 1. Add `handleCopyTranscript` callback formatting messages to Markdown and calling `navigator.clipboard.writeText`.
 2. Add a `ContentCopy` IconButton in the control buttons stack next to Export if `messages.length > 0`.
 3. Verify compile and formatting checks.
+
+## [2026-06-20] — Quick Suggestion Chips
+
+**Phase**: done
+**Score**: 42 / 45
+**Reasoning**: Empty chat inputs can feel static. Adding 3 glassmorphic, interactive suggestion chips ("💡 Brainstorm", "🎭 Short Joke", "⚡ Quantum Physics") above the empty input box allows users to quickly trigger sample commands. Clicking a chip populates the input field and focuses it, enhancing QoL and engagement.
+**Scope**: `libs/components/july.tsx` (modify — render horizontal stack of suggestion buttons above the bottom input box when empty and idle)
+**Outcome**: Refactored the bottom form layout into a flex column, nesting the input field and submit button row. Added a horizontal stack of 3 glassmorphic prompt chips ("💡 Brainstorm", "🎭 Short Joke", "⚡ Quantum Physics") visible only when input is empty and July is idle. Checked compilation and formatting.
+**Plan**:
+1. Change the outer container of the bottom input box (the form container Box) to use `flexDirection: 'column'` and `gap: 1.5`.
+2. Wrap the input field wrapper Box and send IconButton inside a new `Box` with row styling (`display: 'flex', gap: 1, width: '100%'`) to preserve the inline layout.
+3. Render the suggestion chips stack inside the form, above the input row, when `inputText === '' && !isProcessing && !isResponding`.
+4. Run compiler `npx tsc --noEmit` and formatting `npx biome check .` to verify.
+
+

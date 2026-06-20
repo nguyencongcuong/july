@@ -2886,209 +2886,266 @@ export default function July() {
               width: '100%',
               maxWidth: 520,
               display: 'flex',
-              gap: 1,
+              flexDirection: 'column',
+              gap: 1.5,
               padding: '0 24px',
             }}
           >
-            <Box sx={{ flex: 1, position: 'relative', display: 'flex' }}>
-              <InputBase
-                inputRef={inputRef}
-                type='text'
-                inputProps={{ maxLength: 250 }}
-                value={inputText}
-                onChange={(e) => setInputText(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Escape') {
-                    setInputText('');
-                  } else if (e.key === 'ArrowUp' && inputText === '') {
-                    e.preventDefault();
-                    const userMsgs = messages.filter((m) => m.role === 'user');
-                    if (userMsgs.length > 0) {
-                      setInputText(userMsgs[userMsgs.length - 1].text);
-                      playChime('click');
-                    }
-                  }
-                }}
-                disabled={isProcessing || isResponding}
-                placeholder={
-                  isProcessing
-                    ? 'Thinking...'
-                    : isResponding
-                      ? 'Speaking...'
-                      : PLACEHOLDERS[placeholderIdx]
-                }
+            {inputText === '' && !isProcessing && !isResponding && (
+              <Stack
+                direction='row'
+                spacing={1.5}
                 sx={{
-                  flex: 1,
-                  padding: '12px 78px 12px 18px',
-                  borderRadius: '22px',
-                  border: '1px solid rgba(255, 255, 255, 0.08)',
-                  background: 'rgba(255, 255, 255, 0.02)',
-                  color: 'rgba(255, 255, 255, 0.9)',
-                  fontSize: 13,
-                  fontWeight: 300,
-                  backdropFilter: 'blur(10px)',
-                  transition: 'all 0.3s ease',
-                  '& input::placeholder': {
-                    color: 'rgba(255, 255, 255, 0.4)',
-                    opacity: 1,
-                  },
-                  '& input:focus': {
-                    outline: 'none',
-                  },
-                  '&:focus-within': {
-                    borderColor: 'rgba(0, 180, 255, 0.3)',
-                    boxShadow:
-                      '0 0 15px rgba(0, 180, 255, 0.15), inset 0 0 10px rgba(0, 180, 255, 0.02)',
-                    background: 'rgba(255, 255, 255, 0.04)',
-                  },
+                  justifyContent: 'center',
+                  marginBottom: 0.5,
+                  animation: 'msg-in 0.25s ease forwards',
                 }}
-              />
-              {inputText.length > 0 && (
-                <>
+              >
+                {[
+                  { label: '💡 Brainstorm', text: 'Give me 3 small ideas to brainstorm...' },
+                  { label: '🎭 Short Joke', text: 'Tell me a short joke' },
+                  { label: '⚡ Quantum Physics', text: 'Explain quantum physics in one sentence' },
+                ].map((item) => (
                   <Button
+                    key={item.label}
                     onClick={() => {
                       playChime('click');
-                      setCounterMode((prev) => (prev === 'char' ? 'word' : 'char'));
-                    }}
-                    className={inputText.length >= 230 ? 'warning-pulse' : ''}
-                    sx={{
-                      position: 'absolute',
-                      right: 42,
-                      top: '50%',
-                      transform: 'translateY(-50%)',
-                      fontSize: 10,
-                      minWidth: 0,
-                      fontWeight: 300,
-                      color:
-                        inputText.length >= 220
-                          ? 'rgba(255, 100, 100, 0.75)'
-                          : 'rgba(160, 220, 255, 0.45)',
-                      background: 'none',
-                      border: 'none',
-                      outline: 'none',
-                      cursor: 'pointer',
-                      padding: 0,
-                      transition: 'color 0.2s ease',
-                      userSelect: 'none',
-                      textTransform: 'none',
-                      '&:hover': {
-                        background: 'none',
-                        color:
-                          inputText.length >= 220
-                            ? 'rgba(255, 120, 120, 0.95)'
-                            : 'rgba(180, 235, 255, 0.75)',
-                      },
-                    }}
-                    title={
-                      counterMode === 'char' ? 'Switch to word count' : 'Switch to character count'
-                    }
-                    aria-label={
-                      counterMode === 'char' ? 'Switch to word count' : 'Switch to character count'
-                    }
-                  >
-                    {getCounterText()}
-                  </Button>
-                  <IconButton
-                    onClick={() => {
-                      setInputText('');
+                      setInputText(item.text);
                       inputRef.current?.focus();
                     }}
                     sx={{
-                      position: 'absolute',
-                      right: 14,
-                      top: '50%',
-                      transform: 'translateY(-50%)',
-                      background: 'none',
-                      border: 'none',
-                      outline: 'none',
-                      padding: 0.5,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      color: 'rgba(160, 220, 255, 0.4)',
+                      fontSize: 11,
+                      padding: '4px 12px',
+                      borderRadius: '12px',
+                      background: 'rgba(255, 255, 255, 0.02)',
+                      border: '1px solid rgba(255, 255, 255, 0.08)',
+                      color: 'rgba(160, 220, 255, 0.75)',
+                      textTransform: 'none',
+                      backdropFilter: 'blur(8px)',
+                      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                       '&:hover': {
-                        color: 'rgba(255, 100, 100, 0.85)',
-                        transform: 'translateY(-50%) scale(1.15)',
+                        background: 'rgba(255, 255, 255, 0.08)',
+                        borderColor: 'rgba(0, 180, 255, 0.25)',
+                        color: '#fff',
+                        boxShadow: '0 0 10px rgba(0, 180, 255, 0.15)',
+                        transform: 'translateY(-1px)',
                       },
                       '&:active': {
-                        transform: 'translateY(-50%) scale(0.9)',
+                        transform: 'translateY(0) scale(0.96)',
                       },
                     }}
-                    title='Clear text'
-                    aria-label='Clear text'
                   >
-                    <Close sx={{ fontSize: 12 }} />
-                  </IconButton>
-                </>
-              )}
-              {/* Character Limit Visual Progress Bar */}
-              {inputText.length > 0 && (
-                <Box
-                  sx={{
-                    position: 'absolute',
-                    bottom: 0,
-                    left: 18,
-                    right: 78,
-                    height: 2,
-                    background: 'rgba(255, 255, 255, 0.05)',
-                    borderRadius: 1,
-                    overflow: 'hidden',
-                    pointerEvents: 'none',
+                    {item.label}
+                  </Button>
+                ))}
+              </Stack>
+            )}
+
+            <Box sx={{ display: 'flex', gap: 1, width: '100%' }}>
+              <Box sx={{ flex: 1, position: 'relative', display: 'flex' }}>
+                <InputBase
+                  inputRef={inputRef}
+                  type='text'
+                  inputProps={{ maxLength: 250 }}
+                  value={inputText}
+                  onChange={(e) => setInputText(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Escape') {
+                      setInputText('');
+                    } else if (e.key === 'ArrowUp' && inputText === '') {
+                      e.preventDefault();
+                      const userMsgs = messages.filter((m) => m.role === 'user');
+                      if (userMsgs.length > 0) {
+                        setInputText(userMsgs[userMsgs.length - 1].text);
+                        playChime('click');
+                      }
+                    }
                   }}
-                >
+                  disabled={isProcessing || isResponding}
+                  placeholder={
+                    isProcessing
+                      ? 'Thinking...'
+                      : isResponding
+                        ? 'Speaking...'
+                        : PLACEHOLDERS[placeholderIdx]
+                  }
+                  sx={{
+                    flex: 1,
+                    padding: '12px 78px 12px 18px',
+                    borderRadius: '22px',
+                    border: '1px solid rgba(255, 255, 255, 0.08)',
+                    background: 'rgba(255, 255, 255, 0.02)',
+                    color: 'rgba(255, 255, 255, 0.9)',
+                    fontSize: 13,
+                    fontWeight: 300,
+                    backdropFilter: 'blur(10px)',
+                    transition: 'all 0.3s ease',
+                    '& input::placeholder': {
+                      color: 'rgba(255, 255, 255, 0.4)',
+                      opacity: 1,
+                    },
+                    '& input:focus': {
+                      outline: 'none',
+                    },
+                    '&:focus-within': {
+                      borderColor: 'rgba(0, 180, 255, 0.3)',
+                      boxShadow:
+                        '0 0 15px rgba(0, 180, 255, 0.15), inset 0 0 10px rgba(0, 180, 255, 0.02)',
+                      background: 'rgba(255, 255, 255, 0.04)',
+                    },
+                  }}
+                />
+                {inputText.length > 0 && (
+                  <>
+                    <Button
+                      onClick={() => {
+                        playChime('click');
+                        setCounterMode((prev) => (prev === 'char' ? 'word' : 'char'));
+                      }}
+                      className={inputText.length >= 230 ? 'warning-pulse' : ''}
+                      sx={{
+                        position: 'absolute',
+                        right: 42,
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        fontSize: 10,
+                        minWidth: 0,
+                        fontWeight: 300,
+                        color:
+                          inputText.length >= 220
+                            ? 'rgba(255, 100, 100, 0.75)'
+                            : 'rgba(160, 220, 255, 0.45)',
+                        background: 'none',
+                        border: 'none',
+                        outline: 'none',
+                        cursor: 'pointer',
+                        padding: 0,
+                        transition: 'color 0.2s ease',
+                        userSelect: 'none',
+                        textTransform: 'none',
+                        '&:hover': {
+                          background: 'none',
+                          color:
+                            inputText.length >= 220
+                              ? 'rgba(255, 120, 120, 0.95)'
+                              : 'rgba(180, 235, 255, 0.75)',
+                        },
+                      }}
+                      title={
+                        counterMode === 'char'
+                          ? 'Switch to word count'
+                          : 'Switch to character count'
+                      }
+                      aria-label={
+                        counterMode === 'char'
+                          ? 'Switch to word count'
+                          : 'Switch to character count'
+                      }
+                    >
+                      {getCounterText()}
+                    </Button>
+                    <IconButton
+                      onClick={() => {
+                        setInputText('');
+                        inputRef.current?.focus();
+                      }}
+                      sx={{
+                        position: 'absolute',
+                        right: 14,
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        background: 'none',
+                        border: 'none',
+                        outline: 'none',
+                        padding: 0.5,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: 'rgba(160, 220, 255, 0.4)',
+                        '&:hover': {
+                          color: 'rgba(255, 100, 100, 0.85)',
+                          transform: 'translateY(-50%) scale(1.15)',
+                        },
+                        '&:active': {
+                          transform: 'translateY(-50%) scale(0.9)',
+                        },
+                      }}
+                      title='Clear text'
+                      aria-label='Clear text'
+                    >
+                      <Close sx={{ fontSize: 12 }} />
+                    </IconButton>
+                  </>
+                )}
+                {/* Character Limit Visual Progress Bar */}
+                {inputText.length > 0 && (
                   <Box
                     sx={{
-                      height: '100%',
-                      width: `${(inputText.length / 250) * 100}%`,
-                      background:
-                        inputText.length >= 220
-                          ? 'linear-gradient(90deg, #ff4646, #ff7878)'
-                          : 'linear-gradient(90deg, #00b4ff, #00dc8c)',
-                      boxShadow:
-                        inputText.length >= 220
-                          ? '0 0 6px rgba(255, 70, 70, 0.6)'
-                          : '0 0 6px rgba(0, 180, 255, 0.6)',
-                      transition: 'width 0.15s ease-out, background 0.2s ease',
+                      position: 'absolute',
+                      bottom: 0,
+                      left: 18,
+                      right: 78,
+                      height: 2,
+                      background: 'rgba(255, 255, 255, 0.05)',
+                      borderRadius: 1,
+                      overflow: 'hidden',
+                      pointerEvents: 'none',
                     }}
-                  />
-                </Box>
-              )}
+                  >
+                    <Box
+                      sx={{
+                        height: '100%',
+                        width: `${(inputText.length / 250) * 100}%`,
+                        background:
+                          inputText.length >= 220
+                            ? 'linear-gradient(90deg, #ff4646, #ff7878)'
+                            : 'linear-gradient(90deg, #00b4ff, #00dc8c)',
+                        boxShadow:
+                          inputText.length >= 220
+                            ? '0 0 6px rgba(255, 70, 70, 0.6)'
+                            : '0 0 6px rgba(0, 180, 255, 0.6)',
+                        transition: 'width 0.15s ease-out, background 0.2s ease',
+                      }}
+                    />
+                  </Box>
+                )}
+              </Box>
+              <IconButton
+                type='submit'
+                disabled={isProcessing || isResponding || !inputText.trim()}
+                sx={{
+                  width: 44,
+                  height: 44,
+                  borderRadius: '50%',
+                  border: '1px solid rgba(255, 255, 255, 0.08)',
+                  background: 'rgba(255, 255, 255, 0.03)',
+                  backdropFilter: 'blur(8px)',
+                  cursor:
+                    isProcessing || isResponding || !inputText.trim() ? 'not-allowed' : 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color:
+                    isProcessing || isResponding || !inputText.trim()
+                      ? 'rgba(255,255,255,0.2)'
+                      : 'rgba(160,220,255,0.85)',
+                  transition: 'all 0.3s ease',
+                  '&:hover': {
+                    background: 'rgba(255, 255, 255, 0.08)',
+                    borderColor: 'rgba(0, 180, 255, 0.25)',
+                    color: '#fff',
+                    transform: 'scale(1.08)',
+                    boxShadow: '0 0 15px rgba(0, 180, 255, 0.15)',
+                  },
+                  '&:active': {
+                    transform: 'scale(0.95)',
+                  },
+                }}
+                aria-label='Send message'
+              >
+                <Send sx={{ fontSize: 18 }} />
+              </IconButton>
             </Box>
-            <IconButton
-              type='submit'
-              disabled={isProcessing || isResponding || !inputText.trim()}
-              sx={{
-                width: 44,
-                height: 44,
-                borderRadius: '50%',
-                border: '1px solid rgba(255, 255, 255, 0.08)',
-                background: 'rgba(255, 255, 255, 0.03)',
-                backdropFilter: 'blur(8px)',
-                cursor:
-                  isProcessing || isResponding || !inputText.trim() ? 'not-allowed' : 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color:
-                  isProcessing || isResponding || !inputText.trim()
-                    ? 'rgba(255,255,255,0.2)'
-                    : 'rgba(160,220,255,0.85)',
-                transition: 'all 0.3s ease',
-                '&:hover': {
-                  background: 'rgba(255, 255, 255, 0.08)',
-                  borderColor: 'rgba(0, 180, 255, 0.25)',
-                  color: '#fff',
-                  transform: 'scale(1.08)',
-                  boxShadow: '0 0 15px rgba(0, 180, 255, 0.15)',
-                },
-                '&:active': {
-                  transform: 'scale(0.95)',
-                },
-              }}
-              aria-label='Send message'
-            >
-              <Send sx={{ fontSize: 18 }} />
-            </IconButton>
           </Box>
         )}
 
