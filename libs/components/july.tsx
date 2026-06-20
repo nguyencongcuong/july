@@ -197,6 +197,17 @@ export default function July() {
     localStorage.setItem('july_response_length', responseLength);
   }, [responseLength]);
 
+  const [activeModel, setActiveModel] = useState<string>(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('july_active_model') || 'gemini-2.5-flash';
+    }
+    return 'gemini-2.5-flash';
+  });
+
+  useEffect(() => {
+    localStorage.setItem('july_active_model', activeModel);
+  }, [activeModel]);
+
   const [counterMode, setCounterMode] = useState<'char' | 'word'>(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('july_counter_mode');
@@ -251,6 +262,9 @@ export default function July() {
 
   const responseLengthRef = useRef(responseLength);
   responseLengthRef.current = responseLength;
+
+  const activeModelRef = useRef(activeModel);
+  activeModelRef.current = activeModel;
 
   // ── Typewriter animation state ─────────────────────────────────────────────
   const [typingMsgIdx, setTypingMsgIdx] = useState<number | null>(null);
@@ -730,6 +744,7 @@ export default function July() {
       formData.append('muteSpeech', isMutedRef.current ? 'true' : 'false');
       formData.append('history', JSON.stringify(messagesRef.current));
       formData.append('responseLength', responseLengthRef.current);
+      formData.append('model', activeModelRef.current);
 
       const currentReqId = ++requestIdRef.current;
       setIsProcessing(true);
@@ -829,7 +844,8 @@ export default function July() {
               promptText,
               messagesRef.current,
               isMutedRef.current,
-              responseLengthRef.current
+              responseLengthRef.current,
+              activeModelRef.current
             ),
           (attempt, total) => {
             if (currentReqId === requestIdRef.current) {
@@ -3343,7 +3359,38 @@ export default function July() {
                       >
                         Active Model
                       </span>
-                      <span style={{ color: '#fff', fontWeight: 300 }}>Gemini 2.5 Flash</span>
+                      <button
+                        type='button'
+                        onClick={() => {
+                          playChime('click');
+                          setActiveModel((prev) =>
+                            prev === 'gemini-2.5-flash'
+                              ? 'gemini-2.5-pro'
+                              : prev === 'gemini-2.5-pro'
+                                ? 'gemini-2.0-flash'
+                                : 'gemini-2.5-flash'
+                          );
+                        }}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          outline: 'none',
+                          padding: 0,
+                          cursor: 'pointer',
+                          color: '#00dc8c',
+                          fontSize: 12,
+                          textAlign: 'left',
+                          transition: 'all 0.2s',
+                          fontWeight: 300,
+                        }}
+                        className='control-btn'
+                      >
+                        {activeModel === 'gemini-2.5-flash'
+                          ? 'Gemini 2.5 Flash'
+                          : activeModel === 'gemini-2.5-pro'
+                            ? 'Gemini 2.5 Pro'
+                            : 'Gemini 2.0 Flash'}
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -3365,6 +3412,7 @@ export default function July() {
                       setPlaybackSpeed(1.0);
                       setIsMuted(false);
                       setResponseLength('detailed');
+                      setActiveModel('gemini-2.5-flash');
 
                       // Remove items from local storage to clean up
                       localStorage.removeItem('july_speaking_threshold');
@@ -3374,6 +3422,7 @@ export default function July() {
                       localStorage.removeItem('july_sound_effects');
                       localStorage.removeItem('july_counter_mode');
                       localStorage.removeItem('july_response_length');
+                      localStorage.removeItem('july_active_model');
 
                       showToast('Settings reset to default');
                     }}

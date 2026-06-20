@@ -106,6 +106,15 @@ animation. tsc + biome checks passed. Committed and pushed (ae2dfa6).
 **Scope**: `libs/components/july.tsx` (modify — toast state, hook/helper, trigger sites, render markup)
 **Outcome**: Implemented glassmorphic cyberpunk toast notification overlay in july.tsx. Created showToast state/ref/callback. Integrated showToast calls when copying message to clipboard ("Copied to clipboard"), exporting chat logs ("Chat history exported"), and resetting diagnostics parameters ("Settings reset to default"). All verification tests (type-checking and lint checking) passed successfully.
 
+## [2026-06-20] — Interactive Active Model Picker Setting
+
+**Phase**: done
+**Score**: 41 / 45
+**Reasoning**: Currently the Active Model readout is hardcoded as 'Gemini 2.5 Flash'. Adding a cycling model picker setting (Gemini 2.5 Flash -> Gemini 2.5 Pro -> Gemini 2.0 Flash) allows Master to switch between different speed and reasoning models depending on the need. Under 35 LOC across july.tsx and gemini.actions.ts, fully local, extremely safe.
+**Scope**: `libs/components/july.tsx` (modify — state, ref, effect, talk/talkText calls, cycle UI render, reset logic), `libs/actions/gemini.actions.ts` (modify — ask, talk, and talkText model parameter)
+**Outcome**: Implemented activeModel state/ref/effect in july.tsx. Passed activeModel parameter to talk and talkText. Modified gemini.actions.ts ask, talk, and talkText functions to use the passed model variable dynamically. Rendered cycling picker button in Settings grid and included in defaults reset logic. Both tsc and biome checks passed successfully.
+
+
 
 
 

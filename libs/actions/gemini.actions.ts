@@ -18,10 +18,11 @@ interface ChatMessage {
 export async function ask(
   prompt: string,
   history: ChatMessage[] = [],
-  responseLength = 'detailed'
+  responseLength = 'detailed',
+  model = 'gemini-2.5-flash'
 ): Promise<{ text: string | null; sources: GroundingSource[] }> {
   const chat = ai.chats.create({
-    model: 'gemini-2.5-flash',
+    model: model,
     history: history,
     config: {
       systemInstruction: `
@@ -125,7 +126,8 @@ export async function talk(formData: FormData): Promise<TalkResult | null> {
   }
 
   const responseLength = (formData.get('responseLength') as string) || 'detailed';
-  const { text: answer, sources } = await ask(transcript, history, responseLength);
+  const model = (formData.get('model') as string) || 'gemini-2.5-flash';
+  const { text: answer, sources } = await ask(transcript, history, responseLength, model);
   if (!answer) return null;
 
   const muteSpeech = formData.get('muteSpeech') === 'true';
@@ -146,14 +148,15 @@ export async function talkText(
   prompt: string,
   history: ClientMessage[] = [],
   muteSpeech = false,
-  responseLength = 'detailed'
+  responseLength = 'detailed',
+  model = 'gemini-2.5-flash'
 ): Promise<TalkResult | null> {
   const mappedHistory = history.map((msg) => ({
     role: msg.role === 'user' ? 'user' : 'model',
     parts: [{ text: msg.text }],
   }));
 
-  const { text: answer, sources } = await ask(prompt, mappedHistory, responseLength);
+  const { text: answer, sources } = await ask(prompt, mappedHistory, responseLength, model);
   if (!answer) return null;
 
   const audioDataUrl = muteSpeech ? '' : ((await textToSpeech(answer)) ?? '');
