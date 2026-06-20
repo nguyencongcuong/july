@@ -235,6 +235,12 @@ export default function July() {
   const playbackSpeedRef = useRef(playbackSpeed);
   playbackSpeedRef.current = playbackSpeed;
 
+  // ── Typewriter animation state ─────────────────────────────────────────────
+  const [typingMsgIdx, setTypingMsgIdx] = useState<number | null>(null);
+  const [typingText, setTypingText] = useState('');
+  const typingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const hasMountedRef = useRef(false);
+
   const streamRef = useRef<MediaStream | null>(null);
   const audioCtxRef = useRef<AudioContext | null>(null);
   const animFrameRef = useRef<number | null>(null);
@@ -248,6 +254,47 @@ export default function July() {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const requestIdRef = useRef(0);
   const prevMessagesCountRef = useRef(messages.length);
+
+  // Typewriter: animate the last July message letter-by-letter on arrival
+  useEffect(() => {
+    if (!hasMountedRef.current) {
+      hasMountedRef.current = true;
+      prevMessagesCountRef.current = messages.length;
+      return; // skip animation for history loaded from localStorage on mount
+    }
+    // Only animate when a new message was genuinely appended
+    if (messages.length <= prevMessagesCountRef.current) {
+      prevMessagesCountRef.current = messages.length;
+      return;
+    }
+    prevMessagesCountRef.current = messages.length;
+
+    const lastIdx = messages.length - 1;
+    if (lastIdx < 0 || messages[lastIdx].role !== 'july') return;
+
+    if (typingIntervalRef.current) {
+      clearInterval(typingIntervalRef.current);
+      typingIntervalRef.current = null;
+    }
+    const fullText = messages[lastIdx].text;
+    let charIdx = 0;
+    setTypingMsgIdx(lastIdx);
+    setTypingText('');
+
+    typingIntervalRef.current = setInterval(() => {
+      charIdx++;
+      setTypingText(fullText.slice(0, charIdx));
+      if (charIdx >= fullText.length) {
+        if (typingIntervalRef.current) clearInterval(typingIntervalRef.current);
+        typingIntervalRef.current = null;
+        setTypingMsgIdx(null);
+      }
+    }, 20);
+
+    return () => {
+      if (typingIntervalRef.current) clearInterval(typingIntervalRef.current);
+    };
+  }, [messages]);
 
   // Auto-scroll to latest message
   useEffect(() => {
@@ -971,6 +1018,12 @@ export default function July() {
         @keyframes thinking-dot {
           0%,80%,100% { opacity:.2; transform:translateY(0); }
           40%         { opacity:1;  transform:translateY(-4px); }
+        }
+
+        /* ── cursor blink ── */
+        @keyframes cursor-blink {
+          0%, 100% { opacity: 1; }
+          50%       { opacity: 0; }
         }
 
         /* ── speaking bars ── */
@@ -2064,7 +2117,26 @@ export default function July() {
                             : '0 2px 16px rgba(0,200,120,0.08)',
                       }}
                     >
-                      {msg.text}
+                      {typingMsgIdx === idx ? (
+                        <>
+                          {typingText}
+                          <span
+                            style={{
+                              display: 'inline-block',
+                              width: '0.55em',
+                              height: '1em',
+                              background: 'rgba(0, 220, 140, 0.75)',
+                              marginLeft: 2,
+                              verticalAlign: 'text-bottom',
+                              borderRadius: 1,
+                              animation: 'cursor-blink 0.7s step-end infinite',
+                            }}
+                            aria-hidden='true'
+                          />
+                        </>
+                      ) : (
+                        msg.text
+                      )}
                       <div
                         style={{
                           display: 'flex',

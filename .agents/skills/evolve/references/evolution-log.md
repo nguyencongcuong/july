@@ -37,3 +37,17 @@ Change is entirely within `july.tsx`, estimated ~35 LOC, single `git revert`–s
 **Outcome**: Implemented `withRetry` helper (2 retries, 500ms/1500ms backoff).
 Both `stopRecordingAndTranscribe` and `handlePrompt` now use it. Error banner shows
 "Retrying… (attempt N/2)" during backoff. All tsc + biome checks passed. Committed.
+
+## [2026-06-20] — Persistent Chat History via localStorage
+
+**Phase**: done
+**Score**: 41 / 45
+**Reasoning**: All messages were lost on every page refresh. Persisting to
+`july_chat_history` in localStorage gives huge user value with zero new
+dependencies. Init reads from storage, a single `useEffect` writes on
+every messages change. Corrupt JSON and quota errors are caught silently.
+Single-file change (~23 LOC), fully reversible with `git revert`.
+**Scope**: `libs/components/july.tsx` (modify — messages lazy init + persist effect)
+**Outcome**: Messages now survive page refreshes. Clearing chat (button or Cmd+K)
+naturally writes an empty array, also clearing stored history. All tsc + biome
+checks passed. Committed and pushed (d495f11).
