@@ -198,6 +198,13 @@ export default function July() {
     return () => clearInterval(interval);
   }, []);
 
+  // Return focus to prompt input when the Help Modal is closed
+  useEffect(() => {
+    if (!showHelpModal && micStatus === 'active') {
+      inputRef.current?.focus();
+    }
+  }, [showHelpModal, micStatus]);
+
   const handleScroll = () => {
     const el = scrollContainerRef.current;
     if (!el) return;
@@ -1087,8 +1094,8 @@ export default function July() {
               : isProcessing || isResponding
                 ? 'PROCESSING'
                 : isMuted
-                  ? 'ONLINE (MUTED)'
-                  : 'ONLINE'}
+                  ? `ONLINE (MUTED${messages.length > 0 ? ` • ${messages.length} MSGS` : ''})`
+                  : `ONLINE${messages.length > 0 ? ` • ${messages.length} MSGS` : ''}`}
           </span>
         </div>
 
