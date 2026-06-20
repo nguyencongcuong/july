@@ -2995,12 +2995,17 @@ export default function July() {
                     flex: 1,
                     padding: '12px 78px 12px 18px',
                     borderRadius: '22px',
-                    border: '1px solid rgba(255, 255, 255, 0.08)',
+                    border:
+                      inputText.length >= 250
+                        ? '1px solid rgba(255, 70, 70, 0.35)'
+                        : '1px solid rgba(255, 255, 255, 0.08)',
                     background: 'rgba(255, 255, 255, 0.02)',
                     color: 'rgba(255, 255, 255, 0.9)',
                     fontSize: 13,
                     fontWeight: 300,
                     backdropFilter: 'blur(10px)',
+                    boxShadow:
+                      inputText.length >= 250 ? '0 0 12px rgba(255, 70, 70, 0.15)' : 'none',
                     transition: 'all 0.3s ease',
                     '& input::placeholder': {
                       color: 'rgba(255, 255, 255, 0.4)',
@@ -3010,9 +3015,14 @@ export default function July() {
                       outline: 'none',
                     },
                     '&:focus-within': {
-                      borderColor: 'rgba(0, 180, 255, 0.3)',
+                      borderColor:
+                        inputText.length >= 250
+                          ? 'rgba(255, 70, 70, 0.5)'
+                          : 'rgba(0, 180, 255, 0.3)',
                       boxShadow:
-                        '0 0 15px rgba(0, 180, 255, 0.15), inset 0 0 10px rgba(0, 180, 255, 0.02)',
+                        inputText.length >= 250
+                          ? '0 0 15px rgba(255, 70, 70, 0.25), inset 0 0 10px rgba(255, 70, 70, 0.02)'
+                          : '0 0 15px rgba(0, 180, 255, 0.15), inset 0 0 10px rgba(0, 180, 255, 0.02)',
                       background: 'rgba(255, 255, 255, 0.04)',
                     },
                   }}
@@ -3981,7 +3991,7 @@ export default function July() {
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', marginTop: 1 }}>
               <Button
                 onClick={() => {
-                  playChime('click');
+                  playChime('clear');
 
                   // Revert states
                   setSpeakingThreshold(10);

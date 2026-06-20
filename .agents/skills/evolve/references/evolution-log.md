@@ -233,6 +233,19 @@ animation. tsc + biome checks passed. Committed and pushed (ae2dfa6).
 2. Append `showToast` to the dependency array of the keydown event listener's `useEffect`.
 3. Verify type correctness with `npx tsc --noEmit` and formatting with `npx biome check .`.
 
+## [2026-06-20] — Red Input Limit Border Glow and Reset Chime Update
+
+**Phase**: done
+**Score**: 41 / 45
+**Reasoning**: Currently, hitting the 250 character limit on text input gives no visual feedback directly on the text area. Adding a red glowing border outline to the InputBase when length reaches 250 provides a highly polished tactile warning. Additionally, changing the settings reset action to trigger playChime('clear') instead of playChime('click') matches the user's action audibly.
+**Scope**: `libs/components/july.tsx` (modify — InputBase sx border/boxShadow properties based on inputText.length >= 250, update settings defaults reset click handler to play clear chime)
+**Outcome**: Implemented red neon glow styling constraints on `<InputBase>` when character count reaches the maximum limit (250). Changed the reset to defaults settings button chime to play `'clear'` sound instead of `'click'`. Passed tsc and biome validation checks.
+**Plan**:
+1. Update `<InputBase>` sx style mapping in `july.tsx` to conditionally apply red borders and glows when `inputText.length >= 250`.
+2. Swap `playChime('click')` with `playChime('clear')` in the "Reset to Defaults" button onClick handler.
+3. Validate compilation and Biome formatting.
+
+
 
 
 
