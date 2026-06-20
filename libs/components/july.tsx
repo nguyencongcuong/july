@@ -82,8 +82,30 @@ export default function July() {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isResponding, setIsResponding] = useState(false);
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<Message[]>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('july_chat_history');
+        if (saved) {
+          const parsed: unknown = JSON.parse(saved);
+          if (Array.isArray(parsed)) return parsed as Message[];
+        }
+      } catch {
+        // corrupt data — start fresh
+      }
+    }
+    return [];
+  });
   const [isMuted, setIsMuted] = useState(false);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('july_chat_history', JSON.stringify(messages));
+    } catch {
+      // storage quota exceeded — silently skip
+    }
+  }, [messages]);
+
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
   const [inputText, setInputText] = useState('');
   const [confirmClear, setConfirmClear] = useState(false);
