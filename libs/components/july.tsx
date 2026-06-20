@@ -24,6 +24,8 @@ interface Message {
   text: string;
   sources?: GroundingSource[];
   feedback?: 'like' | 'dislike' | null;
+  timestamp?: string;
+  latency?: string;
 }
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -90,6 +92,7 @@ export default function July() {
   const currentSourceRef = useRef<AudioBufferSourceNode | null>(null);
   const confirmClearTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const playbackStartTimeRef = useRef<number | null>(null);
+  const queryStartTimeRef = useRef<number>(0);
 
   const messagesRef = useRef(messages);
   messagesRef.current = messages;
@@ -409,6 +412,7 @@ export default function July() {
 
       const currentReqId = ++requestIdRef.current;
       setIsProcessing(true);
+      queryStartTimeRef.current = Date.now();
       try {
         const result = await talk(formData);
         if (currentReqId !== requestIdRef.current) return;
@@ -418,10 +422,20 @@ export default function July() {
           console.log('[User] asks:', result.transcript);
           console.log('[July] answers:', result.answer);
 
+          const now = new Date();
+          const timestamp = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+          const latency = ((Date.now() - queryStartTimeRef.current) / 1000).toFixed(1);
+
           setMessages((prev) => [
             ...prev,
-            { role: 'user', text: result.transcript },
-            { role: 'july', text: result.answer, sources: result.sources },
+            { role: 'user', text: result.transcript, timestamp },
+            {
+              role: 'july',
+              text: result.answer,
+              sources: result.sources,
+              timestamp,
+              latency: `${latency}s`,
+            },
           ]);
 
           if (!isMutedRef.current && result.audioDataUrl && audioCtxRef.current) {
@@ -472,19 +486,29 @@ export default function July() {
 
       stopSpeaking();
 
-      setMessages((prev) => [...prev, { role: 'user', text: promptText }]);
+      const now = new Date();
+      const timestamp = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      setMessages((prev) => [...prev, { role: 'user', text: promptText, timestamp }]);
 
       const currentReqId = ++requestIdRef.current;
       setIsProcessing(true);
+      queryStartTimeRef.current = Date.now();
       try {
         const result = await talkText(promptText, messagesRef.current, isMutedRef.current);
         if (currentReqId !== requestIdRef.current) return;
         setIsProcessing(false);
 
         if (result) {
+          const latency = ((Date.now() - queryStartTimeRef.current) / 1000).toFixed(1);
           setMessages((prev) => [
             ...prev,
-            { role: 'july', text: result.answer, sources: result.sources },
+            {
+              role: 'july',
+              text: result.answer,
+              sources: result.sources,
+              timestamp,
+              latency: `${latency}s`,
+            },
           ]);
 
           if (!isMutedRef.current && result.audioDataUrl) {
@@ -1786,6 +1810,33 @@ export default function July() {
                             marginLeft: 'auto',
                           }}
                         >
+                          {msg.latency && (
+                            <span
+                              style={{
+                                fontSize: 9,
+                                color: 'rgba(0, 220, 140, 0.45)',
+                                marginRight: 4,
+                                letterSpacing: '0.04em',
+                                userSelect: 'none',
+                              }}
+                              title='Response Generation Latency'
+                            >
+                              ⚡ {msg.latency}
+                            </span>
+                          )}
+                          {msg.timestamp && (
+                            <span
+                              style={{
+                                fontSize: 9,
+                                color: 'rgba(160, 220, 255, 0.35)',
+                                marginRight: 8,
+                                letterSpacing: '0.02em',
+                                userSelect: 'none',
+                              }}
+                            >
+                              {msg.timestamp}
+                            </span>
+                          )}
                           {msg.role === 'july' && (
                             <div
                               style={{
