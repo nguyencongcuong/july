@@ -74,6 +74,15 @@ animation. tsc + biome checks passed. Committed and pushed (ae2dfa6).
 **Scope**: `libs/components/july.tsx` (modify — keydown event listener, shortcuts helper UI, and documented shortcuts list)
 **Outcome**: Keyboard shortcut 'H' (or 'h') now toggles the Help Modal when not typing in text fields. Added '[H] Help' to the bottom status helper bar and documented 'H' in the Help Modal shortcut listing. Both tsc and biome check passed without errors.
 
+## [2026-06-20] — Interactive Response Length Setting
+
+**Phase**: done
+**Score**: 41 / 45
+**Reasoning**: Users often want to switch between quick/concise voice/chat interactions and more detailed responses (with search grounding). Adding a 'Response Length' toggle to the settings panel (Concise vs Detailed) allows dynamic prompts adaptation. It alters the Gemini systemInstruction limitations on the fly (<30 words vs <100 words), is fully local, has zero external API dependencies, is under 40 LOC across both july.tsx and gemini.actions.ts, and is extremely safe/reversible.
+**Scope**: `libs/components/july.tsx` (modify — state, refs, effect, talk/talkText calls, grid UI render, reset logic), `libs/actions/gemini.actions.ts` (modify — ask, talk, and talkText parameter + system instruction)
+**Outcome**: Implemented responseLength state/ref/effect in july.tsx. Passed responseLength parameter to talk and talkText. Added dynamic system instruction modification in gemini.actions.ts. Rendered 'Response Length' toggle button in the Diagnostics settings grid and included it in the default reset function. Type checks and Biome check passed perfectly.
+
+
 
 
 

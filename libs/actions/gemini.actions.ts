@@ -17,7 +17,8 @@ interface ChatMessage {
 
 export async function ask(
   prompt: string,
-  history: ChatMessage[] = []
+  history: ChatMessage[] = [],
+  responseLength = 'detailed'
 ): Promise<{ text: string | null; sources: GroundingSource[] }> {
   const chat = ai.chats.create({
     model: 'gemini-2.5-flash',
@@ -51,7 +52,11 @@ export async function ask(
         - Provide information that is easy to understand and apply.
         
         **LIMITATIONS**
-        - Keep the response under 100 words.
+        ${
+          responseLength === 'concise'
+            ? '- Keep the response extremely concise, short and to the point (under 30 words).'
+            : '- Keep the response under 100 words.'
+        }
         - Don't repeat the same information.
         - Don't repeat the same questions.
         - Don't repeat the same answers.
@@ -119,7 +124,8 @@ export async function talk(formData: FormData): Promise<TalkResult | null> {
     console.error('Failed to parse chat history:', err);
   }
 
-  const { text: answer, sources } = await ask(transcript, history);
+  const responseLength = (formData.get('responseLength') as string) || 'detailed';
+  const { text: answer, sources } = await ask(transcript, history, responseLength);
   if (!answer) return null;
 
   const muteSpeech = formData.get('muteSpeech') === 'true';
@@ -139,14 +145,15 @@ interface ClientMessage {
 export async function talkText(
   prompt: string,
   history: ClientMessage[] = [],
-  muteSpeech = false
+  muteSpeech = false,
+  responseLength = 'detailed'
 ): Promise<TalkResult | null> {
   const mappedHistory = history.map((msg) => ({
     role: msg.role === 'user' ? 'user' : 'model',
     parts: [{ text: msg.text }],
   }));
 
-  const { text: answer, sources } = await ask(prompt, mappedHistory);
+  const { text: answer, sources } = await ask(prompt, mappedHistory, responseLength);
   if (!answer) return null;
 
   const audioDataUrl = muteSpeech ? '' : ((await textToSpeech(answer)) ?? '');

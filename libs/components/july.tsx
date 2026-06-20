@@ -183,6 +183,18 @@ export default function July() {
     localStorage.setItem('july_sound_effects', soundEffectsEnabled.toString());
   }, [soundEffectsEnabled]);
 
+  const [responseLength, setResponseLength] = useState<'concise' | 'detailed'>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('july_response_length');
+      return (saved as 'concise' | 'detailed') || 'detailed';
+    }
+    return 'detailed';
+  });
+
+  useEffect(() => {
+    localStorage.setItem('july_response_length', responseLength);
+  }, [responseLength]);
+
   const [counterMode, setCounterMode] = useState<'char' | 'word'>(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('july_counter_mode');
@@ -234,6 +246,9 @@ export default function July() {
 
   const playbackSpeedRef = useRef(playbackSpeed);
   playbackSpeedRef.current = playbackSpeed;
+
+  const responseLengthRef = useRef(responseLength);
+  responseLengthRef.current = responseLength;
 
   // ── Typewriter animation state ─────────────────────────────────────────────
   const [typingMsgIdx, setTypingMsgIdx] = useState<number | null>(null);
@@ -699,6 +714,7 @@ export default function July() {
       formData.append('audio', blob, 'speech.webm');
       formData.append('muteSpeech', isMutedRef.current ? 'true' : 'false');
       formData.append('history', JSON.stringify(messagesRef.current));
+      formData.append('responseLength', responseLengthRef.current);
 
       const currentReqId = ++requestIdRef.current;
       setIsProcessing(true);
@@ -793,7 +809,13 @@ export default function July() {
       queryStartTimeRef.current = Date.now();
       try {
         const result = await withRetry(
-          () => talkText(promptText, messagesRef.current, isMutedRef.current),
+          () =>
+            talkText(
+              promptText,
+              messagesRef.current,
+              isMutedRef.current,
+              responseLengthRef.current
+            ),
           (attempt, total) => {
             if (currentReqId === requestIdRef.current) {
               setErrorMessage(`Retrying (${attempt}/${total})…`);
@@ -3215,6 +3237,44 @@ export default function July() {
                           textTransform: 'uppercase',
                         }}
                       >
+                        Response Length
+                      </span>
+                      <button
+                        type='button'
+                        onClick={() => {
+                          playChime('click');
+                          setResponseLength((prev) =>
+                            prev === 'concise' ? 'detailed' : 'concise'
+                          );
+                        }}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          outline: 'none',
+                          padding: 0,
+                          cursor: 'pointer',
+                          color:
+                            responseLength === 'concise' ? '#00dc8c' : 'rgba(160, 220, 255, 0.55)',
+                          fontSize: 12,
+                          textAlign: 'left',
+                          transition: 'all 0.2s',
+                          fontWeight: 300,
+                        }}
+                        className='control-btn'
+                      >
+                        {responseLength === 'concise'
+                          ? 'Concise (<30 words)'
+                          : 'Detailed (<100 words)'}
+                      </button>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                      <span
+                        style={{
+                          color: 'rgba(160, 220, 255, 0.55)',
+                          fontSize: 10,
+                          textTransform: 'uppercase',
+                        }}
+                      >
                         Active Model
                       </span>
                       <span style={{ color: '#fff', fontWeight: 300 }}>Gemini 2.5 Flash</span>
@@ -3238,6 +3298,7 @@ export default function July() {
                       setCounterMode('char');
                       setPlaybackSpeed(1.0);
                       setIsMuted(false);
+                      setResponseLength('detailed');
 
                       // Remove items from local storage to clean up
                       localStorage.removeItem('july_speaking_threshold');
@@ -3246,6 +3307,7 @@ export default function July() {
                       localStorage.removeItem('july_auto_scroll');
                       localStorage.removeItem('july_sound_effects');
                       localStorage.removeItem('july_counter_mode');
+                      localStorage.removeItem('july_response_length');
                     }}
                     style={{
                       background: 'rgba(255, 255, 255, 0.02)',
