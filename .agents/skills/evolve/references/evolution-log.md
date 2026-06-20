@@ -114,6 +114,22 @@ animation. tsc + biome checks passed. Committed and pushed (ae2dfa6).
 **Scope**: `libs/components/july.tsx` (modify — state, ref, effect, talk/talkText calls, cycle UI render, reset logic), `libs/actions/gemini.actions.ts` (modify — ask, talk, and talkText model parameter)
 **Outcome**: Implemented activeModel state/ref/effect in july.tsx. Passed activeModel parameter to talk and talkText. Modified gemini.actions.ts ask, talk, and talkText functions to use the passed model variable dynamically. Rendered cycling picker button in Settings grid and included in defaults reset logic. Both tsc and biome checks passed successfully.
 
+## [2026-06-20] — Spacebar Keyboard Shortcut to Activate July
+
+**Phase**: done
+**Score**: 41 / 45
+**Reasoning**: Currently, Master has to click the central neon orb manually using the mouse/trackpad to request microphone permissions and wake up July. Adding a global 'Space' keyboard shortcut (when not actively typing in input fields) to invoke microphone activation and trigger requestMic() creates a seamless, frictionless hands-free starting point. Change is under 10 LOC, carries zero dependencies, and is extremely safe.
+**Scope**: `libs/components/july.tsx` (modify — keydown event listener and documented shortcuts array)
+**Outcome**: Implemented Spacebar shortcut in the global keydown listener to activate July / request microphone when not actively typing. Added the shortcut descriptor to the Help Modal shortcuts list. All type checks and Biome check passed perfectly.
+**Plan**:
+1. Locate the global keydown event listener inside `july.tsx`.
+2. Add a condition for `e.code === 'Space'` when `!isTyping` and `micStatus === 'idle' || micStatus === 'denied'`. If met, invoke `e.preventDefault()`, play the click chime, and trigger `requestMic()`.
+3. Add `requestMic` to the keydown `useEffect` dependency array.
+4. Add `{ keys: ['Space'], desc: 'Activate July / request microphone' }` to the Help Modal shortcuts display array.
+5. Verify using type checks (`npx tsc --noEmit`) and biome checks (`npx biome check .`).
+
+
+
 
 
 

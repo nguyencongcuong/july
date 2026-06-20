@@ -567,81 +567,6 @@ export default function July() {
     showToast('Chat history exported');
   }, [messages, playChime, showToast]);
 
-  // Global keydown event listener for custom shortcuts and auto-focus
-  useEffect(() => {
-    const handleGlobalKeyDown = (e: KeyboardEvent) => {
-      // 1. Cmd+K or Ctrl+K -> Clear history
-      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
-        e.preventDefault();
-        setMessages([]);
-        setConfirmClear(false);
-        playChime('clear');
-        if (confirmClearTimeoutRef.current) {
-          clearTimeout(confirmClearTimeoutRef.current);
-          confirmClearTimeoutRef.current = null;
-        }
-        return;
-      }
-
-      // 2. Escape -> Close help modal if open, else Stop speaking / silence July
-      if (e.key === 'Escape') {
-        if (showHelpModal) {
-          setShowHelpModal(false);
-          return;
-        }
-        if (isResponding) {
-          stopSpeaking();
-          return;
-        }
-      }
-
-      // Check if user is typing in a text field
-      const activeEl = document.activeElement;
-      const isTyping =
-        activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA');
-
-      if (!isTyping) {
-        // 3. 'm' or 'M' -> Toggle mute voice response
-        if (e.key.toLowerCase() === 'm') {
-          e.preventDefault();
-          playChime('click');
-          setIsMuted((prev) => !prev);
-          return;
-        }
-
-        // 4. 's' or 'S' -> Cycle playback speed
-        if (e.key.toLowerCase() === 's') {
-          e.preventDefault();
-          playChime('click');
-          setPlaybackSpeed((prev) => (prev === 1 ? 1.2 : prev === 1.2 ? 1.5 : 1.0));
-          return;
-        }
-
-        // 5. 'h' or 'H' -> Toggle help modal
-        if (e.key.toLowerCase() === 'h') {
-          e.preventDefault();
-          playChime('click');
-          setShowHelpModal((prev) => !prev);
-          return;
-        }
-
-        // 5. Any other single character -> Auto-focus input
-        if (
-          e.key.length === 1 &&
-          !e.metaKey &&
-          !e.ctrlKey &&
-          !e.altKey &&
-          inputRef.current &&
-          micStatus === 'active'
-        ) {
-          inputRef.current.focus();
-        }
-      }
-    };
-    window.addEventListener('keydown', handleGlobalKeyDown);
-    return () => window.removeEventListener('keydown', handleGlobalKeyDown);
-  }, [micStatus, isResponding, stopSpeaking, showHelpModal, playChime]);
-
   // ── Teardown ───────────────────────────────────────────────────────────────
 
   const teardown = useCallback(() => {
@@ -997,6 +922,89 @@ export default function July() {
   useEffect(() => {
     return teardown;
   }, [teardown]);
+
+  // Global keydown event listener for custom shortcuts and auto-focus
+  useEffect(() => {
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      // 1. Cmd+K or Ctrl+K -> Clear history
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setMessages([]);
+        setConfirmClear(false);
+        playChime('clear');
+        if (confirmClearTimeoutRef.current) {
+          clearTimeout(confirmClearTimeoutRef.current);
+          confirmClearTimeoutRef.current = null;
+        }
+        return;
+      }
+
+      // 2. Escape -> Close help modal if open, else Stop speaking / silence July
+      if (e.key === 'Escape') {
+        if (showHelpModal) {
+          setShowHelpModal(false);
+          return;
+        }
+        if (isResponding) {
+          stopSpeaking();
+          return;
+        }
+      }
+
+      // Check if user is typing in a text field
+      const activeEl = document.activeElement;
+      const isTyping =
+        activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA');
+
+      if (!isTyping) {
+        // 3. 'm' or 'M' -> Toggle mute voice response
+        if (e.key.toLowerCase() === 'm') {
+          e.preventDefault();
+          playChime('click');
+          setIsMuted((prev) => !prev);
+          return;
+        }
+
+        // 4. 's' or 'S' -> Cycle playback speed
+        if (e.key.toLowerCase() === 's') {
+          e.preventDefault();
+          playChime('click');
+          setPlaybackSpeed((prev) => (prev === 1 ? 1.2 : prev === 1.2 ? 1.5 : 1.0));
+          return;
+        }
+
+        // 5. 'h' or 'H' -> Toggle help modal
+        if (e.key.toLowerCase() === 'h') {
+          e.preventDefault();
+          playChime('click');
+          setShowHelpModal((prev) => !prev);
+          return;
+        }
+
+        // 6. Space -> Request microphone / wake July (when idle or denied)
+        if (e.code === 'Space' && (micStatus === 'idle' || micStatus === 'denied')) {
+          e.preventDefault();
+          playChime('click');
+          requestMic();
+          return;
+        }
+
+        // 5. Any other single character -> Auto-focus input
+        if (
+          e.key.length === 1 &&
+          !e.metaKey &&
+          !e.ctrlKey &&
+          !e.altKey &&
+          inputRef.current &&
+          micStatus === 'active'
+        ) {
+          inputRef.current.focus();
+        }
+      }
+    };
+    window.addEventListener('keydown', handleGlobalKeyDown);
+    return () => window.removeEventListener('keydown', handleGlobalKeyDown);
+  }, [micStatus, isResponding, stopSpeaking, showHelpModal, playChime, requestMic]);
 
   // ── Derived state ──────────────────────────────────────────────────────────
 
@@ -2888,6 +2896,7 @@ export default function July() {
                       { keys: ['M'], desc: 'Toggle audio feedback mute' },
                       { keys: ['S'], desc: 'Cycle playback speed (1.0x → 1.2x → 1.5x)' },
                       { keys: ['H'], desc: 'Toggle help modal' },
+                      { keys: ['Space'], desc: 'Activate July / request microphone' },
                       { keys: ['↑'], desc: 'Recall / edit last sent prompt (in empty input)' },
                       { keys: ['Any Key'], desc: 'Auto-focus prompt input box (when active)' },
                     ].map((item) => (
