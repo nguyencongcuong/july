@@ -223,26 +223,88 @@ export default function July() {
     setIsProcessing(false);
   }, []);
 
+  const playChime = useCallback((type: 'wake' | 'clear' | 'click') => {
+    if (isMutedRef.current) return;
+    try {
+      let ctx = audioCtxRef.current;
+      if (!ctx) {
+        ctx = new AudioContext();
+        audioCtxRef.current = ctx;
+      }
+      if (ctx.state === 'suspended') {
+        ctx.resume();
+      }
+      const now = ctx.currentTime;
+      if (type === 'wake') {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(800, now);
+        osc.frequency.exponentialRampToValueAtTime(1200, now + 0.15);
+        gain.gain.setValueAtTime(0.04, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.15);
+      } else if (type === 'clear') {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(600, now);
+        osc.frequency.exponentialRampToValueAtTime(100, now + 0.3);
+        gain.gain.setValueAtTime(0.04, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.3);
+      } else if (type === 'click') {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(1000, now);
+        gain.gain.setValueAtTime(0.015, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.05);
+      }
+    } catch (e) {
+      console.warn('Failed to play chime:', e);
+    }
+  }, []);
+
   const handleCopyNotification = useCallback(() => {
+    playChime('click');
     setIsCopyPulseActive(true);
     setTimeout(() => setIsCopyPulseActive(false), 1000);
-  }, []);
+  }, [playChime]);
 
-  const handleDeleteMessage = useCallback((index: number) => {
-    setMessages((prev) => prev.filter((_, i) => i !== index));
-  }, []);
+  const handleDeleteMessage = useCallback(
+    (index: number) => {
+      playChime('click');
+      setMessages((prev) => prev.filter((_, i) => i !== index));
+    },
+    [playChime]
+  );
 
-  const handleMessageFeedback = useCallback((index: number, feedbackType: 'like' | 'dislike') => {
-    setMessages((prev) =>
-      prev.map((msg, i) => {
-        if (i !== index) return msg;
-        return {
-          ...msg,
-          feedback: msg.feedback === feedbackType ? null : feedbackType,
-        };
-      })
-    );
-  }, []);
+  const handleMessageFeedback = useCallback(
+    (index: number, feedbackType: 'like' | 'dislike') => {
+      playChime('click');
+      setMessages((prev) =>
+        prev.map((msg, i) => {
+          if (i !== index) return msg;
+          return {
+            ...msg,
+            feedback: msg.feedback === feedbackType ? null : feedbackType,
+          };
+        })
+      );
+    },
+    [playChime]
+  );
 
   // Global keydown event listener for custom shortcuts and auto-focus
   useEffect(() => {
@@ -252,6 +314,7 @@ export default function July() {
         e.preventDefault();
         setMessages([]);
         setConfirmClear(false);
+        playChime('clear');
         if (confirmClearTimeoutRef.current) {
           clearTimeout(confirmClearTimeoutRef.current);
           confirmClearTimeoutRef.current = null;
@@ -280,6 +343,7 @@ export default function July() {
         // 3. 'm' or 'M' -> Toggle mute voice response
         if (e.key.toLowerCase() === 'm') {
           e.preventDefault();
+          playChime('click');
           setIsMuted((prev) => !prev);
           return;
         }
@@ -287,6 +351,7 @@ export default function July() {
         // 4. 's' or 'S' -> Cycle playback speed
         if (e.key.toLowerCase() === 's') {
           e.preventDefault();
+          playChime('click');
           setPlaybackSpeed((prev) => (prev === 1 ? 1.2 : prev === 1.2 ? 1.5 : 1.0));
           return;
         }
@@ -306,7 +371,7 @@ export default function July() {
     };
     window.addEventListener('keydown', handleGlobalKeyDown);
     return () => window.removeEventListener('keydown', handleGlobalKeyDown);
-  }, [micStatus, isResponding, stopSpeaking, showHelpModal]);
+  }, [micStatus, isResponding, stopSpeaking, showHelpModal, playChime]);
 
   // ── Teardown ───────────────────────────────────────────────────────────────
 
@@ -628,11 +693,12 @@ export default function July() {
       audioCtxRef.current = ctx;
       streamRef.current = stream;
       setMicStatus('active');
+      playChime('wake');
       startAudioLoop(ctx, stream);
     } catch {
       setMicStatus('denied');
     }
-  }, [teardown, startAudioLoop]);
+  }, [teardown, startAudioLoop, playChime]);
 
   useEffect(() => {
     return teardown;
@@ -1033,6 +1099,7 @@ export default function July() {
             className={confirmClear ? 'control-btn confirm-shake' : 'control-btn'}
             onClick={() => {
               if (confirmClear) {
+                playChime('clear');
                 if (confirmClearTimeoutRef.current) {
                   clearTimeout(confirmClearTimeoutRef.current);
                   confirmClearTimeoutRef.current = null;
@@ -1040,6 +1107,7 @@ export default function July() {
                 setMessages([]);
                 setConfirmClear(false);
               } else {
+                playChime('click');
                 setConfirmClear(true);
                 confirmClearTimeoutRef.current = setTimeout(() => {
                   setConfirmClear(false);
@@ -1084,6 +1152,7 @@ export default function July() {
           type='button'
           className='control-btn'
           onClick={() => {
+            playChime('click');
             setPlaybackSpeed((s) => {
               if (s === 1) return 1.2;
               if (s === 1.2) return 1.5;
@@ -1136,7 +1205,10 @@ export default function July() {
         <button
           type='button'
           className='control-btn'
-          onClick={() => setIsMuted((m) => !m)}
+          onClick={() => {
+            playChime('click');
+            setIsMuted((m) => !m);
+          }}
           style={{
             position: 'absolute',
             top: 24,
@@ -1628,7 +1700,10 @@ export default function July() {
               <button
                 key={chip.text}
                 type='button'
-                onClick={() => handlePrompt(chip.prompt)}
+                onClick={() => {
+                  playChime('click');
+                  handlePrompt(chip.prompt);
+                }}
                 disabled={isProcessing || isResponding}
                 style={{
                   width: '100%',
@@ -2177,7 +2252,10 @@ export default function July() {
           <button
             type='button'
             className='shortcuts-helper'
-            onClick={() => setShowHelpModal(true)}
+            onClick={() => {
+              playChime('click');
+              setShowHelpModal(true);
+            }}
             style={{
               marginTop: 12,
               fontSize: 10,
@@ -2208,7 +2286,10 @@ export default function July() {
           // biome-ignore lint/a11y/useKeyWithClickEvents: Escape key already closes the modal globally
           // biome-ignore lint/a11y/noStaticElementInteractions: backdrop click handler is standard for modal dismissal
           <div
-            onClick={() => setShowHelpModal(false)}
+            onClick={() => {
+              playChime('click');
+              setShowHelpModal(false);
+            }}
             style={{
               position: 'fixed',
               inset: 0,
@@ -2264,7 +2345,10 @@ export default function July() {
                 </h3>
                 <button
                   type='button'
-                  onClick={() => setShowHelpModal(false)}
+                  onClick={() => {
+                    playChime('click');
+                    setShowHelpModal(false);
+                  }}
                   style={{
                     background: 'none',
                     border: 'none',
