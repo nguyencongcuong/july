@@ -146,6 +146,7 @@ export default function July() {
   const [responseLength, setResponseLength] = useState<'concise' | 'detailed'>('detailed');
   const [activeModel, setActiveModel] = useState<string>('gemini-2.5-flash');
   const [counterMode, setCounterMode] = useState<'char' | 'word'>('char');
+  const [messageFontSize, setMessageFontSize] = useState<'small' | 'medium' | 'large'>('medium');
   const [sessionStartTime, setSessionStartTime] = useState(0);
   const [sessionDuration, setSessionDuration] = useState(0);
 
@@ -209,9 +210,19 @@ export default function July() {
       if (savedCounter) setCounterMode(savedCounter as 'char' | 'word');
     } catch {}
 
+    try {
+      const savedFontSize = localStorage.getItem('july_message_font_size');
+      if (savedFontSize) setMessageFontSize(savedFontSize as 'small' | 'medium' | 'large');
+    } catch {}
+
     setSessionStartTime(Date.now());
     setIsLoaded(true);
   }, []);
+
+  useEffect(() => {
+    if (!isLoaded) return;
+    localStorage.setItem('july_message_font_size', messageFontSize);
+  }, [messageFontSize, isLoaded]);
 
   useEffect(() => {
     if (!isLoaded) return;
@@ -2414,7 +2425,8 @@ export default function July() {
                         padding: '10px 15px',
                         borderRadius:
                           msg.role === 'user' ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
-                        fontSize: 13,
+                        fontSize:
+                          messageFontSize === 'small' ? 11 : messageFontSize === 'large' ? 15 : 13,
                         fontWeight: 300,
                         lineHeight: 1.55,
                         backdropFilter: 'blur(12px)',
@@ -2695,7 +2707,8 @@ export default function July() {
                       maxWidth: '78%',
                       padding: '10px 15px',
                       borderRadius: '18px 18px 18px 4px',
-                      fontSize: 13,
+                      fontSize:
+                        messageFontSize === 'small' ? 11 : messageFontSize === 'large' ? 15 : 13,
                       fontWeight: 300,
                       lineHeight: 1.55,
                       backdropFilter: 'blur(12px)',
@@ -3790,6 +3803,48 @@ export default function July() {
                         : 'Gemini 2.0 Flash'}
                   </Button>
                 </Box>
+
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.25 }}>
+                  <Typography
+                    sx={{
+                      color: 'rgba(160, 220, 255, 0.55)',
+                      fontSize: 10,
+                      textTransform: 'uppercase',
+                    }}
+                  >
+                    Font Size
+                  </Typography>
+                  <Button
+                    onClick={() => {
+                      playChime('click');
+                      setMessageFontSize((prev) =>
+                        prev === 'small' ? 'medium' : prev === 'medium' ? 'large' : 'small'
+                      );
+                    }}
+                    sx={{
+                      background: 'none',
+                      border: 'none',
+                      outline: 'none',
+                      padding: 0,
+                      textTransform: 'none',
+                      justifyContent: 'flex-start',
+                      color: '#00dc8c',
+                      fontSize: 12,
+                      fontWeight: 300,
+                      '&:hover': {
+                        background: 'none',
+                        color: '#fff',
+                        textShadow: '0 0 8px rgba(0, 180, 255, 0.5)',
+                      },
+                    }}
+                  >
+                    {messageFontSize === 'small'
+                      ? 'Small (11px)'
+                      : messageFontSize === 'large'
+                        ? 'Large (15px)'
+                        : 'Medium (13px)'}
+                  </Button>
+                </Box>
               </Box>
             </Box>
 
@@ -3806,6 +3861,7 @@ export default function July() {
                   setAutoScrollEnabled(true);
                   setSoundEffectsEnabled(true);
                   setSoundVolume(100);
+                  setMessageFontSize('medium');
                   setCounterMode('char');
                   setPlaybackSpeed(1.0);
                   setResponseLength('detailed');
@@ -3819,6 +3875,7 @@ export default function July() {
                   localStorage.removeItem('july_auto_scroll');
                   localStorage.removeItem('july_sound_effects');
                   localStorage.removeItem('july_sound_volume');
+                  localStorage.removeItem('july_message_font_size');
                   localStorage.removeItem('july_draft_input');
                   localStorage.removeItem('july_counter_mode');
                   localStorage.removeItem('july_response_length');

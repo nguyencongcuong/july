@@ -169,3 +169,19 @@ animation. tsc + biome checks passed. Committed and pushed (ae2dfa6).
 4. In message bubble render block, if `copiedMessageIndex === idx`, apply temporary box-shadow and border colors based on the role (`user` vs `july`).
 5. Verify compiler and formatting checks.
 
+## [2026-06-20] — Message Font Size Cycle Setting
+
+**Phase**: done
+**Score**: 41 / 45
+**Reasoning**: Some users may find the default message bubble font size (13px) too small or too large. Introducing a 'Font Size' cycle setting (Small: 11px, Medium: 13px, Large: 15px) allows Master to customize readability. Stored in localStorage namespaced under `july_message_font_size`, under 25 LOC, single-file change, extremely safe and no regressions risk.
+**Scope**: `libs/components/july.tsx` (modify — fontSize state, hydration, render style bindings, settings picker button, reset list)
+**Outcome**: Declared messageFontSize state in july.tsx. Added localStorage hydration on client mount and a save hook. Bound font size dynamically in message bubbles and typing indicator. Rendered Font Size cycle button in settings panel and integrated with defaults reset handler. Passed tsc and biome checks.
+**Plan**:
+1. Add `messageFontSize` state ('small' | 'medium' | 'large', defaults to 'medium').
+2. Hydrate `messageFontSize` from `localStorage` under `july_message_font_size` on client mount.
+3. Save `messageFontSize` to `localStorage` when it changes.
+4. Bind font size of message bubbles dynamically (Small = 11px, Medium = 13px, Large = 15px).
+5. Render a cycle button in Settings ("Diagnostics") under "Session Diagnostics" or general section to pick Font Size.
+6. Connect it to the reset settings handler and verify code quality.
+
+
