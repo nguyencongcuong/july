@@ -344,6 +344,29 @@ export default function July() {
     [playChime]
   );
 
+  const handleExportChat = useCallback(() => {
+    playChime('click');
+    if (messages.length === 0) return;
+
+    const content = messages
+      .map((msg) => {
+        const time = msg.timestamp ? `[${msg.timestamp}] ` : '';
+        const role = msg.role === 'user' ? 'User' : 'July (AI)';
+        return `${time}${role}: ${msg.text}`;
+      })
+      .join('\n\n');
+
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `july_chat_transcript_${new Date().toISOString().slice(0, 10)}.txt`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }, [messages, playChime]);
+
   // Global keydown event listener for custom shortcuts and auto-focus
   useEffect(() => {
     const handleGlobalKeyDown = (e: KeyboardEvent) => {
@@ -1137,6 +1160,38 @@ export default function July() {
                   : `ONLINE${messages.length > 0 ? ` • ${messages.length} MSGS` : ''}`}
           </span>
         </div>
+
+        {/* ── Export Chat Button ── */}
+        {messages.length > 0 && (
+          <button
+            type='button'
+            className='control-btn'
+            onClick={handleExportChat}
+            style={{
+              position: 'absolute',
+              top: 24,
+              right: 192,
+              zIndex: 100,
+              width: 44,
+              height: 44,
+              borderRadius: '50%',
+              border: '1px solid rgba(255,255,255,0.08)',
+              background: 'rgba(255,255,255,0.03)',
+              backdropFilter: 'blur(8px)',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'rgba(160, 220, 255, 0.85)',
+              boxShadow: '0 0 15px rgba(0,180,255,0.1), inset 0 0 10px rgba(0,180,255,0.02)',
+              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+            }}
+            aria-label='Export conversation history'
+          >
+            <IconDownload />
+            <span className='tooltip-bubble'>Export conversation</span>
+          </button>
+        )}
 
         {/* ── Clear Chat Button ── */}
         {messages.length > 0 && (
@@ -3074,6 +3129,26 @@ function IconTrash({ size = 18 }: { size?: number }) {
       <path d='M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2' />
       <line x1='10' y1='11' x2='10' y2='17' />
       <line x1='14' y1='11' x2='14' y2='17' />
+    </svg>
+  );
+}
+
+function IconDownload({ size = 18 }: { size?: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox='0 0 24 24'
+      fill='none'
+      stroke='currentColor'
+      strokeWidth='1.6'
+      strokeLinecap='round'
+      strokeLinejoin='round'
+      aria-hidden='true'
+    >
+      <path d='M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4' />
+      <polyline points='7 10 12 15 17 10' />
+      <line x1='12' y1='15' x2='12' y2='3' />
     </svg>
   );
 }
