@@ -183,5 +183,14 @@ animation. tsc + biome checks passed. Committed and pushed (ae2dfa6).
 4. Bind font size of message bubbles dynamically (Small = 11px, Medium = 13px, Large = 15px).
 5. Render a cycle button in Settings ("Diagnostics") under "Session Diagnostics" or general section to pick Font Size.
 6. Connect it to the reset settings handler and verify code quality.
+## [2026-06-20] — Copy Conversation Markdown Transcript Button
 
-
+**Phase**: done
+**Score**: 41 / 45
+**Reasoning**: Currently, users can only export the chat logs as a text file download. Adding a copy transcript icon button next to export allows copying the entire conversation formatted in clean Markdown to the clipboard instantly, making it easy to share or paste elsewhere. Under 15 LOC, highly useful, extremely safe.
+**Scope**: `libs/components/july.tsx` (modify — handleCopyTranscript callback, render Copy IconButton in Control Buttons Stack)
+**Outcome**: Added handleCopyTranscript callback to format and write the chat history to the clipboard as clean Markdown. Rendered the ContentCopy icon button next to the Export button in the Control Buttons Stack. Passed all tsc and biome checks.
+**Plan**:
+1. Add `handleCopyTranscript` callback formatting messages to Markdown and calling `navigator.clipboard.writeText`.
+2. Add a `ContentCopy` IconButton in the control buttons stack next to Export if `messages.length > 0`.
+3. Verify compile and formatting checks.

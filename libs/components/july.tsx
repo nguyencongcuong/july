@@ -656,6 +656,25 @@ export default function July() {
     showToast('Chat history exported');
   }, [messages, playChime, showToast]);
 
+  const handleCopyTranscript = useCallback(() => {
+    playChime('click');
+    if (messages.length === 0) return;
+    const content = messages
+      .map((msg) => {
+        const role = msg.role === 'user' ? userName || 'User' : 'July';
+        return `**${role}**: ${msg.text}`;
+      })
+      .join('\n\n');
+    navigator.clipboard
+      .writeText(content)
+      .then(() => {
+        showToast('Transcript copied to clipboard');
+      })
+      .catch((err) => {
+        console.error('Failed to copy transcript: ', err);
+      });
+  }, [messages, userName, playChime, showToast]);
+
   // ── Teardown ───────────────────────────────────────────────────────────────
 
   const teardown = useCallback(() => {
@@ -1591,6 +1610,37 @@ export default function July() {
               title='Export conversation'
             >
               <Download sx={{ fontSize: 18 }} />
+            </IconButton>
+          )}
+
+          {/* Copy Transcript Button */}
+          {messages.length > 0 && (
+            <IconButton
+              onClick={handleCopyTranscript}
+              sx={{
+                width: 44,
+                height: 44,
+                border: '1px solid rgba(255,255,255,0.08)',
+                background: 'rgba(255,255,255,0.03)',
+                backdropFilter: 'blur(8px)',
+                color: 'rgba(160, 220, 255, 0.85)',
+                boxShadow: '0 0 15px rgba(0,180,255,0.1), inset 0 0 10px rgba(0,180,255,0.02)',
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                '&:hover': {
+                  background: 'rgba(255, 255, 255, 0.08)',
+                  borderColor: 'rgba(0, 180, 255, 0.25)',
+                  color: '#fff',
+                  transform: 'scale(1.08)',
+                  boxShadow: '0 0 15px rgba(0, 180, 255, 0.15)',
+                },
+                '&:active': {
+                  transform: 'scale(0.95)',
+                },
+              }}
+              aria-label='Copy conversation transcript'
+              title='Copy transcript'
+            >
+              <ContentCopy sx={{ fontSize: 18 }} />
             </IconButton>
           )}
 
