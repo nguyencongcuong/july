@@ -1,6 +1,6 @@
 # code rule
 
-## non-negotiable: every implementation must pass all three gates before it is done
+## non-negotiable: every implementation must pass all four gates before it is done
 
 ---
 
@@ -28,7 +28,32 @@ code must be readable, intentional, and maintainable. no exceptions.
 
 ---
 
-## gate 2 — good performance
+## gate 2 — zod typings
+
+all data shapes that cross a boundary must be defined and validated with zod. no exceptions.
+
+### rules
+
+- **use zod for all schemas** — any object, api response, form input, or localStorage value with a non-trivial shape must have a zod schema
+- **schemas live in `libs/schemas/`** — one file per domain (e.g. `libs/schemas/chat.ts`, `libs/schemas/settings.ts`); never define schemas inline in components or actions
+- **derive types from schemas** — use `z.infer<typeof MySchema>` for all TypeScript types; do not duplicate type definitions alongside a schema
+- **parse at the boundary** — call `.parse()` or `.safeParse()` at every trust boundary: api responses, `localStorage` reads, server action inputs, and user-supplied data
+- **use `safeParse` for recoverable errors** — when a parse failure should degrade gracefully rather than throw, use `safeParse` and handle the error explicitly
+- **no `z.any()` or `z.unknown()` without a comment** — if you must use them, add a `// reason:` comment explaining why a stricter schema is not possible
+- **keep schemas flat and composable** — prefer small schemas composed with `.merge()`, `.extend()`, or `.pick()` over deeply nested monoliths
+- **version schemas for stored data** — if a schema is persisted to `localStorage`, include a `version` field so future migrations are possible
+
+### checklist before finishing
+
+- [ ] every new data shape has a schema in `libs/schemas/`
+- [ ] all typescript types are derived with `z.infer` — no duplicate type declarations
+- [ ] `.parse()` or `.safeParse()` is called at every trust boundary
+- [ ] no `z.any()` without a `// reason:` comment
+- [ ] schemas are flat and composable, not deeply nested
+
+---
+
+## gate 3 — good performance
 
 never make the user feel the cost of the code.
 
@@ -83,7 +108,7 @@ this is not optional. do not skip it.
 ## summary
 
 ```
-write code  →  gate 1: clean?  →  gate 2: performant?  →  gate 3: self-reviewed?  →  done
+write code  →  gate 1: clean?  →  gate 2: zod schemas?  →  gate 3: performant?  →  gate 4: self-reviewed?  →  done
 ```
 
-all three gates must pass. skipping any gate is not allowed.
+all four gates must pass. skipping any gate is not allowed.
