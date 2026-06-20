@@ -2555,6 +2555,100 @@ export default function July() {
                     />
                   </div>
                 </div>
+
+                {/* Session Diagnostics */}
+                <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.05)', paddingTop: 16 }}>
+                  <h4
+                    style={{
+                      fontSize: 11,
+                      fontWeight: 400,
+                      color: 'rgba(255, 255, 255, 0.8)',
+                      letterSpacing: '0.05em',
+                      marginBottom: 8,
+                      textTransform: 'uppercase',
+                    }}
+                  >
+                    Session Diagnostics
+                  </h4>
+                  <div
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: '1fr 1fr',
+                      gap: 10,
+                      fontSize: 12,
+                    }}
+                  >
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                      <span
+                        style={{
+                          color: 'rgba(160, 220, 255, 0.55)',
+                          fontSize: 10,
+                          textTransform: 'uppercase',
+                        }}
+                      >
+                        Queries Sent
+                      </span>
+                      <span style={{ color: '#fff', fontWeight: 300 }}>
+                        {messages.filter((m) => m.role === 'user').length}
+                      </span>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                      <span
+                        style={{
+                          color: 'rgba(160, 220, 255, 0.55)',
+                          fontSize: 10,
+                          textTransform: 'uppercase',
+                        }}
+                      >
+                        Avg Latency
+                      </span>
+                      <span style={{ color: '#fff', fontWeight: 300 }}>
+                        {(() => {
+                          const latMsgs = messages.filter((m) => m.latency);
+                          if (latMsgs.length === 0) return 'N/A';
+                          const sum = latMsgs.reduce(
+                            (acc, m) => acc + parseFloat(m.latency || '0'),
+                            0
+                          );
+                          return `⚡ ${(sum / latMsgs.length).toFixed(1)}s`;
+                        })()}
+                      </span>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                      <span
+                        style={{
+                          color: 'rgba(160, 220, 255, 0.55)',
+                          fontSize: 10,
+                          textTransform: 'uppercase',
+                        }}
+                      >
+                        Playback Speed
+                      </span>
+                      <span style={{ color: '#fff', fontWeight: 300 }}>
+                        {playbackSpeed.toFixed(1)}x
+                      </span>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                      <span
+                        style={{
+                          color: 'rgba(160, 220, 255, 0.55)',
+                          fontSize: 10,
+                          textTransform: 'uppercase',
+                        }}
+                      >
+                        Audio Feedback
+                      </span>
+                      <span
+                        style={{
+                          color: isMuted ? 'rgba(255, 100, 100, 0.75)' : '#00dc8c',
+                          fontWeight: 300,
+                        }}
+                      >
+                        {isMuted ? 'Muted' : 'Enabled'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
