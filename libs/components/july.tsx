@@ -2054,7 +2054,6 @@ export default function July() {
 
           {/* volume bar — only while user is speaking */}
           {micStatus === 'active' && isSpeaking && (
-            // biome-ignore lint/a11y/useSemanticElements: animated fill bar requires div children; <meter> cannot render them
             <Box
               role='meter'
               aria-valuenow={volume}
@@ -2377,6 +2376,7 @@ export default function July() {
                   msg.role === 'july' && idx === messages.length - 1 && isResponding;
                 return (
                   <Box
+                    // biome-ignore lint/suspicious/noArrayIndexKey: message index is safe as list is append-only
                     key={idx}
                     className='msg-in'
                     sx={{
