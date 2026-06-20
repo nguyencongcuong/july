@@ -139,6 +139,26 @@ export default function July() {
     localStorage.setItem('july_sound_effects', soundEffectsEnabled.toString());
   }, [soundEffectsEnabled]);
 
+  const [counterMode, setCounterMode] = useState<'char' | 'word'>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('july_counter_mode');
+      return (saved as 'char' | 'word') || 'char';
+    }
+    return 'char';
+  });
+
+  useEffect(() => {
+    localStorage.setItem('july_counter_mode', counterMode);
+  }, [counterMode]);
+
+  const getCounterText = () => {
+    if (counterMode === 'char') {
+      return `${inputText.length}/250`;
+    }
+    const words = inputText.trim() === '' ? 0 : inputText.trim().split(/\s+/).length;
+    return `${words} word${words === 1 ? '' : 's'}`;
+  };
+
   const [sessionStartTime] = useState(() => Date.now());
   const [sessionDuration, setSessionDuration] = useState(0);
 
@@ -2353,7 +2373,12 @@ export default function July() {
               />
               {inputText.length > 0 && (
                 <>
-                  <span
+                  <button
+                    type='button'
+                    onClick={() => {
+                      playChime('click');
+                      setCounterMode((prev) => (prev === 'char' ? 'word' : 'char'));
+                    }}
                     className={inputText.length >= 230 ? 'warning-pulse' : ''}
                     style={{
                       position: 'absolute',
@@ -2366,13 +2391,23 @@ export default function July() {
                         inputText.length >= 220
                           ? 'rgba(255, 100, 100, 0.75)'
                           : 'rgba(160, 220, 255, 0.45)',
-                      pointerEvents: 'none',
+                      background: 'none',
+                      border: 'none',
+                      outline: 'none',
+                      cursor: 'pointer',
+                      padding: 0,
                       transition: 'color 0.2s ease',
                       userSelect: 'none',
                     }}
+                    title={
+                      counterMode === 'char' ? 'Switch to word count' : 'Switch to character count'
+                    }
+                    aria-label={
+                      counterMode === 'char' ? 'Switch to word count' : 'Switch to character count'
+                    }
                   >
-                    {inputText.length}/250
-                  </span>
+                    {getCounterText()}
+                  </button>
                   <button
                     type='button'
                     onClick={() => {
@@ -3058,6 +3093,7 @@ export default function July() {
                       setUserName('Master');
                       setAutoScrollEnabled(true);
                       setSoundEffectsEnabled(true);
+                      setCounterMode('char');
                       setPlaybackSpeed(1.0);
                       setIsMuted(false);
 
@@ -3067,6 +3103,7 @@ export default function July() {
                       localStorage.removeItem('july_user_name');
                       localStorage.removeItem('july_auto_scroll');
                       localStorage.removeItem('july_sound_effects');
+                      localStorage.removeItem('july_counter_mode');
                     }}
                     style={{
                       background: 'rgba(255, 255, 255, 0.02)',
