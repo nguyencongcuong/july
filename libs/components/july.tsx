@@ -2312,6 +2312,18 @@ export default function July() {
                 </IconButton>
                 <Typography
                   variant='h2'
+                  onDoubleClick={() => {
+                    playChime('click');
+                    const newName = window.prompt('Enter your name, Master:', userName);
+                    if (newName !== null) {
+                      const trimmed = newName.trim();
+                      if (trimmed) {
+                        setUserName(trimmed);
+                        showToast(`Name updated to: ${trimmed}`);
+                      }
+                    }
+                  }}
+                  title='Double-click to change name'
                   sx={{
                     fontSize: 14,
                     fontWeight: 400,
@@ -2320,6 +2332,12 @@ export default function July() {
                     letterSpacing: '0.08em',
                     textTransform: 'uppercase',
                     textShadow: '0 0 8px rgba(0, 180, 255, 0.2)',
+                    cursor: 'pointer',
+                    transition: 'all 0.25s ease',
+                    '&:hover': {
+                      color: '#00dc8c',
+                      textShadow: '0 0 8px rgba(0, 220, 140, 0.6)',
+                    },
                   }}
                 >
                   {greeting}

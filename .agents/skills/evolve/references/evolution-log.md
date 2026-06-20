@@ -245,6 +245,21 @@ animation. tsc + biome checks passed. Committed and pushed (ae2dfa6).
 2. Swap `playChime('click')` with `playChime('clear')` in the "Reset to Defaults" button onClick handler.
 3. Validate compilation and Biome formatting.
 
+## [2026-06-20] — Interactive Greeting UserName Edit Shortcut
+
+**Phase**: done
+**Score**: 42 / 45
+**Reasoning**: Currently, changing the user's name requires opening the settings diagnostics drawer. Making the welcome guide greeting text interactive by allowing double-clicking to trigger a name prompt creates a very delightful, intuitive direct editing path. It glows on hover and notifies the user with a toast on save.
+**Scope**: `libs/components/july.tsx` (modify — add onDoubleClick handler, hover styles, and interactive title to welcome guide greeting Typography component)
+**Outcome**: Added double-click name editing capabilities directly to the welcome guide header Typography in july.tsx. Configured smooth hover neon transitions and pointer cursors to signal visual interactivity, popping up a window name prompt and alerting the user via toast on save.
+**Plan**:
+1. Locate the welcome guide greeting `<Typography>` element in `july.tsx` rendering `{greeting}`.
+2. Bind `onDoubleClick` to trigger `window.prompt` requesting a new user name, updating `setUserName` and showing a success toast if valid.
+3. Configure `title` and CSS pointer styling (`cursor: 'pointer'`, hover neon colors transition) to visually mark interactivity.
+4. Run compiler `npx tsc --noEmit` and formatting `npx biome check .` to verify.
+
+
+
 
 
 
