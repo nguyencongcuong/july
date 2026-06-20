@@ -33,6 +33,28 @@ interface Message {
 const FFT_SIZE = 256;
 const STOP_DEBOUNCE_MS = 2000;
 const MIN_RECORDING_MS = 300;
+const RETRY_DELAYS_MS = [500, 1500] as const;
+
+// ─── Helpers ─ (retry) ────────────────────────────────────────────────────────
+
+async function withRetry<T>(
+  fn: () => Promise<T>,
+  onRetry: (attempt: number, total: number) => void
+): Promise<T> {
+  let lastErr: unknown;
+  for (let attempt = 0; attempt <= RETRY_DELAYS_MS.length; attempt++) {
+    try {
+      return await fn();
+    } catch (err) {
+      lastErr = err;
+      if (attempt < RETRY_DELAYS_MS.length) {
+        onRetry(attempt + 1, RETRY_DELAYS_MS.length);
+        await new Promise<void>((res) => setTimeout(res, RETRY_DELAYS_MS[attempt]));
+      }
+    }
+  }
+  throw lastErr;
+}
 
 const PLACEHOLDERS = [
   'Type a message...',
@@ -605,8 +627,16 @@ export default function July() {
       setIsProcessing(true);
       queryStartTimeRef.current = Date.now();
       try {
-        const result = await talk(formData);
+        const result = await withRetry(
+          () => talk(formData),
+          (attempt, total) => {
+            if (currentReqId === requestIdRef.current) {
+              setErrorMessage(`Retrying (${attempt}/${total})…`);
+            }
+          }
+        );
         if (currentReqId !== requestIdRef.current) return;
+        setErrorMessage(null);
         setIsProcessing(false);
 
         if (result) {
@@ -685,8 +715,16 @@ export default function July() {
       setIsProcessing(true);
       queryStartTimeRef.current = Date.now();
       try {
-        const result = await talkText(promptText, messagesRef.current, isMutedRef.current);
+        const result = await withRetry(
+          () => talkText(promptText, messagesRef.current, isMutedRef.current),
+          (attempt, total) => {
+            if (currentReqId === requestIdRef.current) {
+              setErrorMessage(`Retrying (${attempt}/${total})…`);
+            }
+          }
+        );
         if (currentReqId !== requestIdRef.current) return;
+        setErrorMessage(null);
         setIsProcessing(false);
 
         if (result) {
