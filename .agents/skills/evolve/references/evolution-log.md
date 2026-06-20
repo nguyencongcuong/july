@@ -128,19 +128,20 @@ animation. tsc + biome checks passed. Committed and pushed (ae2dfa6).
 4. Add `{ keys: ['Space'], desc: 'Activate July / request microphone' }` to the Help Modal shortcuts display array.
 5. Verify using type checks (`npx tsc --noEmit`) and biome checks (`npx biome check .`).
 
+## [2026-06-20] — Sound Effects Chimes Volume Control Setting
 
-
-
-
-
-
-
-
-
-
-
-
-
+**Phase**: done
+**Score**: 41 / 45
+**Reasoning**: Currently, sound effects (chimes) are played at a fixed, relatively loud volume level. Adding a 'Chimes Volume' setting slider (0% to 100%) in the settings panel allows Master to calibrate the auditory feedback to a subtle level or mute it partially. Stored in localStorage as `july_sound_volume`, under 25 LOC, single-file change, extremely safe and zero regressions risk.
+**Scope**: `libs/components/july.tsx` (modify — volume state, ref, playChime multiplication, range input render, reset settings list)
+**Outcome**: Declared soundVolume state/ref/effect in july.tsx. Scaled Web Audio oscillator nodes gain values in playChime by soundVolumeRef.current / 100. Rendered a range slider input under Acoustic Calibration in the Settings drawer, and updated the settings reset handler to reset chimes volume. All tsc and biome checks passed.
+**Plan**:
+1. Add `soundVolume` state initialized from `localStorage` under `july_sound_volume`, defaulting to `100`.
+2. Add a corresponding `soundVolumeRef` to keep the value accessible in callbacks without stale closures.
+3. Update `playChime` to use the ref value. Scale all the gain nodes (wake, clear, click) by multiplying the default gain values by `soundVolumeRef.current / 100`.
+4. In the settings panel rendering block, add a new slider input under "Acoustic Calibration" for "Chimes Volume", displaying the current volume percentage.
+5. In the settings reset button handler, reset `soundVolume` state and ref back to `100`, and remove `july_sound_volume` from `localStorage`.
+6. Verify code compile and lint checks.
 
 
 

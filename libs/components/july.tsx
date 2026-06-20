@@ -185,6 +185,21 @@ export default function July() {
     localStorage.setItem('july_sound_effects', soundEffectsEnabled.toString());
   }, [soundEffectsEnabled]);
 
+  const [soundVolume, setSoundVolume] = useState<number>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('july_sound_volume');
+      return saved === null ? 100 : Number(saved);
+    }
+    return 100;
+  });
+
+  const soundVolumeRef = useRef(soundVolume);
+  soundVolumeRef.current = soundVolume;
+
+  useEffect(() => {
+    localStorage.setItem('july_sound_volume', soundVolume.toString());
+  }, [soundVolume]);
+
   const [responseLength, setResponseLength] = useState<'concise' | 'detailed'>(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('july_response_length');
@@ -460,13 +475,14 @@ export default function July() {
         ctx.resume();
       }
       const now = ctx.currentTime;
+      const volFactor = soundVolumeRef.current / 100;
       if (type === 'wake') {
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
         osc.type = 'sine';
         osc.frequency.setValueAtTime(800, now);
         osc.frequency.exponentialRampToValueAtTime(1200, now + 0.15);
-        gain.gain.setValueAtTime(0.04, now);
+        gain.gain.setValueAtTime(0.04 * volFactor, now);
         gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
         osc.connect(gain);
         gain.connect(ctx.destination);
@@ -478,7 +494,7 @@ export default function July() {
         osc.type = 'triangle';
         osc.frequency.setValueAtTime(600, now);
         osc.frequency.exponentialRampToValueAtTime(100, now + 0.3);
-        gain.gain.setValueAtTime(0.04, now);
+        gain.gain.setValueAtTime(0.04 * volFactor, now);
         gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
         osc.connect(gain);
         gain.connect(ctx.destination);
@@ -489,7 +505,7 @@ export default function July() {
         const gain = ctx.createGain();
         osc.type = 'sine';
         osc.frequency.setValueAtTime(1000, now);
-        gain.gain.setValueAtTime(0.015, now);
+        gain.gain.setValueAtTime(0.015 * volFactor, now);
         gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
         osc.connect(gain);
         gain.connect(ctx.destination);
@@ -3099,6 +3115,37 @@ export default function July() {
                       className='sensitivity-slider'
                       aria-label='Microphone Sensitivity Threshold'
                     />
+                    <div
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        fontSize: 12,
+                        marginTop: 8,
+                      }}
+                    >
+                      <span style={{ color: 'rgba(160, 220, 255, 0.7)', fontWeight: 300 }}>
+                        Chimes Volume (sound effects level)
+                      </span>
+                      <span
+                        style={{
+                          color: '#00dc8c',
+                          fontWeight: 400,
+                          textShadow: '0 0 6px rgba(0, 220, 140, 0.4)',
+                        }}
+                      >
+                        {soundVolume}%
+                      </span>
+                    </div>
+                    <input
+                      type='range'
+                      min='0'
+                      max='100'
+                      value={soundVolume}
+                      onChange={(e) => setSoundVolume(Number(e.target.value))}
+                      className='sensitivity-slider'
+                      aria-label='Chimes Volume'
+                    />
                   </div>
                 </div>
 
@@ -3417,6 +3464,7 @@ export default function July() {
                       setUserName('Master');
                       setAutoScrollEnabled(true);
                       setSoundEffectsEnabled(true);
+                      setSoundVolume(100);
                       setCounterMode('char');
                       setPlaybackSpeed(1.0);
                       setIsMuted(false);
@@ -3429,6 +3477,7 @@ export default function July() {
                       localStorage.removeItem('july_user_name');
                       localStorage.removeItem('july_auto_scroll');
                       localStorage.removeItem('july_sound_effects');
+                      localStorage.removeItem('july_sound_volume');
                       localStorage.removeItem('july_counter_mode');
                       localStorage.removeItem('july_response_length');
                       localStorage.removeItem('july_active_model');
