@@ -573,6 +573,14 @@ export default function July() {
           return;
         }
 
+        // 5. 'h' or 'H' -> Toggle help modal
+        if (e.key.toLowerCase() === 'h') {
+          e.preventDefault();
+          playChime('click');
+          setShowHelpModal((prev) => !prev);
+          return;
+        }
+
         // 5. Any other single character -> Auto-focus input
         if (
           e.key.length === 1 &&
@@ -2661,6 +2669,7 @@ export default function July() {
             <span>[⌘K / ⌃K] Clear</span>
             <span>[M] Mute</span>
             <span>[S] Speed</span>
+            <span>[H] Help</span>
           </button>
         )}
 
@@ -2774,6 +2783,7 @@ export default function July() {
                       { keys: ['⌘ K', '⌃ K'], desc: 'Clear conversation history' },
                       { keys: ['M'], desc: 'Toggle audio feedback mute' },
                       { keys: ['S'], desc: 'Cycle playback speed (1.0x → 1.2x → 1.5x)' },
+                      { keys: ['H'], desc: 'Toggle help modal' },
                       { keys: ['↑'], desc: 'Recall / edit last sent prompt (in empty input)' },
                       { keys: ['Any Key'], desc: 'Auto-focus prompt input box (when active)' },
                     ].map((item) => (
