@@ -2729,6 +2729,53 @@ export default function July() {
                         {isMuted ? 'Muted' : 'Enabled'}
                       </span>
                     </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                      <span
+                        style={{
+                          color: 'rgba(160, 220, 255, 0.55)',
+                          fontSize: 10,
+                          textTransform: 'uppercase',
+                        }}
+                      >
+                        Welcome Guide
+                      </span>
+                      <button
+                        type='button'
+                        onClick={() => {
+                          playChime('click');
+                          setShowWelcomeGuide((prev) => !prev);
+                        }}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          outline: 'none',
+                          padding: 0,
+                          cursor: 'pointer',
+                          color: showWelcomeGuide ? '#00dc8c' : 'rgba(160, 220, 255, 0.55)',
+                          fontSize: 12,
+                          textAlign: 'left',
+                          transition: 'all 0.2s',
+                          fontWeight: 300,
+                        }}
+                        className='control-btn'
+                      >
+                        {showWelcomeGuide ? 'Visible' : 'Hidden (click to show)'}
+                      </button>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                      <span
+                        style={{
+                          color: 'rgba(160, 220, 255, 0.55)',
+                          fontSize: 10,
+                          textTransform: 'uppercase',
+                        }}
+                      >
+                        Mic Threshold
+                      </span>
+                      <span style={{ color: '#fff', fontWeight: 300 }}>
+                        {speakingThreshold} RMS
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
