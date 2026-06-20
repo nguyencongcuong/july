@@ -112,6 +112,36 @@ export default function July() {
     localStorage.setItem('july_user_name', userName);
   }, [userName]);
 
+  const [autoScrollEnabled, setAutoScrollEnabled] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('july_auto_scroll');
+      return saved === null ? true : saved === 'true';
+    }
+    return true;
+  });
+
+  useEffect(() => {
+    localStorage.setItem('july_auto_scroll', autoScrollEnabled.toString());
+  }, [autoScrollEnabled]);
+
+  const [sessionStartTime] = useState(() => Date.now());
+  const [sessionDuration, setSessionDuration] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setSessionDuration(Math.floor((Date.now() - sessionStartTime) / 1000));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [sessionStartTime]);
+
+  const formatDuration = (seconds: number) => {
+    const hrs = Math.floor(seconds / 3600);
+    const mins = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+    const pad = (n: number) => String(n).padStart(2, '0');
+    return hrs > 0 ? `${pad(hrs)}:${pad(mins)}:${pad(secs)}` : `${pad(mins)}:${pad(secs)}`;
+  };
+
   const currentSourceRef = useRef<AudioBufferSourceNode | null>(null);
   const confirmClearTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const playbackStartTimeRef = useRef<number | null>(null);
@@ -142,10 +172,10 @@ export default function July() {
 
   // Auto-scroll to latest message
   useEffect(() => {
-    if (messages.length > 0 || isProcessing) {
+    if (autoScrollEnabled && (messages.length > 0 || isProcessing)) {
       messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [messages, isProcessing]);
+  }, [messages, isProcessing, autoScrollEnabled]);
 
   // Dynamic browser tab title updates
   useEffect(() => {
@@ -2903,6 +2933,53 @@ export default function July() {
                       </span>
                       <span style={{ color: '#fff', fontWeight: 300 }}>
                         {speakingThreshold} RMS
+                      </span>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                      <span
+                        style={{
+                          color: 'rgba(160, 220, 255, 0.55)',
+                          fontSize: 10,
+                          textTransform: 'uppercase',
+                        }}
+                      >
+                        Auto-Scroll
+                      </span>
+                      <button
+                        type='button'
+                        onClick={() => {
+                          playChime('click');
+                          setAutoScrollEnabled((prev) => !prev);
+                        }}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          outline: 'none',
+                          padding: 0,
+                          cursor: 'pointer',
+                          color: autoScrollEnabled ? '#00dc8c' : 'rgba(160, 220, 255, 0.55)',
+                          fontSize: 12,
+                          textAlign: 'left',
+                          transition: 'all 0.2s',
+                          fontWeight: 300,
+                        }}
+                        className='control-btn'
+                      >
+                        {autoScrollEnabled ? 'Enabled' : 'Disabled'}
+                      </button>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                      <span
+                        style={{
+                          color: 'rgba(160, 220, 255, 0.55)',
+                          fontSize: 10,
+                          textTransform: 'uppercase',
+                        }}
+                      >
+                        Session Duration
+                      </span>
+                      <span style={{ color: '#fff', fontWeight: 300 }}>
+                        {formatDuration(sessionDuration)}
                       </span>
                     </div>
                   </div>
