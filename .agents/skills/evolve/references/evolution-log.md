@@ -82,6 +82,17 @@ animation. tsc + biome checks passed. Committed and pushed (ae2dfa6).
 **Scope**: `libs/components/july.tsx` (modify — state, refs, effect, talk/talkText calls, grid UI render, reset logic), `libs/actions/gemini.actions.ts` (modify — ask, talk, and talkText parameter + system instruction)
 **Outcome**: Implemented responseLength state/ref/effect in july.tsx. Passed responseLength parameter to talk and talkText. Added dynamic system instruction modification in gemini.actions.ts. Rendered 'Response Length' toggle button in the Diagnostics settings grid and included it in the default reset function. Type checks and Biome check passed perfectly.
 
+## [2026-06-20] — Double-Click Message Bubble to Copy
+
+**Phase**: done
+**Score**: 40 / 45
+**Reasoning**: Copying messages is currently done via a hover/visible CopyButton on the right side of the bubble. Adding a double-click event listener to the message bubble container allows users to quickly copy any message text, playing the chime and flashing the status bar as copy confirmation. Extremely low risk, zero API dependencies, and high user convenience.
+**Scope**: `libs/components/july.tsx` (modify — message item wrapper element)
+**Outcome**: Added double-click event listener to the inner div container of the message bubble in july.tsx. Double-clicking any message copies its text, plays the chime, and flashes the copy notification style helper. Documented accessibility details via a biome lint ignore comment, and added standard tooltip hover title 'Double-click to copy message'. Both tsc and biome checks passed.
+
+
+
+
 
 
 

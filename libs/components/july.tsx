@@ -2123,7 +2123,17 @@ export default function July() {
                       justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start',
                     }}
                   >
+                    {/* biome-ignore lint/a11y/noStaticElementInteractions: message bubbles are static, but double-click to copy is a custom convenience gesture */}
                     <div
+                      onDoubleClick={async () => {
+                        try {
+                          await navigator.clipboard.writeText(msg.text);
+                          handleCopyNotification();
+                        } catch (err) {
+                          console.error('Failed to copy: ', err);
+                        }
+                      }}
+                      title='Double-click to copy message'
                       style={{
                         maxWidth: '78%',
                         padding: '10px 15px',
