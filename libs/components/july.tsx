@@ -82,41 +82,15 @@ export default function July() {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isResponding, setIsResponding] = useState(false);
-  const [messages, setMessages] = useState<Message[]>(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        const saved = localStorage.getItem('july_chat_history');
-        if (saved) {
-          const parsed: unknown = JSON.parse(saved);
-          if (Array.isArray(parsed)) return parsed as Message[];
-        }
-      } catch {
-        // corrupt data — start fresh
-      }
-    }
-    return [];
-  });
+
+  // Track loaded state to prevent hydration mismatch and writing default state to localStorage on mount
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  const [messages, setMessages] = useState<Message[]>([]);
   const [isMuted, setIsMuted] = useState(false);
 
-  useEffect(() => {
-    try {
-      localStorage.setItem('july_chat_history', JSON.stringify(messages));
-    } catch {
-      // storage quota exceeded — silently skip
-    }
-  }, [messages]);
-
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
-  const [inputText, setInputText] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('july_draft_input') || '';
-    }
-    return '';
-  });
-
-  useEffect(() => {
-    localStorage.setItem('july_draft_input', inputText);
-  }, [inputText]);
+  const [inputText, setInputText] = useState('');
   const [confirmClear, setConfirmClear] = useState(false);
   const [placeholderIdx, setPlaceholderIdx] = useState(0);
   const [showScrollBottom, setShowScrollBottom] = useState(false);
@@ -131,120 +105,140 @@ export default function July() {
   const [playbackElapsed, setPlaybackElapsed] = useState(0);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [showHelpModal, setShowHelpModal] = useState(false);
-  const [speakingThreshold, setSpeakingThreshold] = useState<number>(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('july_speaking_threshold');
-      return saved ? Number(saved) : 10;
-    }
-    return 10;
-  });
+  const [speakingThreshold, setSpeakingThreshold] = useState<number>(10);
+  const [showWelcomeGuide, setShowWelcomeGuide] = useState(true);
+  const [userName, setUserName] = useState<string>('Master');
+  const [autoScrollEnabled, setAutoScrollEnabled] = useState(true);
+  const [soundEffectsEnabled, setSoundEffectsEnabled] = useState(true);
+  const [soundVolume, setSoundVolume] = useState<number>(100);
+  const [responseLength, setResponseLength] = useState<'concise' | 'detailed'>('detailed');
+  const [activeModel, setActiveModel] = useState<string>('gemini-2.5-flash');
+  const [counterMode, setCounterMode] = useState<'char' | 'word'>('char');
+  const [sessionStartTime, setSessionStartTime] = useState(0);
+  const [sessionDuration, setSessionDuration] = useState(0);
 
-  const speakingThresholdRef = useRef(speakingThreshold);
-  speakingThresholdRef.current = speakingThreshold;
+  // Hydrate settings from localStorage on client mount
+  useEffect(() => {
+    try {
+      const savedMsgs = localStorage.getItem('july_chat_history');
+      if (savedMsgs) {
+        const parsed: unknown = JSON.parse(savedMsgs);
+        if (Array.isArray(parsed)) setMessages(parsed as Message[]);
+      }
+    } catch {}
+
+    try {
+      const savedInput = localStorage.getItem('july_draft_input');
+      if (savedInput) setInputText(savedInput);
+    } catch {}
+
+    try {
+      const savedThreshold = localStorage.getItem('july_speaking_threshold');
+      if (savedThreshold) setSpeakingThreshold(Number(savedThreshold));
+    } catch {}
+
+    try {
+      const savedGuide = localStorage.getItem('july_show_welcome_guide');
+      if (savedGuide !== null) setShowWelcomeGuide(savedGuide === 'true');
+    } catch {}
+
+    try {
+      const savedName = localStorage.getItem('july_user_name');
+      if (savedName) setUserName(savedName);
+    } catch {}
+
+    try {
+      const savedScroll = localStorage.getItem('july_auto_scroll');
+      if (savedScroll !== null) setAutoScrollEnabled(savedScroll === 'true');
+    } catch {}
+
+    try {
+      const savedSound = localStorage.getItem('july_sound_effects');
+      if (savedSound !== null) setSoundEffectsEnabled(savedSound === 'true');
+    } catch {}
+
+    try {
+      const savedVol = localStorage.getItem('july_sound_volume');
+      if (savedVol !== null) setSoundVolume(Number(savedVol));
+    } catch {}
+
+    try {
+      const savedLen = localStorage.getItem('july_response_length');
+      if (savedLen) setResponseLength(savedLen as 'concise' | 'detailed');
+    } catch {}
+
+    try {
+      const savedModel = localStorage.getItem('july_active_model');
+      if (savedModel) setActiveModel(savedModel);
+    } catch {}
+
+    try {
+      const savedCounter = localStorage.getItem('july_counter_mode');
+      if (savedCounter) setCounterMode(savedCounter as 'char' | 'word');
+    } catch {}
+
+    setSessionStartTime(Date.now());
+    setIsLoaded(true);
+  }, []);
 
   useEffect(() => {
+    if (!isLoaded) return;
+    try {
+      localStorage.setItem('july_chat_history', JSON.stringify(messages));
+    } catch {
+      // storage quota exceeded — silently skip
+    }
+  }, [messages, isLoaded]);
+
+  useEffect(() => {
+    if (!isLoaded) return;
+    localStorage.setItem('july_draft_input', inputText);
+  }, [inputText, isLoaded]);
+
+  useEffect(() => {
+    if (!isLoaded) return;
     localStorage.setItem('july_speaking_threshold', speakingThreshold.toString());
-  }, [speakingThreshold]);
-
-  const [showWelcomeGuide, setShowWelcomeGuide] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('july_show_welcome_guide');
-      return saved === null ? true : saved === 'true';
-    }
-    return true;
-  });
+  }, [speakingThreshold, isLoaded]);
 
   useEffect(() => {
+    if (!isLoaded) return;
     localStorage.setItem('july_show_welcome_guide', showWelcomeGuide.toString());
-  }, [showWelcomeGuide]);
-
-  const [userName, setUserName] = useState<string>(() => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('july_user_name') || 'Master';
-    }
-    return 'Master';
-  });
+  }, [showWelcomeGuide, isLoaded]);
 
   useEffect(() => {
+    if (!isLoaded) return;
     localStorage.setItem('july_user_name', userName);
-  }, [userName]);
-
-  const [autoScrollEnabled, setAutoScrollEnabled] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('july_auto_scroll');
-      return saved === null ? true : saved === 'true';
-    }
-    return true;
-  });
+  }, [userName, isLoaded]);
 
   useEffect(() => {
+    if (!isLoaded) return;
     localStorage.setItem('july_auto_scroll', autoScrollEnabled.toString());
-  }, [autoScrollEnabled]);
-
-  const [soundEffectsEnabled, setSoundEffectsEnabled] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('july_sound_effects');
-      return saved === null ? true : saved === 'true';
-    }
-    return true;
-  });
-
-  const soundEffectsEnabledRef = useRef(soundEffectsEnabled);
-  soundEffectsEnabledRef.current = soundEffectsEnabled;
+  }, [autoScrollEnabled, isLoaded]);
 
   useEffect(() => {
+    if (!isLoaded) return;
     localStorage.setItem('july_sound_effects', soundEffectsEnabled.toString());
-  }, [soundEffectsEnabled]);
-
-  const [soundVolume, setSoundVolume] = useState<number>(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('july_sound_volume');
-      return saved === null ? 100 : Number(saved);
-    }
-    return 100;
-  });
-
-  const soundVolumeRef = useRef(soundVolume);
-  soundVolumeRef.current = soundVolume;
+  }, [soundEffectsEnabled, isLoaded]);
 
   useEffect(() => {
+    if (!isLoaded) return;
     localStorage.setItem('july_sound_volume', soundVolume.toString());
-  }, [soundVolume]);
-
-  const [responseLength, setResponseLength] = useState<'concise' | 'detailed'>(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('july_response_length');
-      return (saved as 'concise' | 'detailed') || 'detailed';
-    }
-    return 'detailed';
-  });
+  }, [soundVolume, isLoaded]);
 
   useEffect(() => {
+    if (!isLoaded) return;
     localStorage.setItem('july_response_length', responseLength);
-  }, [responseLength]);
-
-  const [activeModel, setActiveModel] = useState<string>(() => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('july_active_model') || 'gemini-2.5-flash';
-    }
-    return 'gemini-2.5-flash';
-  });
+  }, [responseLength, isLoaded]);
 
   useEffect(() => {
+    if (!isLoaded) return;
     localStorage.setItem('july_active_model', activeModel);
-  }, [activeModel]);
-
-  const [counterMode, setCounterMode] = useState<'char' | 'word'>(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('july_counter_mode');
-      return (saved as 'char' | 'word') || 'char';
-    }
-    return 'char';
-  });
+  }, [activeModel, isLoaded]);
 
   useEffect(() => {
+    if (!isLoaded) return;
     localStorage.setItem('july_counter_mode', counterMode);
-  }, [counterMode]);
+  }, [counterMode, isLoaded]);
 
   const getCounterText = () => {
     if (counterMode === 'char') {
@@ -254,10 +248,8 @@ export default function July() {
     return `${words} word${words === 1 ? '' : 's'}`;
   };
 
-  const [sessionStartTime] = useState(() => Date.now());
-  const [sessionDuration, setSessionDuration] = useState(0);
-
   useEffect(() => {
+    if (sessionStartTime === 0) return;
     const timer = setInterval(() => {
       setSessionDuration(Math.floor((Date.now() - sessionStartTime) / 1000));
     }, 1000);
@@ -292,10 +284,19 @@ export default function July() {
   const activeModelRef = useRef(activeModel);
   activeModelRef.current = activeModel;
 
+  const speakingThresholdRef = useRef(speakingThreshold);
+  speakingThresholdRef.current = speakingThreshold;
+
+  const soundEffectsEnabledRef = useRef(soundEffectsEnabled);
+  soundEffectsEnabledRef.current = soundEffectsEnabled;
+
+  const soundVolumeRef = useRef(soundVolume);
+  soundVolumeRef.current = soundVolume;
+
   // ── Typewriter animation state ─────────────────────────────────────────────
   const [typingMsgIdx, setTypingMsgIdx] = useState<number | null>(null);
   const [typingText, setTypingText] = useState('');
-  const typingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const typingIntervalRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const hasMountedRef = useRef(false);
 
   const streamRef = useRef<MediaStream | null>(null);
@@ -314,6 +315,10 @@ export default function July() {
 
   // Typewriter: animate the last July message letter-by-letter on arrival
   useEffect(() => {
+    if (!isLoaded) {
+      prevMessagesCountRef.current = messages.length;
+      return;
+    }
     if (!hasMountedRef.current) {
       hasMountedRef.current = true;
       prevMessagesCountRef.current = messages.length;
@@ -351,7 +356,7 @@ export default function July() {
     return () => {
       if (typingIntervalRef.current) clearInterval(typingIntervalRef.current);
     };
-  }, [messages]);
+  }, [messages, isLoaded]);
 
   // Auto-scroll to latest message
   useEffect(() => {
@@ -379,13 +384,14 @@ export default function July() {
 
   // Unread new message alert notification triggers
   useEffect(() => {
+    if (!isLoaded) return;
     if (messages.length > prevMessagesCountRef.current) {
       if (showScrollBottom) {
         setHasNewMessageAlert(true);
       }
     }
     prevMessagesCountRef.current = messages.length;
-  }, [messages.length, showScrollBottom]);
+  }, [messages.length, showScrollBottom, isLoaded]);
 
   // Dynamic Welcome Guide greeting based on local time
   useEffect(() => {
