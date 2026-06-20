@@ -205,6 +205,13 @@ export default function July() {
     }
   }, [showHelpModal, micStatus]);
 
+  // Auto-focus prompt input when microphone successfully activates
+  useEffect(() => {
+    if (micStatus === 'active') {
+      inputRef.current?.focus();
+    }
+  }, [micStatus]);
+
   const handleScroll = () => {
     const el = scrollContainerRef.current;
     if (!el) return;
@@ -2231,6 +2238,38 @@ export default function July() {
                     <IconX size={12} />
                   </button>
                 </>
+              )}
+              {/* Character Limit Visual Progress Bar */}
+              {inputText.length > 0 && (
+                <div
+                  style={{
+                    position: 'absolute',
+                    bottom: 0,
+                    left: 18,
+                    right: 78,
+                    height: 2,
+                    background: 'rgba(255, 255, 255, 0.05)',
+                    borderRadius: 1,
+                    overflow: 'hidden',
+                    pointerEvents: 'none',
+                  }}
+                >
+                  <div
+                    style={{
+                      height: '100%',
+                      width: `${(inputText.length / 250) * 100}%`,
+                      background:
+                        inputText.length >= 220
+                          ? 'linear-gradient(90deg, #ff4646, #ff7878)'
+                          : 'linear-gradient(90deg, #00b4ff, #00dc8c)',
+                      boxShadow:
+                        inputText.length >= 220
+                          ? '0 0 6px rgba(255, 70, 70, 0.6)'
+                          : '0 0 6px rgba(0, 180, 255, 0.6)',
+                      transition: 'width 0.15s ease-out, background 0.2s ease',
+                    }}
+                  />
+                </div>
               )}
             </div>
             <button
