@@ -142,6 +142,15 @@ animation. tsc + biome checks passed. Committed and pushed (ae2dfa6).
 4. In the settings panel rendering block, add a new slider input under "Acoustic Calibration" for "Chimes Volume", displaying the current volume percentage.
 5. In the settings reset button handler, reset `soundVolume` state and ref back to `100`, and remove `july_sound_volume` from `localStorage`.
 6. Verify code compile and lint checks.
+## [2026-06-20] — Persistent Input Text Draft Auto-Saving
 
-
-
+**Phase**: done
+**Score**: 41 / 45
+**Reasoning**: Users typing custom prompt texts risk losing their work if they accidentally refresh or navigate away from the page. Auto-saving the non-empty draft input to localStorage namespaced under `july_draft_input` and restoring it when the component mounts resolves this completely. Extremely high user value, low complexity (< 15 LOC), completely reversible and safe.
+**Scope**: `libs/components/july.tsx` (modify — inputText state initialization, draft persistence effect, settings reset handler)
+**Outcome**: Initialized the inputText state by reading from localStorage key `july_draft_input`. Implemented a useEffect hook to auto-save input text updates. Updated settings default reset logic to clear both the state and the key from localStorage. All verification checks passed.
+**Plan**:
+1. Initialize `inputText` state by reading from `localStorage.getItem('july_draft_input') || ''`.
+2. Add a `useEffect` that writes `inputText` to `localStorage` under key `july_draft_input`.
+3. In settings reset handler, reset `inputText` to `''` and clear `july_draft_input` from `localStorage`.
+4. Verify compiling and lint checks.

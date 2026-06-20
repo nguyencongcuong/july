@@ -107,7 +107,16 @@ export default function July() {
   }, [messages]);
 
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
-  const [inputText, setInputText] = useState('');
+  const [inputText, setInputText] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('july_draft_input') || '';
+    }
+    return '';
+  });
+
+  useEffect(() => {
+    localStorage.setItem('july_draft_input', inputText);
+  }, [inputText]);
   const [confirmClear, setConfirmClear] = useState(false);
   const [placeholderIdx, setPlaceholderIdx] = useState(0);
   const [showScrollBottom, setShowScrollBottom] = useState(false);
@@ -3470,6 +3479,7 @@ export default function July() {
                       setIsMuted(false);
                       setResponseLength('detailed');
                       setActiveModel('gemini-2.5-flash');
+                      setInputText('');
 
                       // Remove items from local storage to clean up
                       localStorage.removeItem('july_speaking_threshold');
@@ -3478,6 +3488,7 @@ export default function July() {
                       localStorage.removeItem('july_auto_scroll');
                       localStorage.removeItem('july_sound_effects');
                       localStorage.removeItem('july_sound_volume');
+                      localStorage.removeItem('july_draft_input');
                       localStorage.removeItem('july_counter_mode');
                       localStorage.removeItem('july_response_length');
                       localStorage.removeItem('july_active_model');
