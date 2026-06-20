@@ -89,6 +89,18 @@ export default function July() {
     localStorage.setItem('july_speaking_threshold', speakingThreshold.toString());
   }, [speakingThreshold]);
 
+  const [showWelcomeGuide, setShowWelcomeGuide] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('july_show_welcome_guide');
+      return saved === null ? true : saved === 'true';
+    }
+    return true;
+  });
+
+  useEffect(() => {
+    localStorage.setItem('july_show_welcome_guide', showWelcomeGuide.toString());
+  }, [showWelcomeGuide]);
+
   const currentSourceRef = useRef<AudioBufferSourceNode | null>(null);
   const confirmClearTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const playbackStartTimeRef = useRef<number | null>(null);
@@ -1654,46 +1666,77 @@ export default function July() {
             }}
           >
             {/* ── Welcome Guide Panel ── */}
-            <div
-              style={{
-                width: '100%',
-                padding: '20px',
-                borderRadius: 20,
-                background: 'rgba(255, 255, 255, 0.01)',
-                border: '1px solid rgba(255, 255, 255, 0.04)',
-                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.25)',
-                backdropFilter: 'blur(10px)',
-                textAlign: 'center',
-                marginBottom: 8,
-                animation: 'msg-in 0.4s ease forwards',
-              }}
-            >
-              <h2
+            {showWelcomeGuide && (
+              <div
                 style={{
-                  fontSize: 14,
-                  fontWeight: 400,
-                  color: 'rgba(255, 255, 255, 0.95)',
-                  margin: '0 0 6px 0',
-                  letterSpacing: '0.08em',
-                  textTransform: 'uppercase',
-                  textShadow: '0 0 8px rgba(0, 180, 255, 0.2)',
+                  width: '100%',
+                  padding: '20px',
+                  borderRadius: 20,
+                  background: 'rgba(255, 255, 255, 0.01)',
+                  border: '1px solid rgba(255, 255, 255, 0.04)',
+                  boxShadow: '0 8px 32px rgba(0, 0, 0, 0.25)',
+                  backdropFilter: 'blur(10px)',
+                  textAlign: 'center',
+                  marginBottom: 8,
+                  animation: 'msg-in 0.4s ease forwards',
+                  position: 'relative',
                 }}
               >
-                {greeting}
-              </h2>
-              <p
-                style={{
-                  fontSize: 12,
-                  fontWeight: 300,
-                  color: 'rgba(160, 220, 255, 0.72)',
-                  margin: 0,
-                  lineHeight: 1.55,
-                }}
-              >
-                July is fully synchronized and at your service. Choose a target prompt below, start
-                typing, or activate the orb to interact.
-              </p>
-            </div>
+                <button
+                  type='button'
+                  onClick={() => {
+                    playChime('click');
+                    setShowWelcomeGuide(false);
+                  }}
+                  style={{
+                    position: 'absolute',
+                    top: 12,
+                    right: 12,
+                    background: 'none',
+                    border: 'none',
+                    outline: 'none',
+                    cursor: 'pointer',
+                    color: 'rgba(160, 220, 255, 0.4)',
+                    padding: 4,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    borderRadius: '50%',
+                    transition: 'all 0.2s',
+                  }}
+                  className='control-btn'
+                  aria-label='Dismiss welcome guide'
+                  title='Dismiss guide'
+                >
+                  <IconX size={12} />
+                </button>
+                <h2
+                  style={{
+                    fontSize: 14,
+                    fontWeight: 400,
+                    color: 'rgba(255, 255, 255, 0.95)',
+                    margin: '0 0 6px 0',
+                    letterSpacing: '0.08em',
+                    textTransform: 'uppercase',
+                    textShadow: '0 0 8px rgba(0, 180, 255, 0.2)',
+                  }}
+                >
+                  {greeting}
+                </h2>
+                <p
+                  style={{
+                    fontSize: 12,
+                    fontWeight: 300,
+                    color: 'rgba(160, 220, 255, 0.72)',
+                    margin: 0,
+                    lineHeight: 1.55,
+                  }}
+                >
+                  July is fully synchronized and at your service. Choose a target prompt below,
+                  start typing, or activate the orb to interact.
+                </p>
+              </div>
+            )}
 
             {[
               {
