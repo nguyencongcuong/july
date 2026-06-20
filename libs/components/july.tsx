@@ -2984,6 +2984,47 @@ export default function July() {
                     </div>
                   </div>
                 </div>
+
+                {/* Reset to Defaults */}
+                <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 4 }}>
+                  <button
+                    type='button'
+                    onClick={() => {
+                      playChime('click');
+
+                      // Revert states
+                      setSpeakingThreshold(10);
+                      setShowWelcomeGuide(true);
+                      setUserName('Master');
+                      setAutoScrollEnabled(true);
+                      setPlaybackSpeed(1.0);
+                      setIsMuted(false);
+
+                      // Remove items from local storage to clean up
+                      localStorage.removeItem('july_speaking_threshold');
+                      localStorage.removeItem('july_show_welcome_guide');
+                      localStorage.removeItem('july_user_name');
+                      localStorage.removeItem('july_auto_scroll');
+                    }}
+                    style={{
+                      background: 'rgba(255, 255, 255, 0.02)',
+                      border: '1px solid rgba(255, 255, 255, 0.08)',
+                      borderRadius: 12,
+                      padding: '8px 16px',
+                      color: 'rgba(160, 220, 255, 0.72)',
+                      fontSize: 11,
+                      cursor: 'pointer',
+                      transition: 'all 0.25s ease',
+                      fontWeight: 400,
+                      letterSpacing: '0.04em',
+                      textTransform: 'uppercase',
+                    }}
+                    className='control-btn'
+                    aria-label='Reset all settings to defaults'
+                  >
+                    Reset Settings to Default
+                  </button>
+                </div>
               </div>
             </div>
           </div>
