@@ -28,7 +28,6 @@ interface Message {
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const SPEAKING_THRESHOLD = 10;
 const FFT_SIZE = 256;
 const STOP_DEBOUNCE_MS = 2000;
 const MIN_RECORDING_MS = 300;
@@ -73,6 +72,20 @@ export default function July() {
   const [playbackElapsed, setPlaybackElapsed] = useState(0);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [showHelpModal, setShowHelpModal] = useState(false);
+  const [speakingThreshold, setSpeakingThreshold] = useState<number>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('july_speaking_threshold');
+      return saved ? Number(saved) : 10;
+    }
+    return 10;
+  });
+
+  const speakingThresholdRef = useRef(speakingThreshold);
+  speakingThresholdRef.current = speakingThreshold;
+
+  useEffect(() => {
+    localStorage.setItem('july_speaking_threshold', speakingThreshold.toString());
+  }, [speakingThreshold]);
 
   const currentSourceRef = useRef<AudioBufferSourceNode | null>(null);
   const confirmClearTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -548,7 +561,7 @@ export default function July() {
         const rms = Math.sqrt(sumOfSquares / dataArray.length);
         const vol = Math.round(rms * 100);
         const peak = typedArrayMax(dataArray);
-        const speaking = vol > SPEAKING_THRESHOLD;
+        const speaking = vol > speakingThresholdRef.current;
 
         if (speaking !== prevSpeakingRef.current) {
           prevSpeakingRef.current = speaking;
@@ -855,6 +868,47 @@ export default function July() {
           color: rgba(160, 220, 255, 0.75) !important;
           text-shadow: 0 0 8px rgba(0, 180, 255, 0.5);
           transform: translateY(-1px);
+        }
+        .sensitivity-slider {
+          -webkit-appearance: none;
+          appearance: none;
+          width: 100%;
+          height: 6px;
+          border-radius: 3px;
+          background: rgba(255, 255, 255, 0.08);
+          outline: none;
+          transition: background 0.3s;
+        }
+        .sensitivity-slider::-webkit-slider-thumb {
+          -webkit-appearance: none;
+          appearance: none;
+          width: 14px;
+          height: 14px;
+          border-radius: 50%;
+          background: #00dc8c;
+          cursor: pointer;
+          box-shadow: 0 0 10px rgba(0, 220, 140, 0.6);
+          transition: transform 0.1s, background 0.3s;
+        }
+        .sensitivity-slider::-webkit-slider-thumb:hover {
+          transform: scale(1.2);
+          background: #00ffaa;
+          box-shadow: 0 0 14px rgba(0, 255, 170, 0.8);
+        }
+        .sensitivity-slider::-moz-range-thumb {
+          width: 14px;
+          height: 14px;
+          border-radius: 50%;
+          background: #00dc8c;
+          cursor: pointer;
+          border: none;
+          box-shadow: 0 0 10px rgba(0, 220, 140, 0.6);
+          transition: transform 0.1s, background 0.3s;
+        }
+        .sensitivity-slider::-moz-range-thumb:hover {
+          transform: scale(1.2);
+          background: #00ffaa;
+          box-shadow: 0 0 14px rgba(0, 255, 170, 0.8);
         }
       `}</style>
 
@@ -2301,6 +2355,54 @@ export default function July() {
                         </span>
                       </div>
                     ))}
+                  </div>
+                </div>
+
+                {/* Acoustic Calibration */}
+                <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.05)', paddingTop: 16 }}>
+                  <h4
+                    style={{
+                      fontSize: 11,
+                      fontWeight: 400,
+                      color: 'rgba(255, 255, 255, 0.8)',
+                      letterSpacing: '0.05em',
+                      marginBottom: 8,
+                      textTransform: 'uppercase',
+                    }}
+                  >
+                    Acoustic Calibration
+                  </h4>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    <div
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        fontSize: 12,
+                      }}
+                    >
+                      <span style={{ color: 'rgba(160, 220, 255, 0.7)', fontWeight: 300 }}>
+                        Microphone Sensitivity (lower threshold = more sensitive)
+                      </span>
+                      <span
+                        style={{
+                          color: '#00dc8c',
+                          fontWeight: 400,
+                          textShadow: '0 0 6px rgba(0, 220, 140, 0.4)',
+                        }}
+                      >
+                        {speakingThreshold} RMS
+                      </span>
+                    </div>
+                    <input
+                      type='range'
+                      min='3'
+                      max='30'
+                      value={speakingThreshold}
+                      onChange={(e) => setSpeakingThreshold(Number(e.target.value))}
+                      className='sensitivity-slider'
+                      aria-label='Microphone Sensitivity Threshold'
+                    />
                   </div>
                 </div>
               </div>
