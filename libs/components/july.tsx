@@ -2142,6 +2142,13 @@ export default function July() {
                 onKeyDown={(e) => {
                   if (e.key === 'Escape') {
                     setInputText('');
+                  } else if (e.key === 'ArrowUp' && inputText === '') {
+                    e.preventDefault();
+                    const userMsgs = messages.filter((m) => m.role === 'user');
+                    if (userMsgs.length > 0) {
+                      setInputText(userMsgs[userMsgs.length - 1].text);
+                      playChime('click');
+                    }
                   }
                 }}
                 disabled={isProcessing || isResponding}
@@ -2391,6 +2398,7 @@ export default function July() {
                       { keys: ['⌘ K', '⌃ K'], desc: 'Clear conversation history' },
                       { keys: ['M'], desc: 'Toggle audio feedback mute' },
                       { keys: ['S'], desc: 'Cycle playback speed (1.0x → 1.2x → 1.5x)' },
+                      { keys: ['↑'], desc: 'Recall / edit last sent prompt (in empty input)' },
                       { keys: ['Any Key'], desc: 'Auto-focus prompt input box (when active)' },
                     ].map((item) => (
                       <div
