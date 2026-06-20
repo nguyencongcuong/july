@@ -101,6 +101,17 @@ export default function July() {
     localStorage.setItem('july_show_welcome_guide', showWelcomeGuide.toString());
   }, [showWelcomeGuide]);
 
+  const [userName, setUserName] = useState<string>(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('july_user_name') || 'Master';
+    }
+    return 'Master';
+  });
+
+  useEffect(() => {
+    localStorage.setItem('july_user_name', userName);
+  }, [userName]);
+
   const currentSourceRef = useRef<AudioBufferSourceNode | null>(null);
   const confirmClearTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const playbackStartTimeRef = useRef<number | null>(null);
@@ -166,16 +177,17 @@ export default function July() {
   // Dynamic Welcome Guide greeting based on local time
   useEffect(() => {
     const hours = new Date().getHours();
-    if (hours < 12) {
-      setGreeting('Good morning, Master 🌅');
-    } else if (hours < 18) {
-      setGreeting('Good afternoon, Master ☀️');
-    } else if (hours < 22) {
-      setGreeting('Good evening, Master 🌌');
-    } else {
-      setGreeting('Good night, Master 🌙');
-    }
-  }, []);
+    const timeGreeting =
+      hours < 12
+        ? 'Good morning'
+        : hours < 18
+          ? 'Good afternoon'
+          : hours < 22
+            ? 'Good evening'
+            : 'Good night';
+    const emoji = hours < 12 ? '🌅' : hours < 18 ? '☀️' : hours < 22 ? '🌌' : '🌙';
+    setGreeting(`${timeGreeting}, ${userName || 'Master'} ${emoji}`);
+  }, [userName]);
 
   // Track playback progress while speaking
   useEffect(() => {
@@ -1025,6 +1037,14 @@ export default function July() {
           transform: scale(1.2);
           background: #00ffaa;
           box-shadow: 0 0 14px rgba(0, 255, 170, 0.8);
+        }
+        .settings-text-input {
+          transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .settings-text-input:focus {
+          border-color: rgba(0, 180, 255, 0.45) !important;
+          box-shadow: 0 0 15px rgba(0, 180, 255, 0.15), inset 0 0 8px rgba(0, 180, 255, 0.05);
+          background: rgba(255, 255, 255, 0.06) !important;
         }
       `}</style>
 
@@ -2587,6 +2607,60 @@ export default function July() {
                         </span>
                       </div>
                     ))}
+                  </div>
+                </div>
+
+                {/* Profile Personalization */}
+                <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.05)', paddingTop: 16 }}>
+                  <h4
+                    style={{
+                      fontSize: 11,
+                      fontWeight: 400,
+                      color: 'rgba(255, 255, 255, 0.8)',
+                      letterSpacing: '0.05em',
+                      marginBottom: 8,
+                      textTransform: 'uppercase',
+                    }}
+                  >
+                    Profile Personalization
+                  </h4>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    <div
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        fontSize: 12,
+                      }}
+                    >
+                      <span style={{ color: 'rgba(160, 220, 255, 0.7)', fontWeight: 300 }}>
+                        Preferred Display Name
+                      </span>
+                    </div>
+                    <input
+                      type='text'
+                      value={userName}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        if (val.length <= 25) {
+                          setUserName(val);
+                        }
+                      }}
+                      style={{
+                        background: 'rgba(255, 255, 255, 0.03)',
+                        border: '1px solid rgba(255, 255, 255, 0.08)',
+                        borderRadius: 12,
+                        padding: '10px 14px',
+                        color: '#fff',
+                        fontSize: 12,
+                        outline: 'none',
+                        transition: 'all 0.2s',
+                        width: '100%',
+                      }}
+                      placeholder='e.g. Master, Creator'
+                      className='settings-text-input'
+                      aria-label='Preferred Display Name'
+                    />
                   </div>
                 </div>
 
