@@ -124,6 +124,21 @@ export default function July() {
     localStorage.setItem('july_auto_scroll', autoScrollEnabled.toString());
   }, [autoScrollEnabled]);
 
+  const [soundEffectsEnabled, setSoundEffectsEnabled] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('july_sound_effects');
+      return saved === null ? true : saved === 'true';
+    }
+    return true;
+  });
+
+  const soundEffectsEnabledRef = useRef(soundEffectsEnabled);
+  soundEffectsEnabledRef.current = soundEffectsEnabled;
+
+  useEffect(() => {
+    localStorage.setItem('july_sound_effects', soundEffectsEnabled.toString());
+  }, [soundEffectsEnabled]);
+
   const [sessionStartTime] = useState(() => Date.now());
   const [sessionDuration, setSessionDuration] = useState(0);
 
@@ -292,7 +307,7 @@ export default function July() {
   }, []);
 
   const playChime = useCallback((type: 'wake' | 'clear' | 'click') => {
-    if (isMutedRef.current) return;
+    if (isMutedRef.current || !soundEffectsEnabledRef.current) return;
     try {
       let ctx = audioCtxRef.current;
       if (!ctx) {
@@ -2982,6 +2997,51 @@ export default function July() {
                         {formatDuration(sessionDuration)}
                       </span>
                     </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                      <span
+                        style={{
+                          color: 'rgba(160, 220, 255, 0.55)',
+                          fontSize: 10,
+                          textTransform: 'uppercase',
+                        }}
+                      >
+                        Chimes
+                      </span>
+                      <button
+                        type='button'
+                        onClick={() => {
+                          playChime('click');
+                          setSoundEffectsEnabled((prev) => !prev);
+                        }}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          outline: 'none',
+                          padding: 0,
+                          cursor: 'pointer',
+                          color: soundEffectsEnabled ? '#00dc8c' : 'rgba(160, 220, 255, 0.55)',
+                          fontSize: 12,
+                          textAlign: 'left',
+                          transition: 'all 0.2s',
+                          fontWeight: 300,
+                        }}
+                        className='control-btn'
+                      >
+                        {soundEffectsEnabled ? 'Enabled' : 'Disabled'}
+                      </button>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                      <span
+                        style={{
+                          color: 'rgba(160, 220, 255, 0.55)',
+                          fontSize: 10,
+                          textTransform: 'uppercase',
+                        }}
+                      >
+                        Active Model
+                      </span>
+                      <span style={{ color: '#fff', fontWeight: 300 }}>Gemini 2.5 Flash</span>
+                    </div>
                   </div>
                 </div>
 
@@ -2997,6 +3057,7 @@ export default function July() {
                       setShowWelcomeGuide(true);
                       setUserName('Master');
                       setAutoScrollEnabled(true);
+                      setSoundEffectsEnabled(true);
                       setPlaybackSpeed(1.0);
                       setIsMuted(false);
 
@@ -3005,6 +3066,7 @@ export default function July() {
                       localStorage.removeItem('july_show_welcome_guide');
                       localStorage.removeItem('july_user_name');
                       localStorage.removeItem('july_auto_scroll');
+                      localStorage.removeItem('july_sound_effects');
                     }}
                     style={{
                       background: 'rgba(255, 255, 255, 0.02)',
