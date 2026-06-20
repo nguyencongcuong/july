@@ -114,6 +114,8 @@ export default function July() {
   const [hasNewMessageAlert, setHasNewMessageAlert] = useState(false);
   const [greeting, setGreeting] = useState('Welcome, Master');
   const [isCopyPulseActive, setIsCopyPulseActive] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const toastTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [playbackDuration, setPlaybackDuration] = useState(0);
   const [playbackElapsed, setPlaybackElapsed] = useState(0);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -485,11 +487,23 @@ export default function July() {
     }
   }, []);
 
+  const showToast = useCallback((msg: string) => {
+    if (toastTimeoutRef.current) {
+      clearTimeout(toastTimeoutRef.current);
+    }
+    setToastMessage(msg);
+    toastTimeoutRef.current = setTimeout(() => {
+      setToastMessage(null);
+      toastTimeoutRef.current = null;
+    }, 2000);
+  }, []);
+
   const handleCopyNotification = useCallback(() => {
     playChime('click');
     setIsCopyPulseActive(true);
     setTimeout(() => setIsCopyPulseActive(false), 1000);
-  }, [playChime]);
+    showToast('Copied to clipboard');
+  }, [playChime, showToast]);
 
   const handleDeleteMessage = useCallback(
     (index: number) => {
@@ -536,7 +550,8 @@ export default function July() {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-  }, [messages, playChime]);
+    showToast('Chat history exported');
+  }, [messages, playChime, showToast]);
 
   // Global keydown event listener for custom shortcuts and auto-focus
   useEffect(() => {
@@ -999,6 +1014,32 @@ export default function July() {
 
   return (
     <>
+      {toastMessage && (
+        <div
+          className='july-toast'
+          style={{
+            position: 'fixed',
+            top: 24,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            zIndex: 500,
+            padding: '10px 20px',
+            borderRadius: 16,
+            background: 'rgba(3, 5, 12, 0.7)',
+            backdropFilter: 'blur(16px)',
+            border: '1px solid rgba(0, 220, 140, 0.25)',
+            boxShadow: '0 0 15px rgba(0, 220, 140, 0.15)',
+            color: '#00dc8c',
+            fontSize: 12,
+            fontWeight: 300,
+            letterSpacing: '0.06em',
+            pointerEvents: 'none',
+            animation: 'msg-in 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards',
+          }}
+        >
+          {toastMessage}
+        </div>
+      )}
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400&display=swap');
 
@@ -3333,6 +3374,8 @@ export default function July() {
                       localStorage.removeItem('july_sound_effects');
                       localStorage.removeItem('july_counter_mode');
                       localStorage.removeItem('july_response_length');
+
+                      showToast('Settings reset to default');
                     }}
                     style={{
                       background: 'rgba(255, 255, 255, 0.02)',
