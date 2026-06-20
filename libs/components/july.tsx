@@ -523,7 +523,7 @@ export default function July() {
     setIsProcessing(false);
   }, []);
 
-  const playChime = useCallback((type: 'wake' | 'clear' | 'click') => {
+  const playChime = useCallback((type: 'wake' | 'clear' | 'click' | 'send') => {
     if (isMutedRef.current || !soundEffectsEnabledRef.current) return;
     try {
       let ctx = audioCtxRef.current;
@@ -571,6 +571,18 @@ export default function July() {
         gain.connect(ctx.destination);
         osc.start(now);
         osc.stop(now + 0.05);
+      } else if (type === 'send') {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(600, now);
+        osc.frequency.exponentialRampToValueAtTime(900, now + 0.1);
+        gain.gain.setValueAtTime(0.015 * volFactor, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.1);
       }
     } catch (e) {
       console.warn('Failed to play chime:', e);
@@ -866,6 +878,7 @@ export default function July() {
       if (isProcessing || isResponding) return;
 
       stopSpeaking();
+      playChime('send');
 
       const now = new Date();
       const timestamp = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -957,7 +970,7 @@ export default function July() {
         }
       }
     },
-    [isProcessing, isResponding, stopSpeaking]
+    [isProcessing, isResponding, stopSpeaking, playChime]
   );
 
   // ── Audio loop ─────────────────────────────────────────────────────────────
@@ -2952,6 +2965,7 @@ export default function July() {
                   onKeyDown={(e) => {
                     if (e.key === 'Escape') {
                       setInputText('');
+                      inputRef.current?.blur();
                     } else if (e.key === 'ArrowUp' && inputText === '') {
                       e.preventDefault();
                       const userMsgs = messages.filter((m) => m.role === 'user');

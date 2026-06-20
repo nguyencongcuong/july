@@ -208,4 +208,19 @@ animation. tsc + biome checks passed. Committed and pushed (ae2dfa6).
 3. Render the suggestion chips stack inside the form, above the input row, when `inputText === '' && !isProcessing && !isResponding`.
 4. Run compiler `npx tsc --noEmit` and formatting `npx biome check .` to verify.
 
+## [2026-06-20] — Futuristic Send Chime and Input Blur on Escape
+
+**Phase**: done
+**Score**: 41 / 45
+**Reasoning**: Users lack clear audio confirmation when sending messages, and pressing Escape clears the text input but leaves the keyboard focused, preventing keydown shortcuts (like M to mute) from working. Adding a high-satisfaction ascending chime on send, and auto-blurring the input on Escape, improves tactile feel and navigation flow.
+**Scope**: `libs/components/july.tsx` (modify — add 'send' case to playChime, trigger in handlePrompt, update InputBase keydown listener to clear and blur)
+**Outcome**: Added a clean ascending sound tone case ('send') inside the playChime oscillator synthesis function and triggered it immediately on prompt submission. Enhanced InputBase onKeyDown Escape event handling to clear text and unfocus (blur) the input, enabling immediate global keyboard shortcuts navigation.
+**Plan**:
+1. Add `'send'` case to the `playChime` callback in `july.tsx` to synthesize a quick, modern ascending sound using standard AudioContext Oscillators.
+2. Trigger `playChime('send')` within `handlePrompt` right when a user message is added.
+3. Update the keydown handler inside `<InputBase>` so that the `'Escape'` key condition clears `inputText` and calls `inputRef.current?.blur()`.
+4. Validate code compilation and formatting.
+
+
+
 
