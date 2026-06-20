@@ -90,6 +90,17 @@ animation. tsc + biome checks passed. Committed and pushed (ae2dfa6).
 **Scope**: `libs/components/july.tsx` (modify — message item wrapper element)
 **Outcome**: Added double-click event listener to the inner div container of the message bubble in july.tsx. Double-clicking any message copies its text, plays the chime, and flashes the copy notification style helper. Documented accessibility details via a biome lint ignore comment, and added standard tooltip hover title 'Double-click to copy message'. Both tsc and biome checks passed.
 
+## [2026-06-20] — Click Typing Bubble to Complete Typewriter Animation
+
+**Phase**: done
+**Score**: 41 / 45
+**Reasoning**: When July is generating a long response, the letter-by-letter typewriter animation forces the user to wait to read the full text. Adding a click listener on the active typing message bubble that immediately clears the typing interval and displays the complete response text provides excellent user value, is lightweight (< 10 LOC), and carries zero risk of regressions.
+**Scope**: `libs/components/july.tsx` (modify — click handler on message bubbles)
+**Outcome**: Added onClick listener to the message bubble container. Clicking a message while it is animating via the typewriter effect immediately clears the typing interval and renders the full response text. Suppressed Biome lint checks via ignore tags, and made the hover tooltip title display dynamically: 'Click to show full response | Double-click to copy' when typing, and 'Double-click to copy message' otherwise. Passed typescript compiling and Biome checks.
+
+
+
+
 
 
 

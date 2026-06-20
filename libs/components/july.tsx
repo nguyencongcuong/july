@@ -2123,8 +2123,19 @@ export default function July() {
                       justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start',
                     }}
                   >
-                    {/* biome-ignore lint/a11y/noStaticElementInteractions: message bubbles are static, but double-click to copy is a custom convenience gesture */}
+                    {/* biome-ignore lint/a11y/useKeyWithClickEvents: click-to-complete is a mouse-only convenience shortcut during animation */}
+                    {/* biome-ignore lint/a11y/noStaticElementInteractions: message bubbles are static, but double-click to copy and click-to-complete are custom convenience gestures */}
                     <div
+                      onClick={() => {
+                        if (typingMsgIdx === idx) {
+                          if (typingIntervalRef.current) {
+                            clearInterval(typingIntervalRef.current);
+                            typingIntervalRef.current = null;
+                          }
+                          setTypingMsgIdx(null);
+                          setTypingText('');
+                        }
+                      }}
                       onDoubleClick={async () => {
                         try {
                           await navigator.clipboard.writeText(msg.text);
@@ -2133,7 +2144,11 @@ export default function July() {
                           console.error('Failed to copy: ', err);
                         }
                       }}
-                      title='Double-click to copy message'
+                      title={
+                        typingMsgIdx === idx
+                          ? 'Click to show full response | Double-click to copy'
+                          : 'Double-click to copy message'
+                      }
                       style={{
                         maxWidth: '78%',
                         padding: '10px 15px',
