@@ -333,3 +333,15 @@ animation. tsc + biome checks passed. Committed and pushed (ae2dfa6).
 1. Locate the welcome guide `<Box>` setting item in `libs/components/july.tsx` diagnostics grid list.
 2. Insert a new User Name setting `<Box>` right after it, containing an interactive button displaying `userName` and triggering a window name prompt on click.
 3. Validate compiles cleanly with `npx tsc --noEmit` and formats with `npx biome check .`.
+
+## [2026-06-21] — Counter Mode Selector in settings diagnostics
+
+**Phase**: done
+**Score**: 42 / 45
+**Reasoning**: Currently, toggling the character/word input limit counter is only possible by clicking the small badge in the active input bar. Exposing this setting directly inside the Help diagnostics drawer improves discoverability. Furthermore, adding this 14th settings item fills the grid layout evenly (7 rows of 2 columns) with no empty slots.
+**Scope**: `libs/components/july.tsx` (modify — append Counter Mode setting Box to diagnostic settings grid list)
+**Outcome**: Added an interactive "Counter Mode" toggle button setting to the diagnostics settings grid in july.tsx, displaying current status ("Characters" or "Words") and allowing users to change it easily, while balancing the settings grid items to exactly 14.
+**Plan**:
+1. Locate the diagnostics settings grid container inside the Help Modal in `libs/components/july.tsx`.
+2. Insert a new Counter Mode selector `<Box>` containing an interactive button displaying `counterMode` status and toggling it on click.
+3. Validate compiles cleanly with `npx tsc --noEmit` and formats with `npx biome check .`.

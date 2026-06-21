@@ -3851,6 +3851,42 @@ export default function July() {
                       textTransform: 'uppercase',
                     }}
                   >
+                    Counter Mode
+                  </Typography>
+                  <Button
+                    onClick={() => {
+                      playChime('click');
+                      setCounterMode((prev) => (prev === 'char' ? 'word' : 'char'));
+                    }}
+                    sx={{
+                      background: 'none',
+                      border: 'none',
+                      outline: 'none',
+                      padding: 0,
+                      textTransform: 'none',
+                      justifyContent: 'flex-start',
+                      color: '#00dc8c',
+                      fontSize: 12,
+                      fontWeight: 300,
+                      '&:hover': {
+                        background: 'none',
+                        color: '#fff',
+                        textShadow: '0 0 8px rgba(0, 180, 255, 0.5)',
+                      },
+                    }}
+                  >
+                    {counterMode === 'char' ? 'Characters' : 'Words'}
+                  </Button>
+                </Box>
+
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.25 }}>
+                  <Typography
+                    sx={{
+                      color: 'rgba(160, 220, 255, 0.55)',
+                      fontSize: 10,
+                      textTransform: 'uppercase',
+                    }}
+                  >
                     Mic Threshold
                   </Typography>
                   <Typography sx={{ color: '#fff', fontWeight: 300, fontSize: 12 }}>
