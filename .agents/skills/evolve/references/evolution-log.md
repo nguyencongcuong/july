@@ -270,6 +270,20 @@ animation. tsc + biome checks passed. Committed and pushed (ae2dfa6).
 2. Wrap the reset button `onClick` callback logic in a `window.confirm("Reset all settings to defaults?")` validation condition block.
 3. Verify type correctness with `npx tsc --noEmit` and formatting with `npx biome check .`.
 
+## [2026-06-21] — Model Switch Toast and Chat Feed Click Focus
+
+**Phase**: done
+**Score**: 42 / 45
+**Reasoning**: Currently, switching the Gemini model under Settings diagnostics transitions quietly, and clicking empty spaces in the conversation list does nothing. Adding a visual toast and a futuristic wake chime on model change increases system transparency. Furthermore, focusing the input on empty container clicks makes desktop interactions feel natural and fluent.
+**Scope**: `libs/components/july.tsx` (modify — add onClick handle on scrollContainerRef Box to focus input on click, update activeModel button onClick to play wake chime and show toast)
+**Outcome**: Integrated visual toast confirmations and audio chime feedback triggers when switching models in settings diagnostics drawer. Bound input refocusing triggers on empty space clicks inside the scrollable message feed container, facilitating quick desktop keyboard typing.
+**Plan**:
+1. Add an `onClick` event handler to the `scrollContainerRef` `<Box>` in `libs/components/july.tsx` to automatically call `inputRef.current?.focus()` when the empty space of the chat feed container is clicked (where `e.target === e.currentTarget` and `micStatus === 'active'`).
+2. Update the `activeModel` cycle button's `onClick` inside the drawer in `libs/components/july.tsx` to play the `'wake'` chime and show a toast indicating the newly selected model label.
+3. Validate compiling (`npx tsc --noEmit`) and code formatting (`npx biome check .`).
+
+
+
 
 
 

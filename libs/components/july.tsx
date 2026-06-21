@@ -2459,6 +2459,11 @@ export default function July() {
             <Box
               ref={scrollContainerRef}
               onScroll={handleScroll}
+              onClick={(e) => {
+                if (e.target === e.currentTarget && micStatus === 'active') {
+                  inputRef.current?.focus();
+                }
+              }}
               className='july-scroll-container'
               sx={{
                 marginTop: 5,
@@ -3927,14 +3932,22 @@ export default function July() {
                   </Typography>
                   <Button
                     onClick={() => {
-                      playChime('click');
-                      setActiveModel((prev) =>
-                        prev === 'gemini-2.5-flash'
-                          ? 'gemini-2.5-pro'
-                          : prev === 'gemini-2.5-pro'
-                            ? 'gemini-2.0-flash'
-                            : 'gemini-2.5-flash'
-                      );
+                      playChime('wake');
+                      setActiveModel((prev) => {
+                        const next =
+                          prev === 'gemini-2.5-flash'
+                            ? 'gemini-2.5-pro'
+                            : prev === 'gemini-2.5-pro'
+                              ? 'gemini-2.0-flash'
+                              : 'gemini-2.5-flash';
+                        const labels: Record<string, string> = {
+                          'gemini-2.5-flash': 'Gemini 2.5 Flash',
+                          'gemini-2.5-pro': 'Gemini 2.5 Pro',
+                          'gemini-2.0-flash': 'Gemini 2.0 Flash',
+                        };
+                        showToast(`Active model: ${labels[next] || next}`);
+                        return next;
+                      });
                     }}
                     sx={{
                       background: 'none',
