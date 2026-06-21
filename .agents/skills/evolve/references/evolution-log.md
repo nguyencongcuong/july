@@ -382,3 +382,17 @@ animation. tsc + biome checks passed. Committed and pushed (ae2dfa6).
 2. Convert both from static `<Typography>` elements to interactive `<Button>` components.
 3. Hook up Playback Speed to cycle speeds on click, and Audio Feedback to toggle mute state on click, playing sound chimes and showing toasts.
 4. Validate compiles cleanly with `npx tsc --noEmit` and formats with `npx biome check .`.
+
+## [2026-06-21] — Local Storage Persistence for Audio Mute and Playback Speed
+
+**Phase**: done
+**Score**: 42 / 45
+**Reasoning**: Currently, the mute state (`isMuted`) and `playbackSpeed` reset to defaults on every page reload. Persisting them to localStorage and updating the Defaults Reset action to properly clear them ensures audio preference selections are persistent.
+**Scope**: `libs/components/july.tsx` (modify — add local storage hydration, serialization effects, and defaults reset for isMuted and playbackSpeed)
+**Outcome**: Added localStorage persistence hooks for both isMuted and playbackSpeed configurations in july.tsx, and updated the Defaults Reset handler to cleanly reset and clear their keys.
+**Plan**:
+1. Add hydration checks for `july_is_muted` and `july_playback_speed` in client mount `useEffect` inside `libs/components/july.tsx`.
+2. Add synchronization `useEffect` hooks for `isMuted` and `playbackSpeed` to persist changes.
+3. Update settings Defaults Reset onClick callback to reset both values and remove their localStorage entries.
+4. Validate compiles cleanly with `npx tsc --noEmit` and formats with `npx biome check .`.
+

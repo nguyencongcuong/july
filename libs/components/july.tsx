@@ -215,6 +215,16 @@ export default function July() {
       if (savedFontSize) setMessageFontSize(savedFontSize as 'small' | 'medium' | 'large');
     } catch {}
 
+    try {
+      const savedMute = localStorage.getItem('july_is_muted');
+      if (savedMute !== null) setIsMuted(savedMute === 'true');
+    } catch {}
+
+    try {
+      const savedSpeed = localStorage.getItem('july_playback_speed');
+      if (savedSpeed !== null) setPlaybackSpeed(Number(savedSpeed));
+    } catch {}
+
     setSessionStartTime(Date.now());
     setIsLoaded(true);
   }, []);
@@ -282,6 +292,16 @@ export default function July() {
     if (!isLoaded) return;
     localStorage.setItem('july_counter_mode', counterMode);
   }, [counterMode, isLoaded]);
+
+  useEffect(() => {
+    if (!isLoaded) return;
+    localStorage.setItem('july_is_muted', isMuted.toString());
+  }, [isMuted, isLoaded]);
+
+  useEffect(() => {
+    if (!isLoaded) return;
+    localStorage.setItem('july_playback_speed', playbackSpeed.toString());
+  }, [playbackSpeed, isLoaded]);
 
   const getCounterText = () => {
     if (counterMode === 'char') {
@@ -4189,6 +4209,7 @@ export default function July() {
                   setResponseLength('detailed');
                   setActiveModel('gemini-2.5-flash');
                   setInputText('');
+                  setIsMuted(false);
 
                   // Remove items from local storage to clean up
                   localStorage.removeItem('july_speaking_threshold');
@@ -4202,6 +4223,8 @@ export default function July() {
                   localStorage.removeItem('july_counter_mode');
                   localStorage.removeItem('july_response_length');
                   localStorage.removeItem('july_active_model');
+                  localStorage.removeItem('july_is_muted');
+                  localStorage.removeItem('july_playback_speed');
 
                   showToast('Settings reset to default');
                 }}
