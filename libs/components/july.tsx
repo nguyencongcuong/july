@@ -2658,7 +2658,13 @@ export default function July() {
                               component='span'
                               sx={{
                                 fontSize: 9,
-                                color: 'rgba(0, 220, 140, 0.45)',
+                                color: (() => {
+                                  const sec = parseFloat(msg.latency);
+                                  if (Number.isNaN(sec)) return 'rgba(0, 220, 140, 0.45)';
+                                  if (sec < 1.5) return 'rgba(0, 220, 140, 0.65)';
+                                  if (sec < 3.0) return 'rgba(255, 150, 40, 0.65)';
+                                  return 'rgba(255, 100, 100, 0.65)';
+                                })(),
                                 marginRight: 0.5,
                                 letterSpacing: '0.04em',
                                 userSelect: 'none',
@@ -3102,6 +3108,7 @@ export default function July() {
                     </Button>
                     <IconButton
                       onClick={() => {
+                        playChime('click');
                         setInputText('');
                         inputRef.current?.focus();
                       }}
