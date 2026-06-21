@@ -322,8 +322,14 @@ animation. tsc + biome checks passed. Committed and pushed (ae2dfa6).
 3. Ensure the interval is cleared properly in the effect clean-up callback.
 4. Run compiler validations (`npx tsc --noEmit`) and biome formatting (`npx biome check .`).
 
+## [2026-06-21] — Interactive User Name Editor in settings diagnostics
 
-
-
-
-
+**Phase**: done
+**Score**: 42 / 45
+**Reasoning**: Currently, double-clicking the welcome greeting is the only way to rename the user, but this greeting becomes completely hidden once any messages populate the chat history. Adding a "User Name" button setting to the diagnostics drawer ensures users can change their name at any point.
+**Scope**: `libs/components/july.tsx` (modify — append User Name settings grid element to diagnostic grid list in help modal)
+**Outcome**: Added an interactive "User Name" setting button to the diagnostics settings grid in july.tsx, allowing users to rename themselves at any time (even after the Welcome Guide is hidden).
+**Plan**:
+1. Locate the welcome guide `<Box>` setting item in `libs/components/july.tsx` diagnostics grid list.
+2. Insert a new User Name setting `<Box>` right after it, containing an interactive button displaying `userName` and triggering a window name prompt on click.
+3. Validate compiles cleanly with `npx tsc --noEmit` and formats with `npx biome check .`.
