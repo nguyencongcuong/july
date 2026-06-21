@@ -1133,7 +1133,15 @@ export default function July() {
           return;
         }
 
-        // 5. Any other single character -> Auto-focus input
+        // 7. '/' -> Focus input (without typing '/')
+        if (e.key === '/' && micStatus === 'active') {
+          e.preventDefault();
+          playChime('click');
+          inputRef.current?.focus();
+          return;
+        }
+
+        // 8. Any other single character -> Auto-focus input
         if (
           e.key.length === 1 &&
           !e.metaKey &&

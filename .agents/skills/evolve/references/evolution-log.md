@@ -345,3 +345,15 @@ animation. tsc + biome checks passed. Committed and pushed (ae2dfa6).
 1. Locate the diagnostics settings grid container inside the Help Modal in `libs/components/july.tsx`.
 2. Insert a new Counter Mode selector `<Box>` containing an interactive button displaying `counterMode` status and toggling it on click.
 3. Validate compiles cleanly with `npx tsc --noEmit` and formats with `npx biome check .`.
+
+## [2026-06-21] — Keyboard Shortcut to Focus Input
+
+**Phase**: done
+**Score**: 42 / 45
+**Reasoning**: Currently, focusing the chat input box requires either clicking it manually or typing a character (which types that character into the input). Adding a standard `/` keyboard shortcut (when the input is not focused) focuses the empty text input directly without typing the `/` character, matching standard search/chat behaviors.
+**Scope**: `libs/components/july.tsx` (modify — add '/' key listener to global handleGlobalKeyDown effect)
+**Outcome**: Added the '/' keyboard shortcut key trigger inside handleGlobalKeyDown in july.tsx, enabling users to instantly focus the empty input bar without typing the slash character.
+**Plan**:
+1. Locate `handleGlobalKeyDown` in the main layout `useEffect` hook inside `libs/components/july.tsx`.
+2. Add a key validation check for `/`. If pressed when the user is not typing (`!isTyping`) and the chat interface is active (`micStatus === 'active'`), trigger `preventDefault()` and focus `inputRef.current`.
+3. Validate compiles cleanly with `npx tsc --noEmit` and formats with `npx biome check .`.
