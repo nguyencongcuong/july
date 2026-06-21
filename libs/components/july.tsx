@@ -622,7 +622,8 @@ export default function July() {
 
   const handleDeleteMessage = useCallback(
     (index: number) => {
-      playChime('click');
+      if (!window.confirm('Delete this message?')) return;
+      playChime('clear');
       setMessages((prev) => prev.filter((_, i) => i !== index));
     },
     [playChime]

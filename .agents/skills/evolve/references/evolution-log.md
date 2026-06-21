@@ -282,6 +282,21 @@ animation. tsc + biome checks passed. Committed and pushed (ae2dfa6).
 2. Update the `activeModel` cycle button's `onClick` inside the drawer in `libs/components/july.tsx` to play the `'wake'` chime and show a toast indicating the newly selected model label.
 3. Validate compiling (`npx tsc --noEmit`) and code formatting (`npx biome check .`).
 
+## [2026-06-21] — Individual Message Deletion Confirmation
+
+**Phase**: done
+**Score**: 41 / 45
+**Reasoning**: Currently, clicking the delete icon next to a message bubble immediately deletes it permanently from state and history without any confirmation, which can lead to accidental text loss. Adding a quick window.confirm check ensures users intend to delete, and playing the clear chime sound on delete improves tactile response.
+**Scope**: `libs/components/july.tsx` (modify — add confirm dialog guard to handleDeleteMessage callback and change chime to clear)
+**Outcome**: Integrated a confirmation dialog guard inside individual message deletion logic (`handleDeleteMessage`). Wiping a single message now asks the user to confirm via window.confirm, playing a specific clear chime sound on deletion to indicate success.
+**Plan**:
+1. Locate `handleDeleteMessage` callback in `libs/components/july.tsx`.
+2. Add a `window.confirm('Delete this message?')` validation check block at the start of `handleDeleteMessage` to prevent accidental clicks.
+3. Change the sound chime played on deletion from `'click'` to `'clear'`.
+4. Validate types with `npx tsc --noEmit` and code formatting with `npx biome check .`.
+
+
+
 
 
 
