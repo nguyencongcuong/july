@@ -3748,9 +3748,34 @@ export default function July() {
                   >
                     Playback Speed
                   </Typography>
-                  <Typography sx={{ color: '#fff', fontWeight: 300, fontSize: 12 }}>
+                  <Button
+                    onClick={() => {
+                      playChime('click');
+                      setPlaybackSpeed((prev) => {
+                        const next = prev === 1 ? 1.2 : prev === 1.2 ? 1.5 : 1.0;
+                        showToast(`Playback speed: ${next.toFixed(1)}x`);
+                        return next;
+                      });
+                    }}
+                    sx={{
+                      background: 'none',
+                      border: 'none',
+                      outline: 'none',
+                      padding: 0,
+                      textTransform: 'none',
+                      justifyContent: 'flex-start',
+                      color: '#00dc8c',
+                      fontSize: 12,
+                      fontWeight: 300,
+                      '&:hover': {
+                        background: 'none',
+                        color: '#fff',
+                        textShadow: '0 0 8px rgba(0, 180, 255, 0.5)',
+                      },
+                    }}
+                  >
                     {playbackSpeed.toFixed(1)}x
-                  </Typography>
+                  </Button>
                 </Box>
 
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.25 }}>
@@ -3763,15 +3788,34 @@ export default function July() {
                   >
                     Audio Feedback
                   </Typography>
-                  <Typography
+                  <Button
+                    onClick={() => {
+                      playChime('click');
+                      setIsMuted((prev) => {
+                        const next = !prev;
+                        showToast(next ? 'Voice responses muted' : 'Voice responses enabled');
+                        return next;
+                      });
+                    }}
                     sx={{
+                      background: 'none',
+                      border: 'none',
+                      outline: 'none',
+                      padding: 0,
+                      textTransform: 'none',
+                      justifyContent: 'flex-start',
                       color: isMuted ? 'rgba(255, 100, 100, 0.75)' : '#00dc8c',
-                      fontWeight: 300,
                       fontSize: 12,
+                      fontWeight: 300,
+                      '&:hover': {
+                        background: 'none',
+                        color: '#fff',
+                        textShadow: '0 0 8px rgba(0, 180, 255, 0.5)',
+                      },
                     }}
                   >
                     {isMuted ? 'Muted' : 'Enabled'}
-                  </Typography>
+                  </Button>
                 </Box>
 
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.25 }}>

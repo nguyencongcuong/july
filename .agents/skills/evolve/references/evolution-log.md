@@ -369,3 +369,16 @@ animation. tsc + biome checks passed. Committed and pushed (ae2dfa6).
 1. Locate the `Cmd+K` / `Ctrl+K` key down check block in `handleGlobalKeyDown` inside `libs/components/july.tsx`.
 2. Wrap the clearing state modifications (`setMessages([])`, etc.) inside a `window.confirm("Clear all conversation history?")` block.
 3. Validate compiles cleanly with `npx tsc --noEmit` and formats with `npx biome check .`.
+
+## [2026-06-21] — Interactive Playback Speed and Audio Feedback settings
+
+**Phase**: done
+**Score**: 43.5 / 45
+**Reasoning**: Currently, Playback Speed and Audio Feedback indicators are rendered as static labels, requiring keyboard shortcuts to cycle or toggle them. Converting them to interactive buttons makes the Settings diagnostics panel fully interactive, allowing direct mouse control consistent with other setting options.
+**Scope**: `libs/components/july.tsx` (modify — convert playback speed and audio feedback settings text labels into interactive buttons)
+**Outcome**: Converted static labels for Playback Speed and Audio Feedback in the settings diagnostics panel to interactive buttons in july.tsx, linking them to cycle and toggle state on mouse clicks.
+**Plan**:
+1. Locate the Playback Speed and Audio Feedback setting items inside the Help Modal diagnostic grid in `libs/components/july.tsx`.
+2. Convert both from static `<Typography>` elements to interactive `<Button>` components.
+3. Hook up Playback Speed to cycle speeds on click, and Audio Feedback to toggle mute state on click, playing sound chimes and showing toasts.
+4. Validate compiles cleanly with `npx tsc --noEmit` and formats with `npx biome check .`.
