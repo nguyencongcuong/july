@@ -1062,15 +1062,17 @@ export default function July() {
   // Global keydown event listener for custom shortcuts and auto-focus
   useEffect(() => {
     const handleGlobalKeyDown = (e: KeyboardEvent) => {
-      // 1. Cmd+K or Ctrl+K -> Clear history
+      // 1. Cmd+K or Ctrl+K -> Clear history (with confirmation)
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault();
-        setMessages([]);
-        setConfirmClear(false);
-        playChime('clear');
-        if (confirmClearTimeoutRef.current) {
-          clearTimeout(confirmClearTimeoutRef.current);
-          confirmClearTimeoutRef.current = null;
+        if (window.confirm('Clear all conversation history?')) {
+          setMessages([]);
+          setConfirmClear(false);
+          playChime('clear');
+          if (confirmClearTimeoutRef.current) {
+            clearTimeout(confirmClearTimeoutRef.current);
+            confirmClearTimeoutRef.current = null;
+          }
         }
         return;
       }

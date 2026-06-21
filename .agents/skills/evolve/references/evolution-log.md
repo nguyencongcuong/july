@@ -357,3 +357,15 @@ animation. tsc + biome checks passed. Committed and pushed (ae2dfa6).
 1. Locate `handleGlobalKeyDown` in the main layout `useEffect` hook inside `libs/components/july.tsx`.
 2. Add a key validation check for `/`. If pressed when the user is not typing (`!isTyping`) and the chat interface is active (`micStatus === 'active'`), trigger `preventDefault()` and focus `inputRef.current`.
 3. Validate compiles cleanly with `npx tsc --noEmit` and formats with `npx biome check .`.
+
+## [2026-06-21] — Clear Chat Shortcut Confirmation Guard
+
+**Phase**: done
+**Score**: 42 / 45
+**Reasoning**: Currently, the Cmd+K/Ctrl+K shortcut immediately wipes all conversation history and states without any validation, whereas the clear button in the UI uses a safe confirmation mechanism. Adding a `window.confirm` guard prevents accidental clearing via shortcut triggers.
+**Scope**: `libs/components/july.tsx` (modify — add confirm dialog guard to Cmd+K/Ctrl+K keydown handler block)
+**Outcome**: Wrapped state changes and chimes in the Cmd+K/Ctrl+K keydown handler inside a window.confirm dialog guard, matching the safety behavior of the UI clear chat button.
+**Plan**:
+1. Locate the `Cmd+K` / `Ctrl+K` key down check block in `handleGlobalKeyDown` inside `libs/components/july.tsx`.
+2. Wrap the clearing state modifications (`setMessages([])`, etc.) inside a `window.confirm("Clear all conversation history?")` block.
+3. Validate compiles cleanly with `npx tsc --noEmit` and formats with `npx biome check .`.
