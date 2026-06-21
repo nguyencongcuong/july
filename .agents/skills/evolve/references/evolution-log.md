@@ -309,16 +309,18 @@ animation. tsc + biome checks passed. Committed and pushed (ae2dfa6).
 4. Trigger `playChime('click')` inside this clean button `onClick` handler.
 5. Validate compiles with `npx tsc --noEmit` and formats with `npx biome check .`.
 
+## [2026-06-21] — Tab Title Speaker Wave animation while speaking
 
-
-
-
-
-
-
-
-
-
+**Phase**: done
+**Score**: 39 / 45
+**Reasoning**: Currently, the tab title shows a static speaker emoji (`🔊 July (Speaking...)`) when July is speaking. Introducing a cycling animation (`🔈` -> `🔉` -> `🔊` -> `🔉`) visually reflects active audio synthesis directly in the browser tab. This is lightweight (< 15 LOC), has zero regression risk, and adds premium visual polish.
+**Scope**: `libs/components/july.tsx` (modify — update tab title updates useEffect to set a clean animation interval while responding)
+**Outcome**: Animated the browser tab title speaker icon by cycling through speaker emojis (`🔈` -> `🔉` -> `🔊` -> `🔉`) while July is speaking/responding, which clears properly on status changes.
+**Plan**:
+1. Locate the dynamic browser tab title updates `useEffect` hook in `libs/components/july.tsx`.
+2. Update the `isResponding` block to dynamically cycle through speaker emoji frames (`['🔈', '🔉', '🔊', '🔉']`) using `setInterval`.
+3. Ensure the interval is cleared properly in the effect clean-up callback.
+4. Run compiler validations (`npx tsc --noEmit`) and biome formatting (`npx biome check .`).
 
 
 

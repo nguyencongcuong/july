@@ -411,16 +411,26 @@ export default function July() {
   // Dynamic browser tab title updates
   useEffect(() => {
     const originalTitle = 'July';
-    let title = originalTitle;
+    let interval: ReturnType<typeof setInterval> | null = null;
+
     if (isProcessing) {
-      title = '● July (Thinking...)';
+      document.title = '● July (Thinking...)';
     } else if (isResponding) {
-      title = '🔊 July (Speaking...)';
+      const frames = ['🔈', '🔉', '🔊', '🔉'];
+      let frameIdx = 0;
+      document.title = `${frames[frameIdx]} July (Speaking...)`;
+      interval = setInterval(() => {
+        frameIdx = (frameIdx + 1) % frames.length;
+        document.title = `${frames[frameIdx]} July (Speaking...)`;
+      }, 500);
     } else if (isMuted) {
-      title = 'July (Muted)';
+      document.title = 'July (Muted)';
+    } else {
+      document.title = originalTitle;
     }
-    document.title = title;
+
     return () => {
+      if (interval) clearInterval(interval);
       document.title = originalTitle;
     };
   }, [isProcessing, isResponding, isMuted]);
