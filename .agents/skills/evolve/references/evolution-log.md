@@ -258,6 +258,20 @@ animation. tsc + biome checks passed. Committed and pushed (ae2dfa6).
 3. Configure `title` and CSS pointer styling (`cursor: 'pointer'`, hover neon colors transition) to visually mark interactivity.
 4. Run compiler `npx tsc --noEmit` and formatting `npx biome check .` to verify.
 
+## [2026-06-21] — Settings Reset Dialog Confirmation
+
+**Phase**: done
+**Score**: 41 / 45
+**Reasoning**: Currently, clicking the "Reset to Defaults" button in Settings immediately wipes all custom settings (model speed, voice volume, font size, model version) and stored history without any confirmation, which can lead to frustrating accidental losses. Adding a prompt confirmation ensures the action is deliberate.
+**Scope**: `libs/components/july.tsx` (modify — add window.confirm validation guard before resetting settings in default reset button click handler)
+**Outcome**: Integrated a confirmation popup dialog inside the Reset to Defaults settings action handler in july.tsx. Users are now asked to explicitly approve setting resets via window.confirm, preventing accidental loss of custom model configurations, chimes volumes, and font sizes.
+**Plan**:
+1. Locate the default reset button in `libs/components/july.tsx`.
+2. Wrap the reset button `onClick` callback logic in a `window.confirm("Reset all settings to defaults?")` validation condition block.
+3. Verify type correctness with `npx tsc --noEmit` and formatting with `npx biome check .`.
+
+
+
 
 
 

@@ -4009,6 +4009,7 @@ export default function July() {
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', marginTop: 1 }}>
               <Button
                 onClick={() => {
+                  if (!window.confirm('Reset all session settings to defaults?')) return;
                   playChime('clear');
 
                   // Revert states
